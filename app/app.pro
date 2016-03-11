@@ -134,3 +134,18 @@ else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdl
 else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/zlib/release/zlib.lib
 else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/zlib/debug/zlib.lib
 else:unix: PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/zlib/libzlib.a
+
+
+# --- QTMyPaint ---
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../3rdlib/QTMyPaint/release/ -lQTMyPaint
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../3rdlib/QTMyPaint/debug/ -lQTMyPaint
+else:unix: LIBS += -L$$OUT_PWD/../3rdlib/QTMyPaint/ -lQTMyPaint
+
+INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint
+DEPENDPATH += $$PWD/../3rdlib/QTMyPaint
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/release/libQTMyPaint.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/debug/libQTMyPaint.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/release/QTMyPaint.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/debug/QTMyPaint.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/libQTMyPaint.a
