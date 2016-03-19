@@ -221,7 +221,7 @@ private:
     QColor mOnionColor;
 
     bool mNeedUpdateAll = false;
-  
+
 
 private: 
 

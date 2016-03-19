@@ -94,7 +94,8 @@ HEADERS +=  \
     managers/soundmanager.h \
     interface/backgroundwidget.h \
     structure/editorstate.h \
-    structure/filemanager.h
+    structure/filemanager.h \
+    interface/mypaintview.h
 
 
 SOURCES +=  graphics/bitmap/bitmapimage.cpp \
@@ -159,7 +160,8 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     managers/soundmanager.cpp \
     interface/backgroundwidget.cpp \
     structure/editorstate.cpp \
-    structure/filemanager.cpp
+    structure/filemanager.cpp \
+    interface/mypaintview.cpp
 
 win32 {
     CONFIG -= flat
@@ -185,4 +187,11 @@ DEPENDPATH += $$PWD/../3rdlib/quazip
 
 INCLUDEPATH += $$PWD/../3rdlib/zlib
 
+INCLUDEPATH += $$PWD/../3rdlib/json-c
+DEPENDPATH += $$PWD/../3rdlib/json-c
+
 INCLUDEPATH += $$PWD/../3rdlib/libmypaint
+DEPENDPATH += $$PWD/../3rdlib/libmypaint
+
+INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint
+DEPENDPATH += $$PWD/../3rdlib/QTMyPaint

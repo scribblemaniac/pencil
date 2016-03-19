@@ -33,6 +33,7 @@ GNU General Public License for more details.
 #include <QDesktopWidget>
 #include <QDesktopServices>
 #include <QGraphicsDropShadowEffect>
+#include <QGraphicsView>
 #include <QStatusBar>
 
 #include "pencildef.h"
