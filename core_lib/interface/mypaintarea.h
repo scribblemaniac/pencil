@@ -14,31 +14,27 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 */
-#ifndef MYPAINTVIEW_H
-#define MYPAINTVIEW_H
+#ifndef MYPAINTAREA_H
+#define MYPAINTAREA_H
 
-#include <QMainWindow>
+#include <QObject>
 #include <QWidget>
 #include <QGraphicsView>
 #include <QMouseEvent>
-#include <QPushButton>
-#include <QColorDialog>
 
 #include "mphandler.h"
 #include "mpbrush.h"
 #include "mpsurface.h"
 #include "mptile.h"
 
-class MyPaintView : public QGraphicsView
+class MypaintArea : public QGraphicsView
 {
-    Q_OBJECT
 
 public:
-    MyPaintView();
-    ~MyPaintView();
+    MypaintArea();
+    ~MypaintArea();
 
 private:
-
     QGraphicsScene m_scene;
     QColor m_color;
     bool using_tablet;
@@ -51,10 +47,10 @@ protected:
 
 public slots:
     //  void BrushSelected(const QByteArray& content);
-    void btnChgColorPressed();
 
     void onNewTile(MPSurface *surface, MPTile *tile);
     void onUpdateTile(MPSurface *surface, MPTile *tile);
+
 };
 
-#endif // MYPAINTVIEW_H
+#endif // MYPAINTAREA_H

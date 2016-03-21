@@ -18,17 +18,14 @@ GNU General Public License for more details.
 #include <QBrush>
 #include <QPixmap>
 
-#include "mypaintview.h"
+#include "mphandler.h"
+#include "mpbrush.h"
+#include "mpsurface.h"
+#include "mptile.h"
+#include "mypaintarea.h"
 
-MyPaintView::MyPaintView()
+MypaintArea::MypaintArea()
 {
-
-}
-
-MyPaintView::~MyPaintView()
-{
-    using_tablet = false;
-
     MPHandler *mypaint = MPHandler::handler();
 
     connect(mypaint, SIGNAL(newTile(MPSurface*, MPTile*)), this, SLOT(onNewTile(MPSurface*, MPTile*)));
@@ -42,19 +39,24 @@ MyPaintView::~MyPaintView()
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 }
 
-void MyPaintView::onNewTile(MPSurface *surface, MPTile *tile)
+MypaintArea::~MypaintArea()
+{
+
+}
+
+void MypaintArea::onNewTile(MPSurface *surface, MPTile *tile)
 {
     Q_UNUSED(surface);
     m_scene.addItem(tile);
 }
 
-void MyPaintView::onUpdateTile(MPSurface *surface, MPTile *tile)
+void MypaintArea::onUpdateTile(MPSurface *surface, MPTile *tile)
 {
     Q_UNUSED(surface);
     tile->update();
 }
 
-void MyPaintView::tabletEvent(QTabletEvent *event)
+void MypaintArea::tabletEvent(QTabletEvent *event)
 {
     switch (event->type()) {
         case QEvent::TabletPress:
@@ -84,13 +86,13 @@ void MyPaintView::tabletEvent(QTabletEvent *event)
     }
 }
 
-void MyPaintView::mousePressEvent(QMouseEvent *event)
+void MypaintArea::mousePressEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
     MPHandler::handler()->startStroke();
 }
 
-void MyPaintView::mouseMoveEvent(QMouseEvent *event)
+void MypaintArea::mouseMoveEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
 
@@ -100,22 +102,8 @@ void MyPaintView::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void MyPaintView::mouseReleaseEvent(QMouseEvent *event)
+void MypaintArea::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
     // Finalize the stroke sequence.
-}
-
-void MyPaintView::btnChgColorPressed()
-{
-    QPushButton* p_btn = dynamic_cast<QPushButton*>(sender());
-    if (p_btn) {
-        QColor newColor = QColorDialog::getColor(m_color, window(), "Select the brush color", QColorDialog::ShowAlphaChannel);
-        if (newColor.isValid()) {
-            p_btn->setStyleSheet(QString("color: %1; background-color: %2;").arg((newColor.lightnessF()>0.5)?"black":"white").arg(newColor.name()));
-
-            MPHandler *mypaint = MPHandler::handler();
-            mypaint->setBrushColor(newColor);
-        }
-    }
 }

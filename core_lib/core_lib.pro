@@ -95,7 +95,7 @@ HEADERS +=  \
     interface/backgroundwidget.h \
     structure/editorstate.h \
     structure/filemanager.h \
-    interface/mypaintview.h
+    interface/mypaintarea.h
 
 
 SOURCES +=  graphics/bitmap/bitmapimage.cpp \
@@ -161,11 +161,11 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     interface/backgroundwidget.cpp \
     structure/editorstate.cpp \
     structure/filemanager.cpp \
-    interface/mypaintview.cpp
+    interface/mypaintarea.cpp
 
 win32 {
     CONFIG -= flat
-	CONFIG += grouped
+        CONFIG += grouped
 
     INCLUDEPATH += external/win32
     SOURCES += external/win32/win32.cpp
@@ -187,11 +187,9 @@ DEPENDPATH += $$PWD/../3rdlib/quazip
 
 INCLUDEPATH += $$PWD/../3rdlib/zlib
 
-INCLUDEPATH += $$PWD/../3rdlib/json-c
-DEPENDPATH += $$PWD/../3rdlib/json-c
+INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/json-c
 
-INCLUDEPATH += $$PWD/../3rdlib/libmypaint
-DEPENDPATH += $$PWD/../3rdlib/libmypaint
+INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/libmypaint
 
-INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint
-DEPENDPATH += $$PWD/../3rdlib/QTMyPaint
+INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/src
+DEPENDPATH += $$PWD/../3rdlib/QTMyPaint/src

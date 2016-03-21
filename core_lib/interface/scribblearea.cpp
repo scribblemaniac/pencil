@@ -34,6 +34,7 @@ GNU General Public License for more details.
 #include "layermanager.h"
 #include "playbackmanager.h"
 //#include "popupcolorpalettewidget.h"
+#include "mypaintarea.h"
 
 
 #define round(f) ((int)(f + 0.5))
@@ -49,6 +50,8 @@ mLog( "ScribbleArea" )
     setAttribute( Qt::WA_StaticContents );
 
     mStrokeManager = new StrokeManager();
+
+    MypaintArea *mMypaintArea = new MypaintArea();
 }
 
 ScribbleArea::~ScribbleArea()
