@@ -22,6 +22,7 @@ GNU General Public License for more details.
 BitmapImage::BitmapImage()
 {
     mImage = new QImage( 1, 1, QImage::Format_ARGB32_Premultiplied );
+    mImage->fill(QColor(Qt::transparent));
     mBounds = QRect( 0, 0, 0, 0 );
 }
 
@@ -74,6 +75,7 @@ void BitmapImage::setImage( QImage* img )
     {
         SAFE_RELEASE( mImage );
         mImage = img;
+        mBounds = img->rect();
     }
 }
 
@@ -119,7 +121,7 @@ void outputImage(QImage* image, QSize size, QTransform myView)
 
 BitmapImage BitmapImage::copy()
 {
-    return BitmapImage(mBounds, QImage(*mImage));
+    return BitmapImage(QRect(topLeft(), mImage->size()), QImage(*mImage));
 }
 
 BitmapImage BitmapImage::copy(QRect rectangle)
@@ -313,6 +315,26 @@ void BitmapImage::moveTopLeft(QPoint point)
     mBounds.moveTopLeft(point);
 }
 
+void BitmapImage::transform(QTransform transform, bool smoothTransform)
+{
+    QRectF transformedRect = transform.mapRect(mBounds);
+    mBounds = transformedRect.toRect();
+
+    QImage* newImage;
+
+    if (smoothTransform) {
+        newImage = new QImage(mImage->transformed(transform, Qt::SmoothTransformation));
+    }
+    else {
+        newImage = new QImage(mImage->transformed(transform));
+    }
+
+
+    if (mImage != NULL) delete mImage;
+    mImage = newImage;
+
+}
+
 void BitmapImage::transform(QRect newBoundaries, bool smoothTransform)
 {
     //if (boundaries != newBoundaries)
@@ -320,7 +342,8 @@ void BitmapImage::transform(QRect newBoundaries, bool smoothTransform)
         mBounds = newBoundaries;
         newBoundaries.moveTopLeft( QPoint(0,0) );
         QImage* newImage = new QImage( mBounds.size(), QImage::Format_ARGB32_Premultiplied);
-        //newImage->fill(QColor(255,255,255).rgb());
+        newImage->fill(QColor(Qt::transparent));
+
         QPainter painter(newImage);
         painter.setRenderHint(QPainter::SmoothPixmapTransform, smoothTransform);
         painter.setCompositionMode(QPainter::CompositionMode_Source);
@@ -328,9 +351,10 @@ void BitmapImage::transform(QRect newBoundaries, bool smoothTransform)
         painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter.drawImage(newBoundaries, *mImage );
         painter.end();
-        //if (image != NULL) delete image;
+
+        if (mImage != NULL) delete mImage;
         mImage = newImage;
-        //}
+    //}
 }
 
 BitmapImage BitmapImage::transformed(QRect selection, QTransform transform, bool smoothTransform)

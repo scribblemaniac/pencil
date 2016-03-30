@@ -108,13 +108,14 @@ void PencilTool::mousePressEvent( QMouseEvent *event )
         mEditor->backup( typeName() );
 
         mScribbleArea->setAllDirty();
-        startStroke(); //start and appends first stroke
+        mScribbleArea->startStroke(); //start and appends first stroke
 
         //Layer *layer = m_pEditor->getCurrentLayer();
 
         if ( mEditor->layers()->currentLayer()->type() == Layer::BITMAP ) // in case of bitmap, first pixel(mouseDown) is drawn
         {
-            drawStroke();
+//            drawStroke();
+            mScribbleArea->strokeTo(event->pos());
         }
         else {
             if ( !mEditor->preference()->isOn(SETTING::INVISIBLE_LINES) )
@@ -132,7 +133,8 @@ void PencilTool::mouseMoveEvent( QMouseEvent *event )
     {
         if ( event->buttons() & Qt::LeftButton )
         {
-            drawStroke();
+//            drawStroke();
+            mScribbleArea->strokeTo(event->pos());
         }
     }
 }
@@ -200,6 +202,7 @@ void PencilTool::drawStroke()
 
     if ( layer->type() == Layer::BITMAP )
     {
+
         qreal opacity = mCurrentPressure * mCurrentPressure;
 
         mCurrentWidth = properties.width * mCurrentPressure;

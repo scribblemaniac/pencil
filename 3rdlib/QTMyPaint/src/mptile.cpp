@@ -22,9 +22,7 @@
 MPTile::MPTile(QGraphicsItem * parent) : QGraphicsItem(parent), m_cache_img(k_tile_dim, k_tile_dim, QImage::Format_ARGB32_Premultiplied)
 {
     setCacheMode(QGraphicsItem::NoCache);
-    memset(t_pixels, 0, sizeof(t_pixels)); // Tile is transparent for now
-    m_cache_img.fill( QColor(0,0,0,0) ); // image cache is transparent too, and aligned to the pixel table:
-    m_cache_valid = true;
+    clear(); //Default tiles are transparent
 }
 
 MPTile::~MPTile()
@@ -94,10 +92,16 @@ void MPTile::updateCache()
               CONV_16_8(t_pixels[y][x][k_red]),
               CONV_16_8(t_pixels[y][x][k_green]),
               CONV_16_8(t_pixels[y][x][k_blue]),
-              CONV_16_8(alpha)) :
-              0; // aplha is 0 => all is zero (little optimization)
+              CONV_16_8(alpha)) : 0; // aplha is 0 => all is zero (little optimization)
               dst++; // next image pixel...
          }
     }
     m_cache_valid = true;
+}
+
+void MPTile::clear()
+{
+    memset(t_pixels, 0, sizeof(t_pixels)); // Tile is transparent
+    m_cache_img.fill( QColor(Qt::transparent) ); // image cache is transparent too, and aligned to the pixel table:
+    updateCache();
 }

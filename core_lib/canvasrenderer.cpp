@@ -72,21 +72,23 @@ void CanvasRenderer::ignoreTransformedSelection()
 
 void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect )
 {
+    Q_UNUSED(rect);
+
     Q_ASSERT( object );
     mObject = object;
 
     mLayerIndex = layer;
     mFrameNumber = frame;
 
-    QPainter painter( mCanvas );
+    // Clear Canvas
+    mCanvas->fill( Qt::transparent );
 
+    // Paint Canvas
+    QPainter painter;
+    painter.begin(mCanvas);
     painter.setWorldTransform( mViewTransform );
     painter.setRenderHint( QPainter::SmoothPixmapTransform, mOptions.bAntiAlias );
     painter.setRenderHint( QPainter::Antialiasing, true );
-
-    // Don't set clip rect, paint whole canvas.
-    //painter.setClipRect( rect );
-    //painter.setClipping( true );
 
     painter.setWorldMatrixEnabled( true );
 
@@ -105,11 +107,13 @@ void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect )
     {
         paintGrid( painter );
     }
+    painter.end();
 }
 
 void CanvasRenderer::paintBackground( QPainter& painter )
 {
-    mCanvas->fill( Qt::transparent );
+    Q_UNUSED(painter);
+    // Paint custom background
 }
 
 void CanvasRenderer::paintOnionSkin( QPainter& painter )
@@ -456,7 +460,6 @@ void CanvasRenderer::paintCameraBorder(QPainter &painter)
 
             QRectF viewRect = painter.viewport();
             QRect boundingRect = mViewTransform.inverted().mapRect( viewRect ).toRect();
-
 
             LayerCamera* cameraLayer = dynamic_cast< LayerCamera* >( layer );
 

@@ -80,15 +80,6 @@ MainWindow2::MainWindow2( QWidget *parent ) : QMainWindow( parent )
     mScribbleArea = new ScribbleArea( mBackground );
     mScribbleArea->setFocusPolicy( Qt::StrongFocus );
 
-    // Show the UI over the background
-    //
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->setSpacing(0);
-    layout->setMargin(0);
-    layout->setContentsMargins(0,0,0,0);
-    layout->addWidget(mScribbleArea);
-
-    mBackground->setLayout(layout);
 
     // Central widget
     setCentralWidget(mBackground);
@@ -138,6 +129,12 @@ MainWindow2::~MainWindow2()
     delete ui;
 }
 
+void MainWindow2::resizeEvent( QResizeEvent *event )
+{
+    Q_UNUSED( event );
+    mScribbleArea->setGeometry( this->centralWidget()->rect() );
+    //mMypaintArea->setGeometry( this->centralWidget()->rect() );
+}
 
 void MainWindow2::createDockWidgets()
 {
@@ -279,7 +276,7 @@ void MainWindow2::createMenus()
     setMenuActionChecked( ui->actionGrid, mEditor->preference()->isOn( SETTING::GRID ) );
     connect( ui->actionGrid, &QAction::triggered, mCommands, &CommandCenter::showGrid );
 
-    connect( ui->actionOnionPrev, &QAction::triggered, mEditor, &Editor::toggleOnionPrev );
+    connect( ui->actionOnionPrevious, &QAction::triggered, mEditor, &Editor::toggleOnionPrev );
     connect( ui->actionOnionNext, &QAction::triggered, mEditor, &Editor::toggleOnionNext );
     connect( ui->actionMultiLayerOnionSkin, &QAction::triggered, mEditor, &Editor::toggleMultiLayerOnionSkin );
 
@@ -903,7 +900,7 @@ void MainWindow2::setupKeyboardShortcuts()
     ui->actionVertical_Flip->setShortcut( cmdKeySeq( CMD_FLIP_VERTICAL ) );
     ui->actionPreview->setShortcut( cmdKeySeq( CMD_PREVIEW ) );
     ui->actionGrid->setShortcut( cmdKeySeq( CMD_GRID ) );
-    ui->actionOnionPrev->setShortcut( cmdKeySeq( CMD_ONIONSKIN_PREV ) );
+    ui->actionOnionPrevious->setShortcut( cmdKeySeq( CMD_ONIONSKIN_PREV ) );
     ui->actionOnionNext->setShortcut( cmdKeySeq( CMD_ONIONSKIN_NEXT ) );
 
     ui->actionPlay->setShortcut( cmdKeySeq( CMD_PLAY ) );

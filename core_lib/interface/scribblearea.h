@@ -28,6 +28,7 @@ GNU General Public License for more details.
 #include <QWidget>
 #include <QFrame>
 #include <QHash>
+#include <QGraphicsView>
 
 #include "log.h"
 #include "pencildef.h"
@@ -40,6 +41,10 @@ GNU General Public License for more details.
 #include "canvasrenderer.h"
 #include "preferencemanager.h"
 
+#include "mphandler.h"
+#include "mpbrush.h"
+#include "mpsurface.h"
+#include "mptile.h"
 
 class Layer;
 class Editor;
@@ -49,7 +54,7 @@ class ColorManager;
 //class PopupColorPaletteWidget;
 
 
-class ScribbleArea : public QWidget
+class ScribbleArea : public QGraphicsView
 {
     Q_OBJECT
 
@@ -154,6 +159,9 @@ public slots:
     void updateToolCursor();
     void paletteColorChanged(QColor);
 
+    void onNewTile(MPSurface *surface, MPTile *tile);
+    void onUpdateTile(MPSurface *surface, MPTile *tile);
+
 protected:
     void tabletEvent( QTabletEvent* ) override;
     void wheelEvent( QWheelEvent* ) override;
@@ -163,10 +171,13 @@ protected:
     void mouseDoubleClickEvent( QMouseEvent* ) override;
     void keyPressEvent( QKeyEvent* ) override;
     void keyReleaseEvent( QKeyEvent* ) override;
-    void paintEvent( QPaintEvent* ) override;
+//    void paintEvent( QPaintEvent* ) override;
     void resizeEvent( QResizeEvent* ) override;
 
 public:
+    void startStroke();
+    void strokeTo(QPoint point);
+
     void drawPolyline( QList<QPointF> points, QPointF lastPoint );
     void endPolyline( QList<QPointF> points );
 
@@ -252,6 +263,10 @@ private:
     QRectF mDebugRect;
     QLoggingCategory mLog;
     std::deque< clock_t > mDebugTimeQue;
+
+    QGraphicsPixmapItem* m_canvasItem;
+    QGraphicsScene m_scene;
+    MPHandler *m_mypaint;
 };
 
 #endif

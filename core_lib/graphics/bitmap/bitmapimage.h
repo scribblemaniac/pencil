@@ -53,6 +53,7 @@ public:
     void compareAlpha( BitmapImage* );
     void moveTopLeft( QPoint point );
     void moveTopLeft( QPointF point ) { moveTopLeft( point.toPoint() ); }
+    void transform( QTransform transform, bool smoothTransform );
     void transform( QRect rectangle, bool smoothTransform );
     void transform( QRectF rectangle, bool smoothTransform )  { transform( rectangle.toRect(), smoothTransform ); }
     BitmapImage transformed( QRect selection, QTransform transform, bool smoothTransform );

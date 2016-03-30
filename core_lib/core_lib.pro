@@ -94,8 +94,7 @@ HEADERS +=  \
     managers/soundmanager.h \
     interface/backgroundwidget.h \
     structure/editorstate.h \
-    structure/filemanager.h \
-    interface/mypaintarea.h
+    structure/filemanager.h
 
 
 SOURCES +=  graphics/bitmap/bitmapimage.cpp \
@@ -160,8 +159,7 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     managers/soundmanager.cpp \
     interface/backgroundwidget.cpp \
     structure/editorstate.cpp \
-    structure/filemanager.cpp \
-    interface/mypaintarea.cpp
+    structure/filemanager.cpp
 
 win32 {
     CONFIG -= flat

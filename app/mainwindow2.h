@@ -86,6 +86,7 @@ public:
 protected:
     void tabletEvent( QTabletEvent* ) override;
     void closeEvent( QCloseEvent* ) override;
+    void resizeEvent( QResizeEvent *event );
 
 private:
     bool openObject( QString strFilename );

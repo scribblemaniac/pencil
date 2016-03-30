@@ -27,6 +27,13 @@
 #include "mpbrush.h"
 #include "mpsurface.h"
 
+#ifndef QTMYPAINT_SURFACE_WIDTH
+#define QTMYPAINT_SURFACE_WIDTH 100
+#endif
+
+#ifndef QTMYPAINT_SURFACE_HEIGHT
+#define QTMYPAINT_SURFACE_HEIGHT 100
+#endif
 
 
 class MPHandler : public QObject
@@ -49,7 +56,13 @@ public:
 
     void requestUpdateTile(MPSurface *surface, MPTile *tile);
     void hasNewTile(MPSurface *surface, MPTile *tile);
+    void hasClearedSurface(MPSurface *surface);
 
+    void setSurfaceSize(QSize size);
+    QSize surfaceSize();
+
+    void clearSurface();
+    QImage renderImage();
 
 private:
     MPHandler();
@@ -62,6 +75,7 @@ private:
 signals:
     void updateTile(MPSurface *surface, MPTile *tile);
     void newTile(MPSurface *surface, MPTile *tile);
+    void clearedSurface(MPSurface *surface);
 
 };
 

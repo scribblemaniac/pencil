@@ -26,6 +26,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
+#include <QGraphicsScene>
+#include <QImage>
 
 #include "mypaint-glib-compat.h"
 #include "mypaint-tiled-surface.h"
@@ -35,7 +37,7 @@
 class MPSurface : public MyPaintTiledSurface
 {
 public:
-    MPSurface(int width, int height);
+    MPSurface(QSize size);
     ~MPSurface();
 
     uint16_t *tile_buffer; // Stores tiles in a linear chunk of memory (16bpc RGBA)
@@ -55,16 +57,26 @@ public:
     inline QPoint getTileIndex(const QPoint& pos);
     inline QPointF getTileFIndex(const QPoint& pos);
 
-    typedef void (*MPOnUpdateFunction) (MPSurface *surface, MPTile *tile);
+    typedef void (*MPOnUpdateTileFunction) (MPSurface *surface, MPTile *tile);
+    typedef void (*MPOnUpdateSurfaceFunction) (MPSurface *surface);
 
-    void setOnUpdateTile(MPOnUpdateFunction onUpdateTileFunction);
-    void setOnNewTile(MPOnUpdateFunction onNewTileFunction);
+    void setOnUpdateTile(MPOnUpdateTileFunction onUpdateTileFunction);
+    void setOnNewTile(MPOnUpdateTileFunction onNewTileFunction);
+    void setOnClearedSurface(MPOnUpdateSurfaceFunction onNewTileFunction);
 
-    MPOnUpdateFunction onUpdateTileFunction;
-    MPOnUpdateFunction onNewTileFunction;
+    MPOnUpdateTileFunction onUpdateTileFunction;
+    MPOnUpdateTileFunction onNewTileFunction;
+    MPOnUpdateSurfaceFunction onClearedSurfaceFunction;
+
+    void setSize(QSize size);
+    QSize size();
+
+    void clear();
+    QImage renderImage();
 
 private:
     void resetNullTile();
+    void resetSurface(QSize size);
     std::string key;
 
     int tiles_width; // width in tiles
@@ -76,7 +88,12 @@ private:
     QColor      m_color;
 
 protected:
-    MPTile* m_tileTable [k_max][k_max];
+    QHash<QPoint, MPTile*> m_Tiles;
 };
+
+inline uint qHash (const QPoint & key)
+{
+    return qHash (QPair<int,int>(key.x(), key.y()) );
+}
 
 #endif // MPSURFACE_H

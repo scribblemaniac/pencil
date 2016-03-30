@@ -738,18 +738,22 @@ void Editor::scrubTo( int frame )
 	{
 		frame = 1;
 	}
-	int oldFrame = mFrame;
-	mFrame = frame;
 
-	Q_EMIT currentFrameChanged( frame );
-	Q_EMIT currentFrameChanged( oldFrame );
-    
-    // FIXME: should not emit Timeline update here.
-    // Editor must be an individual class.
-    // Will remove all Timeline related code in Editor class.
-    if ( mPlaybackManager && !mPlaybackManager->isPlaying() )
-    {
-        emit updateTimeLine(); // needs to update the timeline to update onion skin positions
+    if (mFrame != frame) {
+
+        int oldFrame = mFrame;
+        mFrame = frame;
+
+        Q_EMIT currentFrameChanged( frame );
+        Q_EMIT currentFrameChanged( oldFrame );
+
+        // FIXME: should not emit Timeline update here.
+        // Editor must be an individual class.
+        // Will remove all Timeline related code in Editor class.
+        if ( mPlaybackManager && !mPlaybackManager->isPlaying() )
+        {
+            emit updateTimeLine(); // needs to update the timeline to update onion skin positions
+        }
     }
 }
 
