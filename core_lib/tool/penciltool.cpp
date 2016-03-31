@@ -115,7 +115,7 @@ void PencilTool::mousePressEvent( QMouseEvent *event )
         if ( mEditor->layers()->currentLayer()->type() == Layer::BITMAP ) // in case of bitmap, first pixel(mouseDown) is drawn
         {
 //            drawStroke();
-            mScribbleArea->strokeTo(event->pos());
+            mScribbleArea->strokeTo(event->pos(), mCurrentPressure, mCurrentXTilt,  mCurrentYTilt);
         }
         else {
             if ( !mEditor->preference()->isOn(SETTING::INVISIBLE_LINES) )
@@ -134,7 +134,7 @@ void PencilTool::mouseMoveEvent( QMouseEvent *event )
         if ( event->buttons() & Qt::LeftButton )
         {
 //            drawStroke();
-            mScribbleArea->strokeTo(event->pos());
+            mScribbleArea->strokeTo(event->pos(), mCurrentPressure, mCurrentXTilt,  mCurrentYTilt);
         }
     }
 }
@@ -177,20 +177,6 @@ void PencilTool::mouseReleaseEvent( QMouseEvent *event )
     }
 
     endStroke();
-}
-
-void PencilTool::adjustPressureSensitiveProperties( qreal pressure, bool mouseDevice )
-{
-    mCurrentWidth = properties.width;
-
-    if ( properties.pressure && !mouseDevice )
-    {
-        mCurrentPressure = pressure;
-    }
-    else
-    {
-        mCurrentPressure = 1.0;
-    }
 }
 
 void PencilTool::drawStroke()

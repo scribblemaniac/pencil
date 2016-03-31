@@ -66,6 +66,7 @@ public:
     virtual void adjustCursor( qreal argOffsetX, ToolPropertyType type );
 
     virtual void adjustPressureSensitiveProperties( qreal pressure, bool mouseDevice );
+    virtual void adjustTiltProperties(int xTilt, int yTilt, bool mouseDevice );
 
     virtual void clear() {}
 

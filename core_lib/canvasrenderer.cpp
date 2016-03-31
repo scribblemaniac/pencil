@@ -70,7 +70,7 @@ void CanvasRenderer::ignoreTransformedSelection()
     mRenderTransform = false;
 }
 
-void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect )
+void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect, bool quick )
 {
     Q_UNUSED(rect);
 
@@ -87,13 +87,24 @@ void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect )
     QPainter painter;
     painter.begin(mCanvas);
     painter.setWorldTransform( mViewTransform );
-    painter.setRenderHint( QPainter::SmoothPixmapTransform, mOptions.bAntiAlias );
-    painter.setRenderHint( QPainter::Antialiasing, true );
+
+    if (!quick) {
+        painter.setRenderHint( QPainter::SmoothPixmapTransform, mOptions.bAntiAlias );
+        painter.setRenderHint( QPainter::Antialiasing, true );
+    }
+    else {
+        painter.setRenderHint( QPainter::SmoothPixmapTransform, false );
+        painter.setRenderHint( QPainter::Antialiasing, false );
+    }
 
     painter.setWorldMatrixEnabled( true );
 
     paintBackground( painter );
-    paintOnionSkin( painter );
+
+    if (!quick) {
+        paintOnionSkin( painter );
+    }
+
     paintCurrentFrame( painter );
     paintCameraBorder( painter );
 

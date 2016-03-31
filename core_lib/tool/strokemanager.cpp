@@ -51,6 +51,12 @@ void StrokeManager::setPressure(float pressure)
     mTabletPressure = pressure;
 }
 
+void StrokeManager::setTilt(int xTilt, int yTilt)
+{
+    mXTilt = xTilt;
+    mYTilt = yTilt;
+}
+
 QPointF StrokeManager::getEventPosition(QMouseEvent* event)
 {
     QPointF pos;
@@ -109,6 +115,7 @@ void StrokeManager::tabletEvent(QTabletEvent* event)
 
     mTabletPosition = event->posF();
     setPressure(event->pressure());
+    setTilt(event->xTilt(), event->yTilt());
 }
 
 void StrokeManager::mouseMoveEvent(QMouseEvent* event)

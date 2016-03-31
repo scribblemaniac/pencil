@@ -18,8 +18,6 @@ public:
 
     void drawStroke();
 
-    void adjustPressureSensitiveProperties( qreal pressure, bool mouseDevice ) override;
-
     void setWidth( const qreal width ) override;
     void setFeather( const qreal feather ) override;
     void setInvisibility( const bool invisibility ) override;

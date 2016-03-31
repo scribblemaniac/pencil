@@ -96,6 +96,8 @@ public:
     QRectF getViewRect();
     QPointF getCentralPoint();
 
+    void showFrame(int frame );
+
     void updateCurrentFrame();
     void updateFrame( int frame );
     void updateAllFrames();
@@ -176,7 +178,7 @@ protected:
 
 public:
     void startStroke();
-    void strokeTo(QPoint point);
+    void strokeTo(QPoint point, float pressure, float xtilt, float ytilt);
 
     void drawPolyline( QList<QPointF> points, QPointF lastPoint );
     void endPolyline( QList<QPointF> points );
@@ -201,7 +203,9 @@ public:
     BitmapImage* mStrokeImg = nullptr; // used for brush strokes before they are finalized
 
 private:
-    void drawCanvas( int frame, QRect rect );
+    void drawCanvas(int frame, QRect rect );
+    QString getCachedFrameKey(int frame);
+
     void drawAxis( QPainter& );
     void drawGrid( QPainter& );
 
@@ -232,6 +236,7 @@ private:
     QColor mOnionColor;
 
     bool mNeedUpdateAll = false;
+    bool mNeedQuickUpdate = false;
 
 
 private: 

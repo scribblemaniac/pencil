@@ -65,7 +65,7 @@ public:
     void setTransformedSelection( QRect selection, QTransform transform );
     void ignoreTransformedSelection();
 
-    void paint( Object* object, int layer, int frame, QRect rect );
+    void paint(Object* object, int layer, int frame, QRect rect , bool quick = false);
 
 private:
     void paintBackground(QPainter &painter);

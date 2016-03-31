@@ -255,6 +255,13 @@ void BaseTool::adjustPressureSensitiveProperties( qreal pressure, bool mouseDevi
     Q_UNUSED( mouseDevice );
 }
 
+void BaseTool::adjustTiltProperties(int xTilt, int yTilt, bool mouseDevice)
+{
+    Q_UNUSED( xTilt );
+    Q_UNUSED( yTilt );
+    Q_UNUSED( mouseDevice );
+}
+
 QPointF BaseTool::getCurrentPixel()
 {
     return m_pStrokeManager->getCurrentPixel();

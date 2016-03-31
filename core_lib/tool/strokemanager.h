@@ -20,8 +20,11 @@ public:
     void mouseMoveEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
     void setPressure(float pressure);
+    void setTilt(int xTilt, int yTilt);
 
     float getPressure() { return mTabletPressure; }
+    int getXTilt() { return mXTilt; }
+    int getYTilt() { return mYTilt; }
     bool isTabletInUse() { return mTabletInUse; }
 
     QList<QPointF> interpolateStroke();
@@ -38,6 +41,7 @@ private:
     QPointF getEventPosition(QMouseEvent *);
 
     float pressure = 1.0f; // last pressure
+
     std::deque<QPointF> strokeQueue;
 
     QTime singleshotTime;
@@ -54,6 +58,8 @@ private:
 
     bool    mTabletInUse = false;
     float   mTabletPressure = 1.f;
+    int     mXTilt = 0;
+    int     mYTilt = 0;
     QPointF mTabletPosition;
 
     clock_t m_timeshot;

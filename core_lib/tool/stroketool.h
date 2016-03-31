@@ -20,6 +20,9 @@ public:
     void drawStroke();
     void endStroke();
 
+    void adjustPressureSensitiveProperties( qreal pressure, bool mouseDevice ) override;
+    void adjustTiltProperties(int xTilt, int yTilt, bool mouseDevice ) override;
+
     bool keyPressEvent(QKeyEvent *event) override;
 
     bool keyReleaseEvent(QKeyEvent *event) override;
@@ -32,6 +35,8 @@ protected:
 
     qreal mCurrentWidth;
     qreal mCurrentPressure;
+    int mCurrentXTilt;
+    int mCurrentYTilt;
 
 private:
 	QPointF mLastPixel = { 0, 0 };

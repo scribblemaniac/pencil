@@ -38,6 +38,7 @@ void HandTool::mouseReleaseEvent( QMouseEvent* event )
         qDebug( "[HandTool] Stop Hand Tool" );
         mScribbleArea->setPrevTool();
     }
+    mScribbleArea->updateAllFrames();
 }
 
 void HandTool::mouseMoveEvent( QMouseEvent* evt )
@@ -60,14 +61,15 @@ void HandTool::mouseMoveEvent( QMouseEvent* evt )
     }
     else if ( isRotate )
     {
-        QPoint centralPixel( mScribbleArea->width() / 2, mScribbleArea->height() / 2 );
-        QVector2D v1( getLastPressPixel() - centralPixel );
-        QVector2D v2( getCurrentPixel() - centralPixel );
+//        QPoint centralPixel( mScribbleArea->width() / 2, mScribbleArea->height() / 2 );
+//        QVector2D v1( getLastPressPixel() - centralPixel );
+//        QVector2D v2( getCurrentPixel() - centralPixel );
 
-        float angle = acos( QVector2D::dotProduct( v1, v2 ) / ( v1.length() * v2.length() ) );
+//        float angle = acos( QVector2D::dotProduct( v1, v2 ) / ( v1.length() * v2.length() ) );
         //angle = angle * 180.0 / M_PI;
 
-        mEditor->view()->rotate( angle );
+        qreal angle = getCurrentPixel().x() - getLastPixel().x();
+        mEditor->view()->rotate( angle / 5 );
     }
     else if ( isScale )
     {
@@ -78,6 +80,7 @@ void HandTool::mouseMoveEvent( QMouseEvent* evt )
     }
 
     mLastPixel = getCurrentPixel();
+
 }
 
 void HandTool::mouseDoubleClickEvent( QMouseEvent *event )

@@ -204,6 +204,30 @@ void ScribbleArea::setEffect( SETTING e, bool isOn )
 /************************************************************************************/
 // update methods
 
+void ScribbleArea::showFrame( int frame )
+{
+    // If the canvas needs to be updated, we make sur that there is no cache
+    //
+    if (mNeedUpdateAll) {
+        QPixmapCache::clear();
+    }
+    mNeedUpdateAll = false;
+
+    // We retrieve the canvas from the cache;
+    // We draw it if it doesn't exist
+    //
+    QString cachedFrameKey = getCachedFrameKey( frame );
+
+    bool hasCache = QPixmapCache::find( cachedFrameKey, mCanvas );
+    if ( hasCache )
+    {
+        m_canvasItem->setPixmap(mCanvas);
+    }
+    else {
+        drawCanvas(frame, mCanvas.rect());
+    }
+}
+
 void ScribbleArea::updateCurrentFrame()
 {
     updateFrame( mEditor->currentFrame() );
@@ -211,11 +235,11 @@ void ScribbleArea::updateCurrentFrame()
 
 void ScribbleArea::updateFrame( int frame )
 {
-    int frameNumber = mEditor->layers()->LastFrameAtFrame( frame );
-    QPixmapCache::remove( "frame" + QString::number( frameNumber ) );
+    QString cachedFrameKey = getCachedFrameKey(frame);
+    QPixmapCache::remove( cachedFrameKey );
 
     if (mEditor) {
-        drawCanvas(mEditor->currentFrame() , mCanvas.rect() );
+        drawCanvas(frame , mCanvas.rect() );
     }
 }
 
@@ -466,8 +490,17 @@ void ScribbleArea::tabletEvent( QTabletEvent *event )
     //qDebug() << "Device" << event->device() << "Pointer type" << event->pointerType();
     mStrokeManager->tabletEvent( event );
 
-    currentTool()->adjustPressureSensitiveProperties( pow( ( float )mStrokeManager->getPressure(), 2.0f ),
-                                                      event->pointerType() == QTabletEvent::Cursor );
+    bool isMouseInUse = event->pointerType() == QTabletEvent::Cursor;
+
+//    qreal pressure = mStrokeManager->getPressure();
+//    qreal powerPressure = pow( ( float )p, 2.0f);
+
+    currentTool()->adjustPressureSensitiveProperties( mStrokeManager->getPressure(),
+                                                      isMouseInUse );
+
+    currentTool()->adjustTiltProperties( mStrokeManager->getXTilt(),
+                                         mStrokeManager->getYTilt(),
+                                         isMouseInUse );
 
     if ( event->pointerType() == QTabletEvent::Eraser )
     {
@@ -513,6 +546,7 @@ void ScribbleArea::mousePressEvent( QMouseEvent* event )
     mMouseInUse = true;
 
     mStrokeManager->mousePressEvent( event );
+    mNeedQuickUpdate = true;
 
     mUsePressure = currentTool()->properties.pressure;
 
@@ -620,7 +654,7 @@ void ScribbleArea::mouseMoveEvent( QMouseEvent *event )
 
 //    Q_EMIT refreshPreview();
 
-//    mStrokeManager->mouseMoveEvent( event );
+    mStrokeManager->mouseMoveEvent( event );
 //    mCurrentPixel = mStrokeManager->getCurrentPixel();
 //    mCurrentPoint = mEditor->view()->mapScreenToCanvas( mCurrentPixel );
 
@@ -668,6 +702,7 @@ void ScribbleArea::mouseMoveEvent( QMouseEvent *event )
 void ScribbleArea::mouseReleaseEvent( QMouseEvent *event )
 {
     mMouseInUse = false;
+    mNeedQuickUpdate = false;
 
     // ---- checks ------
     if ( currentTool()->isAdjusting )
@@ -691,7 +726,7 @@ void ScribbleArea::mouseReleaseEvent( QMouseEvent *event )
     // Clear current mypaint surface
     //
     m_mypaint->clearSurface();
-
+    setAllDirty();
 
     if ( currentTool()->type() == EYEDROPPER )
     {
@@ -715,6 +750,9 @@ void ScribbleArea::resizeEvent( QResizeEvent *event )
     int width = size().width();
     int height = size().height();
 
+    // Canvas size must be even for the coordinate translation
+    // to the center, to be pixel precise
+    //
     if ((width%2) == 1) {
         width ++;
     }
@@ -744,10 +782,10 @@ void ScribbleArea::startStroke()
     m_mypaint->startStroke();
 }
 
-void ScribbleArea::strokeTo(QPoint point)
+void ScribbleArea::strokeTo(QPoint point, float pressure, float xtilt, float ytilt)
 {
     QPointF pt = mapToScene(point);
-    m_mypaint->strokeTo(pt.x(), pt.y());
+    m_mypaint->strokeTo(pt.x(), pt.y(), pressure, xtilt, ytilt);
 }
 
 /************************************************************************************/
@@ -1122,12 +1160,34 @@ void ScribbleArea::drawCanvas( int frame, QRect rect )
     //qDebug() << "Antialias=" << options.bAntiAlias;
     mCanvasRenderer.setCanvas( &mCanvas );
     mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
-    mCanvasRenderer.paint( object, mEditor->layers()->currentLayerIndex(), frame, rect );
+    mCanvasRenderer.paint( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
 
+    if (!mNeedQuickUpdate) {
+
+        // Cache current frame for faster render
+        //
+        QString cachedFrameKey = getCachedFrameKey( frame );
+
+        QPixmap pm;
+        if (QPixmapCache::find(cachedFrameKey, &pm)) {
+            QPixmapCache::remove( cachedFrameKey );
+        }
+
+        QPixmapCache::insert( cachedFrameKey, mCanvas );
+    }
+
+
+    // Display canvas
+    //
     m_canvasItem->setPixmap(mCanvas);
-//    m_canvasItem->update();
 
     return;
+}
+
+QString ScribbleArea::getCachedFrameKey(int frame)
+{
+    int lastFrameNumber = mEditor->layers()->LastFrameAtFrame( frame );
+    return "frame" + QString::number( lastFrameNumber );
 }
 
 void ScribbleArea::setGaussianGradient( QGradient &gradient, QColor colour, qreal opacity, qreal mOffset )
@@ -1793,10 +1853,10 @@ void ScribbleArea::setPrevTool()
     instantTool = false;
 }
 
-/* Render Canvas */
 
 void ScribbleArea::paletteColorChanged(QColor color)
 {
+    m_mypaint->setBrushColor(color);
     updateAllVectorLayersAtCurrentFrame();
 }
 

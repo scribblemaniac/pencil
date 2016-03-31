@@ -24,6 +24,32 @@ BaseTool( parent )
     detectElCapitan();
 }
 
+void StrokeTool::adjustPressureSensitiveProperties( qreal pressure, bool mouseDevice )
+{
+    if ( properties.pressure && !mouseDevice )
+    {
+        mCurrentPressure = pressure;
+    }
+    else
+    {
+        mCurrentPressure = 1.0;
+    }
+}
+
+void StrokeTool::adjustTiltProperties(int xTilt, int yTilt, bool mouseDevice)
+{
+    if ( properties.pressure && !mouseDevice )
+    {
+        mCurrentXTilt = xTilt;
+        mCurrentYTilt = yTilt;
+    }
+    else
+    {
+        mCurrentXTilt = 0;
+        mCurrentYTilt = 0;
+    }
+}
+
 void StrokeTool::startStroke()
 {
     mFirstDraw = true;
