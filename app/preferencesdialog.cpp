@@ -176,43 +176,44 @@ GeneralPage::GeneralPage(QWidget* parent) : QWidget(parent)
     mWindowOpacityLevel->setValue( 100 - value );
 
     mBackgroundButtons = new QButtonGroup();
-    QRadioButton* checkerBackgroundButton = new QRadioButton();
-    QRadioButton* whiteBackgroundButton = new QRadioButton();
     QRadioButton* greyBackgroundButton = new QRadioButton();
+    QRadioButton* whiteBackgroundButton = new QRadioButton();
+    QRadioButton* checkerBackgroundButton = new QRadioButton();
     QRadioButton* dotsBackgroundButton = new QRadioButton();
     QRadioButton* weaveBackgroundButton = new QRadioButton();
 
-    QPixmap previewCheckerboard( ":background/checkerboard.png" );
-    QPixmap previewWhite(32,32);
     QPixmap previewGrey(32,32);
+    QPixmap previewWhite(32,32);
+    QPixmap previewCheckerboard( ":background/checkerboard.png" );
     QPixmap previewDots( ":background/dots.png" );
     QPixmap previewWeave( ":background/weave.jpg" );
 
-    previewWhite.fill( Qt::white );
+    previewGrey.fill( QColor("#D9D8CA") );
+    previewWhite.fill( QColor("#FFFFFF") );
 
-    previewGrey.fill( Qt:: lightGray );
-
-    checkerBackgroundButton->setIcon( previewCheckerboard.scaled(32, 32) );
-    whiteBackgroundButton->setIcon( previewWhite );
     greyBackgroundButton->setIcon( previewGrey );
+    whiteBackgroundButton->setIcon( previewWhite );
+    checkerBackgroundButton->setIcon( previewCheckerboard.scaled(32, 32) );
     dotsBackgroundButton->setIcon( previewDots.scaled(32, 32) );
     weaveBackgroundButton->setIcon( previewWeave.scaled(32, 32) );
-    mBackgroundButtons->addButton(checkerBackgroundButton);
-    mBackgroundButtons->addButton(whiteBackgroundButton);
+
     mBackgroundButtons->addButton(greyBackgroundButton);
+    mBackgroundButtons->addButton(whiteBackgroundButton);
+    mBackgroundButtons->addButton(checkerBackgroundButton);
     mBackgroundButtons->addButton(dotsBackgroundButton);
     mBackgroundButtons->addButton(weaveBackgroundButton);
-    mBackgroundButtons->setId(checkerBackgroundButton, 1);
+
+    mBackgroundButtons->setId(greyBackgroundButton, 1);
     mBackgroundButtons->setId(whiteBackgroundButton, 2);
-    mBackgroundButtons->setId(greyBackgroundButton, 3);
+    mBackgroundButtons->setId(checkerBackgroundButton, 3);
     mBackgroundButtons->setId(dotsBackgroundButton, 4);
     mBackgroundButtons->setId(weaveBackgroundButton, 5);
 
     QHBoxLayout* backgroundLayout = new QHBoxLayout();
     backgroundBox->setLayout(backgroundLayout);
-    backgroundLayout->addWidget(checkerBackgroundButton);
-    backgroundLayout->addWidget(whiteBackgroundButton);
     backgroundLayout->addWidget(greyBackgroundButton);
+    backgroundLayout->addWidget(whiteBackgroundButton);
+    backgroundLayout->addWidget(checkerBackgroundButton);
     backgroundLayout->addWidget(dotsBackgroundButton);
     backgroundLayout->addWidget(weaveBackgroundButton);
 
@@ -286,41 +287,42 @@ void GeneralPage::updateValues()
     mHighResBox->setChecked(mManager->isOn(SETTING::HIGH_RESOLUTION));
 
     QString bgName = mManager->getString(SETTING::BACKGROUND_STYLE);
-    if (bgName == "checkerboard") {
-        mBackgroundButtons->button(1)->setChecked(true);
-    }
-    if (bgName == "white") {
+
+    if (bgName == "#FFFFFF") {
         mBackgroundButtons->button(2)->setChecked(true);
     }
-    if (bgName == "grey") {
+    else if (bgName == "checkerboard.png") {
         mBackgroundButtons->button(3)->setChecked(true);
     }
-    if (bgName == "dots") {
+    else if (bgName == "dots.png") {
         mBackgroundButtons->button(4)->setChecked(true);
     }
-    if (bgName == "weave") {
+    else if (bgName == "weave.jpg") {
         mBackgroundButtons->button(5)->setChecked(true);
+    }
+    else {
+        mBackgroundButtons->button(1)->setChecked(true);
     }
 }
 
 void GeneralPage::backgroundChange(int value)
 {
-    QString brushName = "white";
+    QString brushName = "#D9D8CA";
     switch (value) {
     case 1:
-        brushName = "checkerboard";
+        brushName = "#D9D8CA";
         break;
     case 2:
-        brushName = "white";
+        brushName = "#FFFFFF";
         break;
     case 3:
-        brushName = "grey";
+        brushName = "checkerboard.png";
         break;
     case 4:
-        brushName = "dots";
+        brushName = "dots.png";
         break;
     case 5:
-        brushName = "weave";
+        brushName = "weave.jpg";
         break;
     default:
         break;

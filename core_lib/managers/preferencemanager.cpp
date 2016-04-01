@@ -49,7 +49,7 @@ void PreferenceManager::loadPrefs()
     set( SETTING::WINDOW_OPACITY,           settings.value( SETTING_WINDOW_OPACITY,         0 ).toInt() );
     set( SETTING::CURVE_SMOOTHING,          settings.value( SETTING_CURVE_SMOOTHING,        20 ).toInt() );
 
-    set( SETTING::BACKGROUND_STYLE,         settings.value( SETTING_BACKGROUND_STYLE,       "white" ).toString() );
+    set( SETTING::BACKGROUND_STYLE,         settings.value( SETTING_BACKGROUND_STYLE,       "#D9D8CA" ).toString() );
 
     // Files
     set( SETTING::AUTO_SAVE,                settings.value( SETTING_AUTO_SAVE,              true ).toBool() );

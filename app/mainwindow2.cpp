@@ -75,14 +75,12 @@ MainWindow2::MainWindow2( QWidget *parent ) : QMainWindow( parent )
     ui = new Ui::MainWindow2;
     ui->setupUi( this );
 
-    mBackground = new BackgroundWidget( this );
-
-    mScribbleArea = new ScribbleArea( mBackground );
+    mScribbleArea = new ScribbleArea( this );
     mScribbleArea->setFocusPolicy( Qt::StrongFocus );
 
 
     // Central widget
-    setCentralWidget(mBackground);
+    setCentralWidget(mScribbleArea);
 
 
     Object* object = new Object();
@@ -116,7 +114,7 @@ MainWindow2::MainWindow2( QWidget *parent ) : QMainWindow( parent )
     mEditor->setCurrentLayer( mEditor->object()->getLayerCount() - 1 );
     mEditor->tools()->setDefaultTool();
 
-    mBackground->init(mEditor->preference());
+//    mBackground->init(mEditor->preference());
 
     mEditor->updateObject();
     mEditor->color()->setColorNumber(0);
@@ -132,8 +130,7 @@ MainWindow2::~MainWindow2()
 void MainWindow2::resizeEvent( QResizeEvent *event )
 {
     Q_UNUSED( event );
-    mScribbleArea->setGeometry( this->centralWidget()->rect() );
-    //mMypaintArea->setGeometry( this->centralWidget()->rect() );
+    //mScribbleArea->setGeometry( this->centralWidget()->rect() );
 }
 
 void MainWindow2::createDockWidgets()

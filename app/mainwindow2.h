@@ -20,7 +20,6 @@ GNU General Public License for more details.
 
 #include <QDomElement>
 #include <QMainWindow>
-#include "backgroundwidget.h"
 
 template<typename T> class QList;
 class QActionGroup;
@@ -135,7 +134,6 @@ private:
 
     Ui::MainWindow2* ui                   = nullptr;
     QList< BaseDockWidget* > mDockWidgets;
-    BackgroundWidget* mBackground;
 };
 
 #endif // MAINWINDOW2_H

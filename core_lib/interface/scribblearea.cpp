@@ -122,11 +122,13 @@ bool ScribbleArea::init()
     // color wheel popup
     //m_popupPaletteWidget = new PopupColorPaletteWidget( this );
 
+    m_backgroundItem = new QGraphicsPixmapItem();
+    m_scene.addItem(m_backgroundItem);
 
     m_canvasItem = new QGraphicsPixmapItem();
     m_scene.addItem(m_canvasItem);
 
-
+    updateBackground();
 
     return true;
 }
@@ -173,8 +175,15 @@ void ScribbleArea::settingUpdated(SETTING setting)
         break;
     case SETTING::GRID_SIZE:
         updateAllFrames();
+        break;
     case SETTING::QUICK_SIZING:
         mQuickSizing = mPrefs->isOn( SETTING::QUICK_SIZING );
+        break;
+    case SETTING::BACKGROUND_STYLE:
+        updateBackground();
+        break;
+    case SETTING::SHADOW:
+        updateBackground();
         break;
     default:
         break;
@@ -202,7 +211,82 @@ void ScribbleArea::setEffect( SETTING e, bool isOn )
 }
 
 /************************************************************************************/
-// update methods
+// Update Background
+
+void ScribbleArea::updateBackground()
+{
+    // Init background with the size of the canvas
+    //
+    QPixmap bgPixmap = QPixmap(mCanvas.size());
+    bgPixmap.fill(QColor("#D9D8CA"));
+
+    QPainter painter;
+    painter.begin( &bgPixmap );
+
+    QString bgName = mPrefs->getString(SETTING::BACKGROUND_STYLE);
+
+    if (bgName.startsWith("#")) {
+        // Fill with color
+        //
+        bgPixmap.fill(QColor(bgName));
+    }
+    else {
+        // Fill with Pattern
+        //
+        QPixmap pattern = QPixmap(":background/"+bgName);
+        painter.drawTiledPixmap( bgPixmap.rect(), pattern );
+    }
+
+    // Draw Shadow
+    //
+    applyBackgroundShadow(painter);
+
+    m_backgroundItem->setPixmap(bgPixmap);
+    painter.end();
+}
+
+void ScribbleArea::applyBackgroundShadow(QPainter& painter)
+{
+    if (mPrefs->isOn(SETTING::SHADOW)) {
+        int radius1 = 12;
+        int radius2 = 8;
+
+        QColor colour = Qt::black;
+        qreal opacity = 0.15;
+
+        QLinearGradient shadow = QLinearGradient( 0, 0, 0, radius1 );
+
+        int r = colour.red();
+        int g = colour.green();
+        int b = colour.blue();
+        qreal a = colour.alphaF();
+        shadow.setColorAt( 0.0, QColor( r, g, b, qRound( a * 255 * opacity ) ) );
+        shadow.setColorAt( 1.0, QColor( r, g, b, 0 ) );
+
+
+        painter.setPen( Qt::NoPen );
+        painter.setBrush( shadow );
+        painter.drawRect( QRect( 0, 0, width(), radius1 ) );
+
+        shadow.setFinalStop( radius1, 0 );
+        painter.setBrush( shadow );
+        painter.drawRect( QRect( 0, 0, radius1, height() ) );
+
+        shadow.setStart( 0, height() );
+        shadow.setFinalStop( 0, height() - radius2 );
+        painter.setBrush( shadow );
+        painter.drawRect( QRect( 0, height() - radius2, width(), height() ) );
+
+        shadow.setStart( width(), 0 );
+        shadow.setFinalStop( width() - radius2, 0 );
+        painter.setBrush( shadow );
+        painter.drawRect( QRect( width() - radius2, 0, width(), height() ) );
+    }
+}
+
+
+/************************************************************************************/
+// Update Frame
 
 void ScribbleArea::showFrame( int frame )
 {
@@ -769,11 +853,11 @@ void ScribbleArea::resizeEvent( QResizeEvent *event )
     mCanvas = QPixmap( newSize );
     mCanvas.fill(Qt::transparent);
 
-    this->setStyleSheet("background-color:yellow;");
+//    this->setStyleSheet("background-color:yellow;");
 
     mEditor->view()->setCanvasSize( newSize );
 
-    setAllDirty();
+    updateBackground();
     updateAllFrames();
 }
 

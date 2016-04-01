@@ -92,7 +92,6 @@ HEADERS +=  \
     structure/keyframefactory.h \
     structure/soundclip.h \
     managers/soundmanager.h \
-    interface/backgroundwidget.h \
     structure/editorstate.h \
     structure/filemanager.h
 
@@ -157,7 +156,6 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     structure/keyframefactory.cpp \
     structure/soundclip.cpp \
     managers/soundmanager.cpp \
-    interface/backgroundwidget.cpp \
     structure/editorstate.cpp \
     structure/filemanager.cpp
 

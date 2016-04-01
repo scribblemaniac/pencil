@@ -98,6 +98,7 @@ public:
 
     void showFrame(int frame );
 
+    void updateBackground();
     void updateCurrentFrame();
     void updateFrame( int frame );
     void updateAllFrames();
@@ -210,6 +211,7 @@ private:
     void drawGrid( QPainter& );
 
     void settingUpdated(SETTING setting);
+    void applyBackgroundShadow(QPainter &painter);
 
     MoveMode mMoveMode = MIDDLE;
     ToolType mPrevTemporalToolType;
@@ -237,9 +239,6 @@ private:
 
     bool mNeedUpdateAll = false;
     bool mNeedQuickUpdate = false;
-
-
-private: 
 
     bool mKeyboardInUse = false;
     bool mMouseInUse    = false;
@@ -269,9 +268,11 @@ private:
     QLoggingCategory mLog;
     std::deque< clock_t > mDebugTimeQue;
 
+    QGraphicsPixmapItem* m_backgroundItem;
     QGraphicsPixmapItem* m_canvasItem;
     QGraphicsScene m_scene;
     MPHandler *m_mypaint;
+
 };
 
 #endif
