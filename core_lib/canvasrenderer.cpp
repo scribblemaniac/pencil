@@ -121,6 +121,25 @@ void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect, bo
     painter.end();
 }
 
+void CanvasRenderer::paintFrameAtLayer(QPixmap &image, Object* object, int layer, int frame)
+{
+    Q_ASSERT( object );
+    mObject = object;
+
+    mLayerIndex = layer;
+    mFrameNumber = frame;
+
+    image.fill( Qt::transparent );
+
+    QPainter painter;
+    painter.begin(&image);
+    painter.setWorldTransform( mViewTransform );
+
+    paintCurrentFrameAtLayer( painter, layer );
+
+    painter.end();
+}
+
 void CanvasRenderer::paintBackground( QPainter& painter )
 {
     Q_UNUSED(painter);
@@ -378,26 +397,31 @@ void CanvasRenderer::paintCurrentFrame( QPainter& painter )
 
     for ( int i = 0; i < mObject->getLayerCount(); ++i )
     {
-        Layer* layer = mObject->getLayer( i );
+        paintCurrentFrameAtLayer(painter, i);
+    }
+}
 
-        if ( i == mLayerIndex || mOptions.nShowAllLayers != 1 )
+void CanvasRenderer::paintCurrentFrameAtLayer(QPainter &painter, int layerId)
+{
+    Layer* layer = mObject->getLayer( layerId );
+
+    if ( layerId == mLayerIndex || mOptions.nShowAllLayers != 1 )
+    {
+        painter.setOpacity( 1.0 );
+    }
+    else {
+        painter.setOpacity( 0.8 );
+    }
+
+
+    if ( layerId == mLayerIndex || mOptions.nShowAllLayers > 0 ) {
+        switch ( layer->type() )
         {
-            painter.setOpacity( 1.0 );
-        }
-        else {
-            painter.setOpacity( 0.8 );
-        }
-
-
-        if ( i == mLayerIndex || mOptions.nShowAllLayers > 0 ) {
-            switch ( layer->type() )
-            {
-                case Layer::BITMAP: { paintBitmapFrame( painter, i, mFrameNumber ); break; }
-                case Layer::VECTOR: { paintVectorFrame( painter, i, mFrameNumber ); break; }
-                case Layer::CAMERA: break;
-                case Layer::SOUND: break;
-                default: Q_ASSERT( false ); break;
-            }
+            case Layer::BITMAP: { paintBitmapFrame( painter, layerId, mFrameNumber ); break; }
+            case Layer::VECTOR: { paintVectorFrame( painter, layerId, mFrameNumber ); break; }
+            case Layer::CAMERA: break;
+            case Layer::SOUND: break;
+            default: Q_ASSERT( false ); break;
         }
     }
 }

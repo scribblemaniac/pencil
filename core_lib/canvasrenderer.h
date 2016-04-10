@@ -67,10 +67,13 @@ public:
 
     void paint(Object* object, int layer, int frame, QRect rect , bool quick = false);
 
+    void paintFrameAtLayer(QPixmap &image, Object* object, int layer, int frame);
+
 private:
     void paintBackground(QPainter &painter);
     void paintOnionSkin( QPainter& painter );
     void paintCurrentFrame( QPainter& painter );
+    void paintCurrentFrameAtLayer(QPainter& painter, int layerId );
 
     void paintBitmapFrame( QPainter&, int layerId, int nFrame, bool colorize = false , bool useLastKeyFrame = true );
     void paintVectorFrame(QPainter&, int layerId, int nFrame, bool colorize = false , bool useLastKeyFrame = true );

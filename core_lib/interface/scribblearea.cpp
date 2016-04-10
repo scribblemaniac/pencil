@@ -61,14 +61,14 @@ ScribbleArea::~ScribbleArea()
 
 bool ScribbleArea::init()
 {
-    m_mypaint = MPHandler::handler();
+    mMypaint = MPHandler::handler();
 
-    connect(m_mypaint, SIGNAL(newTile(MPSurface*, MPTile*)), this, SLOT(onNewTile(MPSurface*, MPTile*)));
-    connect(m_mypaint, SIGNAL(updateTile(MPSurface*, MPTile*)), this, SLOT(onUpdateTile(MPSurface*, MPTile*)));
+    connect(mMypaint, SIGNAL(newTile(MPSurface*, MPTile*)), this, SLOT(onNewTile(MPSurface*, MPTile*)));
+    connect(mMypaint, SIGNAL(updateTile(MPSurface*, MPTile*)), this, SLOT(onUpdateTile(MPSurface*, MPTile*)));
 
     // Set scene
-    m_scene.setSceneRect(this->rect());
-    setScene(&m_scene);
+    mScene.setSceneRect(this->rect());
+    setScene(&mScene);
     setAlignment((Qt::AlignLeft | Qt::AlignTop));
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -120,14 +120,11 @@ bool ScribbleArea::init()
     // color wheel popup
     //m_popupPaletteWidget = new PopupColorPaletteWidget( this );
 
-    m_backgroundItem = new QGraphicsPixmapItem();
-    m_scene.addItem(m_backgroundItem);
+    mBackgroundItem = new QGraphicsPixmapItem();
+    mScene.addItem(mBackgroundItem);
 
-    m_canvasItem = new QGraphicsPixmapItem();
-    m_scene.addItem(m_canvasItem);
-
-    m_cameraItem = new QGraphicsPixmapItem();
-    m_scene.addItem(m_cameraItem);
+    mTopItem = new QGraphicsPixmapItem();
+    mScene.addItem(mTopItem);
 
 
     updateBackground();
@@ -252,7 +249,7 @@ void ScribbleArea::updateBackground()
     //
     applyBackgroundShadow(painter);
 
-    m_backgroundItem->setPixmap(bgPixmap);
+    mBackgroundItem->setPixmap(bgPixmap);
     painter.end();
 }
 
@@ -299,8 +296,10 @@ void ScribbleArea::applyBackgroundShadow(QPainter& painter)
 /************************************************************************************/
 // Update Frame
 
-void ScribbleArea::showFrame( int frame )
+void ScribbleArea::showCurrentFrame()
 {
+    int frame = mEditor->currentFrame();
+
     // If the canvas needs to be updated, we make sur that there is no cache
     //
     if (mNeedUpdateAll) {
@@ -308,17 +307,30 @@ void ScribbleArea::showFrame( int frame )
     }
     mNeedUpdateAll = false;
 
+
+    // Load mypaint surface
+    Layer* layer = mEditor->layers()->currentLayer();
+
+    // ---- checks ------
+    Q_ASSERT( layer );
+    if ( layer == NULL ) { return; } // TODO: remove in future.
+
+    QPixmap currentImage = QPixmap(mCanvas.size());
+    mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
+    mCanvasRenderer.paintFrameAtLayer(currentImage, mEditor->object(), mEditor->layers()->currentLayerIndex(), frame );
+
+    mMypaint->clearSurface();
+    mMypaint->loadImage(currentImage.toImage());
+
+
     // We retrieve the canvas from the cache;
     // We draw it if it doesn't exist
     //
     QString cachedFrameKey = getCachedFrameKey( frame );
 
     bool hasCache = QPixmapCache::find( cachedFrameKey, mCanvas );
-    if ( hasCache )
+    if ( !hasCache )
     {
-        m_canvasItem->setPixmap(mCanvas);
-    }
-    else {
         drawCanvas(frame, mCanvas.rect());
     }
 
@@ -330,8 +342,8 @@ void ScribbleArea::loadTiles(const QPixmap &image)
     QSize tileSize = QSize(MYPAINT_TILE_SIZE, MYPAINT_TILE_SIZE);
 
 
-    int nbTilesOnWidth = ceil(image.width() / tileSize.width());
-    int nbTilesOnHeight = ceil(image.height() / tileSize.height());
+    int nbTilesOnWidth = ceil((float)image.width() / (float)tileSize.width());
+    int nbTilesOnHeight = ceil((float)image.height() / (float)tileSize.height());
 
     for (int h=0; h < nbTilesOnHeight; h++) {
 
@@ -362,7 +374,7 @@ QGraphicsPixmapItem *ScribbleArea::getTileFromPosition(QPoint point)
         QGraphicsPixmapItem *item = new QGraphicsPixmapItem(emptyImage);
         item->setPos(point.x(), point.y());
 
-        m_scene.addItem(item);
+        mScene.addItem(item);
         mTiles.insert(posString, item);
 
         return item;
@@ -380,7 +392,7 @@ void ScribbleArea::updateFrame( int frame )
     QPixmapCache::remove( cachedFrameKey );
 
     if (mEditor) {
-        drawCanvas(frame , rect() );
+        showCurrentFrame();
     }
 }
 
@@ -389,7 +401,7 @@ void ScribbleArea::updateAllFrames()
     QPixmapCache::clear();
 
     if (mEditor) {
-        drawCanvas(mEditor->currentFrame() , rect() );
+        showCurrentFrame();
     }
     mNeedUpdateAll = false;
 }
@@ -907,7 +919,7 @@ void ScribbleArea::resizeEvent( QResizeEvent *event )
     mCanvas = QPixmap( newSize );
     mCanvas.fill(Qt::transparent);
 
-    m_mypaint->setSurfaceSize(newSize);
+    mMypaint->setSurfaceSize(newSize);
 
     QWidget::resizeEvent( event );
 
@@ -926,12 +938,12 @@ void ScribbleArea::resizeEvent( QResizeEvent *event )
 void ScribbleArea::startStroke()
 {
     mBufferImg->clear();
-    m_mypaint->startStroke();
+    mMypaint->startStroke();
 }
 
 void ScribbleArea::strokeTo(QPointF point, float pressure, float xtilt, float ytilt)
 {
-    m_mypaint->strokeTo(point.x(), point.y(), pressure, xtilt, ytilt);
+    mMypaint->strokeTo(point.x(), point.y(), pressure, xtilt, ytilt);
 }
 
 void ScribbleArea::endStroke()
@@ -978,12 +990,14 @@ void ScribbleArea::paintBitmapBuffer( )
         //
         QTransform view = mEditor->view()->getView().inverted();
 
-        QImage* strokeImage = new QImage(m_mypaint->renderImage());
+        QImage* strokeImage = new QImage(mMypaint->renderImage());
 
         mBufferImg->setImage(strokeImage);
         mBufferImg->transform(view, true);
 
-        targetImage->paste( mBufferImg, cm );
+//        To be fixed!
+//        targetImage->clear();
+//        targetImage->paste( mBufferImg, cm );
     }
 
     qCDebug( mLog ) << "Paste Rect" << mBufferImg->bounds();
@@ -2003,7 +2017,7 @@ void ScribbleArea::setPrevTool()
 
 void ScribbleArea::paletteColorChanged(QColor color)
 {
-    m_mypaint->setBrushColor(color);
+    mMypaint->setBrushColor(color);
     updateAllVectorLayersAtCurrentFrame();
 }
 

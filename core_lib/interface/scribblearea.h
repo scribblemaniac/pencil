@@ -96,7 +96,7 @@ public:
     QRectF getViewRect();
     QPointF getCentralPoint();
 
-    void showFrame(int frame );
+    void showCurrentFrame();
 
     void updateBackground();
     void updateCurrentFrame();
@@ -274,11 +274,10 @@ private:
     QLoggingCategory mLog;
     std::deque< clock_t > mDebugTimeQue;
 
-    QGraphicsPixmapItem* m_backgroundItem;
-    QGraphicsPixmapItem* m_canvasItem;
-    QGraphicsPixmapItem* m_cameraItem;
-    QGraphicsScene m_scene;
-    MPHandler *m_mypaint;
+    QGraphicsPixmapItem* mBackgroundItem;
+    QGraphicsPixmapItem* mTopItem;
+    QGraphicsScene mScene;
+    MPHandler *mMypaint;
 
     QHash<QString, QGraphicsPixmapItem*> mTiles;
 
