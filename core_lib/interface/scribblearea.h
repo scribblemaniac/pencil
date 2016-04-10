@@ -164,6 +164,7 @@ public slots:
 
     void onNewTile(MPSurface *surface, MPTile *tile);
     void onUpdateTile(MPSurface *surface, MPTile *tile);
+    void updateTile(MPSurface *surface, MPTile *tile);
 
 protected:
     void tabletEvent( QTabletEvent* ) override;
@@ -207,6 +208,9 @@ public:
 private:
     void drawCanvas(int frame, QRect rect );
     QString getCachedFrameKey(int frame);
+
+    void loadTiles(const QPixmap &image);
+    QGraphicsPixmapItem* getTileFromPosition(QPoint point);
 
     void drawAxis( QPainter& );
     void drawGrid( QPainter& );
@@ -261,7 +265,9 @@ private:
 
     PreferenceManager *mPrefs = nullptr;
 
+    QPixmap mCanvas;
     CanvasRenderer mCanvasRenderer;
+
 
     // debug
     QRectF mDebugRect;
@@ -269,10 +275,12 @@ private:
     std::deque< clock_t > mDebugTimeQue;
 
     QGraphicsPixmapItem* m_backgroundItem;
-    QGraphicsPixmapItem* m_canvasBackItem;
-    QGraphicsPixmapItem* m_canvasFrontItem;
+    QGraphicsPixmapItem* m_canvasItem;
+    QGraphicsPixmapItem* m_cameraItem;
     QGraphicsScene m_scene;
     MPHandler *m_mypaint;
+
+    QHash<QString, QGraphicsPixmapItem*> mTiles;
 
 };
 
