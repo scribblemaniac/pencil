@@ -23,6 +23,10 @@
 
 #include "libmypaint.c"
 
+#define HAVE_JSON_C;
+
+#define DEFAULT_BRUSHES_PATH ":brushes"
+
 bool MPHandler::instanceFlag = false;
 MPHandler* MPHandler::currentHandler = NULL;
 
@@ -116,6 +120,16 @@ QImage MPHandler::renderImage()
     return image;
 }
 
+void MPHandler::loadImage(const QImage &image)
+{
+    m_surface->loadImage(image);
+}
+
+void MPHandler::loadBrush(const QByteArray &content)
+{
+    m_brush->load(content);
+}
+
 void
 MPHandler::strokeTo(float x, float y, float pressure, float xtilt, float ytilt)
 {
@@ -148,8 +162,18 @@ MPHandler::endStroke()
 
 }
 
+float MPHandler::getBrushValue(MyPaintBrushSetting setting)
+{
+    return this->m_brush->getValue(setting);
+}
+
 void
 MPHandler::setBrushColor(QColor newColor)
 {
     this->m_brush->setColor(newColor);
+}
+
+void MPHandler::setBrushValue(MyPaintBrushSetting setting, float value)
+{
+    this->m_brush->setValue(setting, value);
 }

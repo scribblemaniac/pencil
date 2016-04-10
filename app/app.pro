@@ -137,20 +137,23 @@ else:unix: PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/zlib/libzlib.a
 
 # --- QTMyPaint ---
 
-INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/json-c
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint/json-c
 
-INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/libmypaint
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint/libmypaint
+
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint/src
 
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../3rdlib/QTMyPaint/src/release/ -lQTMyPaint
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../3rdlib/QTMyPaint/src/debug/ -lQTMyPaint
-else:unix: LIBS += -L$$OUT_PWD/../3rdlib/QTMyPaint/src/ -lQTMyPaint
 
-INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/src
-DEPENDPATH += $$PWD/../3rdlib/QTMyPaint/src
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../3rdlib/qtmypaint/release/ -lqtmypaint
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../3rdlib/qtmypaint/debug/ -lqtmypaint
+else:unix: LIBS += -L$$OUT_PWD/../3rdlib/qtmypaint/ -lqtmypaint
 
-win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/src/release/libQTMyPaint.a
-else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/src/debug/libQTMyPaint.a
-else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/src/release/QTMyPaint.lib
-else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/src/debug/QTMyPaint.lib
-else:unix: PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/QTMyPaint/src/libQTMyPaint.a
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint
+DEPENDPATH += $$PWD/../3rdlib/qtmypaint
+
+win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/qtmypaint/release/libqtmypaint.a
+else:win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/qtmypaint/debug/libqtmypaint.a
+else:win32:!win32-g++:CONFIG(release, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/qtmypaint/release/qtmypaint.lib
+else:win32:!win32-g++:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/qtmypaint/debug/qtmypaint.lib
+else:unix: PRE_TARGETDEPS += $$OUT_PWD/../3rdlib/qtmypaint/libqtmypaint.a

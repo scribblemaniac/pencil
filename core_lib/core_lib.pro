@@ -183,9 +183,11 @@ DEPENDPATH += $$PWD/../3rdlib/quazip
 
 INCLUDEPATH += $$PWD/../3rdlib/zlib
 
-INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/json-c
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint/json-c
 
-INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/libmypaint
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint/libmypaint
 
-INCLUDEPATH += $$PWD/../3rdlib/QTMyPaint/src
-DEPENDPATH += $$PWD/../3rdlib/QTMyPaint/src
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint/src
+
+INCLUDEPATH += $$PWD/../3rdlib/qtmypaint
+DEPENDPATH += $$PWD/../3rdlib/qtmypaint

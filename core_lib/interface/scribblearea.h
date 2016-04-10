@@ -179,7 +179,8 @@ protected:
 
 public:
     void startStroke();
-    void strokeTo(QPoint point, float pressure, float xtilt, float ytilt);
+    void strokeTo(QPointF point, float pressure, float xtilt, float ytilt);
+    void endStroke();
 
     void drawPolyline( QList<QPointF> points, QPointF lastPoint );
     void endPolyline( QList<QPointF> points );
@@ -195,13 +196,13 @@ public:
 
     void paintBitmapBuffer();
     void paintBitmapBufferRect( QRect rect );
-    void clearBitmapBuffer();
     void refreshBitmap( const QRectF& rect, int rad );
     void refreshVector( const QRectF& rect, int rad );
     void setGaussianGradient( QGradient &gradient, QColor colour, qreal opacity, qreal offset );
 
     BitmapImage* mBufferImg = nullptr; // used to pre-draw vector modifications
     BitmapImage* mStrokeImg = nullptr; // used for brush strokes before they are finalized
+
 
 private:
     void drawCanvas(int frame, QRect rect );
@@ -260,7 +261,6 @@ private:
 
     PreferenceManager *mPrefs = nullptr;
 
-    QPixmap mCanvas;
     CanvasRenderer mCanvasRenderer;
 
     // debug
@@ -269,7 +269,8 @@ private:
     std::deque< clock_t > mDebugTimeQue;
 
     QGraphicsPixmapItem* m_backgroundItem;
-    QGraphicsPixmapItem* m_canvasItem;
+    QGraphicsPixmapItem* m_canvasBackItem;
+    QGraphicsPixmapItem* m_canvasFrontItem;
     QGraphicsScene m_scene;
     MPHandler *m_mypaint;
 

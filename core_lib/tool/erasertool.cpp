@@ -137,15 +137,12 @@ void EraserTool::mouseReleaseEvent( QMouseEvent *event )
         {
             mScribbleArea->paintBitmapBuffer();
             mScribbleArea->setAllDirty();
-            mScribbleArea->clearBitmapBuffer();
         }
         else if ( layer->type() == Layer::VECTOR )
         {
             VectorImage *vectorImage = ( ( LayerVector * )layer )->getLastVectorImageAtFrame( mEditor->currentFrame(), 0 );
             // Clear the area containing the last point
             //vectorImage->removeArea(lastPoint);
-            // Clear the temporary pixel path
-            mScribbleArea->clearBitmapBuffer();
             vectorImage->deleteSelectedPoints();
             //update();
             mScribbleArea->setModified( mEditor->layers()->currentLayerIndex(), mEditor->currentFrame() );

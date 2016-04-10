@@ -7,9 +7,10 @@
 #include <QString>
 #include <QCursor>
 #include <QMouseEvent>
-#include "pencildef.h"
-
 #include <QPointF>
+
+#include "pencildef.h"
+#include "layer.h"
 
 class Editor;
 class ScribbleArea;
@@ -102,6 +103,8 @@ protected:
     ScribbleArea* mScribbleArea = nullptr;
     StrokeManager* m_pStrokeManager = nullptr;
     qreal adjustmentStep = 0.0f;
+
+    Layer::LAYER_TYPE mCurrentLayerType = Layer::UNDEFINED;
 };
 
 #endif // BASETOOL_H

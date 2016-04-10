@@ -52,8 +52,6 @@ mLog( "ScribbleArea" )
     setAttribute( Qt::WA_StaticContents );
 
     mStrokeManager = new StrokeManager();
-
-    mCanvas = QPixmap(size());
 }
 
 ScribbleArea::~ScribbleArea()
@@ -125,8 +123,12 @@ bool ScribbleArea::init()
     m_backgroundItem = new QGraphicsPixmapItem();
     m_scene.addItem(m_backgroundItem);
 
-    m_canvasItem = new QGraphicsPixmapItem();
-    m_scene.addItem(m_canvasItem);
+    m_canvasBackItem = new QGraphicsPixmapItem();
+    m_scene.addItem(m_canvasBackItem);
+
+    m_canvasFrontItem = new QGraphicsPixmapItem();
+    m_scene.addItem(m_canvasFrontItem);
+
 
     updateBackground();
 
@@ -217,7 +219,7 @@ void ScribbleArea::updateBackground()
 {
     // Init background with the size of the canvas
     //
-    QPixmap bgPixmap = QPixmap(mCanvas.size());
+    QPixmap bgPixmap = QPixmap(size());
     bgPixmap.fill(QColor("#D9D8CA"));
 
     QPainter painter;
@@ -302,13 +304,14 @@ void ScribbleArea::showFrame( int frame )
     //
     QString cachedFrameKey = getCachedFrameKey( frame );
 
-    bool hasCache = QPixmapCache::find( cachedFrameKey, mCanvas );
+    QPixmap backCanvas = QPixmap(size());
+    bool hasCache = QPixmapCache::find( cachedFrameKey, backCanvas );
     if ( hasCache )
     {
-        m_canvasItem->setPixmap(mCanvas);
+        m_canvasBackItem->setPixmap(backCanvas);
     }
     else {
-        drawCanvas(frame, mCanvas.rect());
+        drawCanvas(frame, backCanvas.rect());
     }
 }
 
@@ -323,7 +326,7 @@ void ScribbleArea::updateFrame( int frame )
     QPixmapCache::remove( cachedFrameKey );
 
     if (mEditor) {
-        drawCanvas(frame , mCanvas.rect() );
+        drawCanvas(frame , rect() );
     }
 }
 
@@ -332,7 +335,7 @@ void ScribbleArea::updateAllFrames()
     QPixmapCache::clear();
 
     if (mEditor) {
-        drawCanvas(mEditor->currentFrame() , mCanvas.rect() );
+        drawCanvas(mEditor->currentFrame() , rect() );
     }
     mNeedUpdateAll = false;
 }
@@ -850,8 +853,6 @@ void ScribbleArea::resizeEvent( QResizeEvent *event )
     m_mypaint->setSurfaceSize(newSize);
 
     QWidget::resizeEvent( event );
-    mCanvas = QPixmap( newSize );
-    mCanvas.fill(Qt::transparent);
 
 //    this->setStyleSheet("background-color:yellow;");
 
@@ -861,15 +862,24 @@ void ScribbleArea::resizeEvent( QResizeEvent *event )
     updateAllFrames();
 }
 
+
+/************************************************************************************/
+// Stroke Handling
+
 void ScribbleArea::startStroke()
 {
+    mBufferImg->clear();
     m_mypaint->startStroke();
 }
 
-void ScribbleArea::strokeTo(QPoint point, float pressure, float xtilt, float ytilt)
+void ScribbleArea::strokeTo(QPointF point, float pressure, float xtilt, float ytilt)
 {
-    QPointF pt = mapToScene(point);
-    m_mypaint->strokeTo(pt.x(), pt.y(), pressure, xtilt, ytilt);
+    m_mypaint->strokeTo(point.x(), point.y(), pressure, xtilt, ytilt);
+}
+
+void ScribbleArea::endStroke()
+{
+    updateCurrentFrame();
 }
 
 /************************************************************************************/
@@ -977,11 +987,6 @@ void ScribbleArea::paintBitmapBufferRect( QRect rect )
     QPixmapCache::remove( "frame" + QString::number( mEditor->currentFrame() ) );
     drawCanvas( mEditor->currentFrame(), rect.adjusted( -1, -1, 1, 1 ) );
 //    update( rect );
-}
-
-void ScribbleArea::clearBitmapBuffer()
-{
-    mBufferImg->clear();
 }
 
 void ScribbleArea::drawLine( QPointF P1, QPointF P2, QPen pen, QPainter::CompositionMode cm )
@@ -1242,7 +1247,10 @@ void ScribbleArea::drawCanvas( int frame, QRect rect )
     mCanvasRenderer.setOptions( options );
 
     //qDebug() << "Antialias=" << options.bAntiAlias;
-    mCanvasRenderer.setCanvas( &mCanvas );
+    QPixmap backCanvas = QPixmap( size() );
+    backCanvas.fill(Qt::transparent);
+
+    mCanvasRenderer.setCanvas( &backCanvas );
     mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
     mCanvasRenderer.paint( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
 
@@ -1257,13 +1265,13 @@ void ScribbleArea::drawCanvas( int frame, QRect rect )
             QPixmapCache::remove( cachedFrameKey );
         }
 
-        QPixmapCache::insert( cachedFrameKey, mCanvas );
+        QPixmapCache::insert( cachedFrameKey, backCanvas );
     }
 
 
     // Display canvas
     //
-    m_canvasItem->setPixmap(mCanvas);
+    m_canvasBackItem->setPixmap(backCanvas);
 
     return;
 }

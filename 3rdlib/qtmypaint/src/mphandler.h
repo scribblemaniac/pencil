@@ -52,7 +52,10 @@ public:
     void strokeTo(float x, float y);
     void endStroke();
 
+    float getBrushValue(MyPaintBrushSetting setting);
+
     void setBrushColor(QColor newColor);
+    void setBrushValue(MyPaintBrushSetting setting, float value);
 
     void requestUpdateTile(MPSurface *surface, MPTile *tile);
     void hasNewTile(MPSurface *surface, MPTile *tile);
@@ -63,6 +66,12 @@ public:
 
     void clearSurface();
     QImage renderImage();
+
+    void loadImage(const QImage &image);
+
+
+public slots:
+    void loadBrush(const QByteArray& content);
 
 private:
     MPHandler();

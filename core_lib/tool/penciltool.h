@@ -16,7 +16,7 @@ public:
     void mouseMoveEvent( QMouseEvent* ) override;
     void mouseReleaseEvent( QMouseEvent* ) override;
 
-    void drawStroke();
+//    void drawStroke();
 
     void setWidth( const qreal width ) override;
     void setFeather( const qreal feather ) override;
@@ -26,7 +26,6 @@ public:
 
 private:
     QColor currentPressuredColor;
-    QPointF lastBrushPoint;
     qreal mOpacity;
 };
 

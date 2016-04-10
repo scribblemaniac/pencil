@@ -2,6 +2,7 @@
 #define STROKETOOL_H
 
 #include "basetool.h"
+#include "layermanager.h"
 
 #include <QList>
 #include <QPointF>

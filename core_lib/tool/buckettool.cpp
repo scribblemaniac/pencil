@@ -99,7 +99,6 @@ void BucketTool::mouseReleaseEvent( QMouseEvent *event )
         }
         else if ( layer->type() == Layer::VECTOR )
         {
-            mScribbleArea->clearBitmapBuffer();
             VectorImage *vectorImage = ( ( LayerVector * )layer )->getLastVectorImageAtFrame( mEditor->currentFrame(), 0 );
 
             if ( event->modifiers() == Qt::AltModifier )

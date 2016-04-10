@@ -129,8 +129,6 @@ void PenTool::mouseReleaseEvent( QMouseEvent *event )
         }
         else if ( layer->type() == Layer::VECTOR && mStrokePoints.size() > -1 )
         {
-            // Clear the temporary pixel path
-            mScribbleArea->clearBitmapBuffer();
             qreal tol = mScribbleArea->getCurveSmoothing() / mEditor->view()->scaling();
             BezierCurve curve( mStrokePoints, mStrokePressures, tol );
             curve.setWidth( properties.width );

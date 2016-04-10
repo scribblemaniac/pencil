@@ -39,11 +39,11 @@ QRectF MPTile::boundingRect() const
     return m_cache_img.rect();
 }
 
-bool MPTile::contains(const QPointF & point) const
-{
-    // opaque if alpha > 16
-    return qAlpha(m_cache_img.pixel(point.toPoint())) > 0x10;
-}
+//bool MPTile::contains(const QPointF & point) const
+//{
+//    // opaque if alpha > 16
+//    return qAlpha(m_cache_img.pixel(point.toPoint())) > 0x10;
+//}
 
 QPainterPath MPTile::shape() const
 {
@@ -99,9 +99,31 @@ void MPTile::updateCache()
     m_cache_valid = true;
 }
 
+void MPTile::setImage(const QImage &image) {
+
+    QSize tileSize = this->boundingRect().size().toSize();
+
+    // Make sure the image has the same dimentions as the tile
+    m_cache_img = image.scaled(tileSize, Qt::IgnoreAspectRatio);
+
+    for (int y = 0 ; y < tileSize.height() ; y++) {
+         for (int x = 0 ; x < tileSize.width() ; x++) {
+
+             QRgb pixelColor = m_cache_img.pixel(x, y);
+
+             t_pixels[y][x][k_alpha]    = CONV_8_16(qAlpha(pixelColor));
+             t_pixels[y][x][k_red]      = CONV_8_16(qRed(pixelColor));
+             t_pixels[y][x][k_green]    = CONV_8_16(qGreen(pixelColor));
+             t_pixels[y][x][k_blue]     = CONV_8_16(qBlue(pixelColor));
+
+         }
+    }
+    m_cache_valid = true;
+}
+
 void MPTile::clear()
 {
     memset(t_pixels, 0, sizeof(t_pixels)); // Tile is transparent
     m_cache_img.fill( QColor(Qt::transparent) ); // image cache is transparent too, and aligned to the pixel table:
-    updateCache();
+    m_cache_valid = true;
 }

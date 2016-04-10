@@ -9,11 +9,11 @@ zlib.subdir = 3rdlib/zlib
 quazip.subdir = 3rdlib/quazip
 quazip.depends = zlib
 
-QTMyPaint.subdir = 3rdlib/QTMyPaint
-QTMyPaint.depends = quazip
+qtmypaint.subdir = 3rdlib/qtmypaint
+qtmypaint.depends = quazip
 
 core_lib.subdir = core_lib
-core_lib.depends = QTMyPaint
+core_lib.depends = qtmypaint
 
 app.subdir = app
 app.depends = core_lib
@@ -23,7 +23,7 @@ tests.depends = core_lib
 
 l10n.subdir = resources/translations
 
-SUBDIRS = core_lib app tests quazip zlib l10n QTMyPaint
+SUBDIRS = core_lib app tests quazip zlib l10n qtmypaint
 
 RESOURCES += \
     app/pencil.qrc

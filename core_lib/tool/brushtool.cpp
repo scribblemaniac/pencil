@@ -181,13 +181,9 @@ void BrushTool::mouseReleaseEvent( QMouseEvent *event )
         if ( layer->type() == Layer::BITMAP )
         {
             mScribbleArea->paintBitmapBuffer();
-            mScribbleArea->setAllDirty();
-            mScribbleArea->clearBitmapBuffer();
         }
         else if ( layer->type() == Layer::VECTOR && mStrokePoints.size() > -1 )
         {
-            // Clear the temporary pixel path
-            mScribbleArea->clearBitmapBuffer();
             qreal tol = mScribbleArea->getCurveSmoothing() / mEditor->view()->scaling();
             BezierCurve curve( mStrokePoints, mStrokePressures, tol );
             curve.setWidth( properties.width );

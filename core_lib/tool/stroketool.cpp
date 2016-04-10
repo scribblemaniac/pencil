@@ -52,6 +52,8 @@ void StrokeTool::adjustTiltProperties(int xTilt, int yTilt, bool mouseDevice)
 
 void StrokeTool::startStroke()
 {
+    mScribbleArea->startStroke();
+
     mFirstDraw = true;
     mLastPixel = getCurrentPixel();
     
@@ -60,6 +62,8 @@ void StrokeTool::startStroke()
 
     mStrokePressures.clear();
     mStrokePressures << m_pStrokeManager->getPressure();
+
+    mCurrentLayerType = mEditor->layers()->currentLayer()->type();
 
     disableCoalescing();
 }
@@ -89,11 +93,16 @@ void StrokeTool::endStroke()
     mStrokePressures.clear();
 
     enableCoalescing();
+
+    mScribbleArea->endStroke();
 }
 
 void StrokeTool::drawStroke()
 {
     QPointF pixel = getCurrentPixel();
+
+    mScribbleArea->strokeTo(pixel, mCurrentPressure, mCurrentXTilt,  mCurrentYTilt);
+
     if ( pixel != mLastPixel || !mFirstDraw )
     {
         mLastPixel = pixel;
