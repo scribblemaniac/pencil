@@ -996,8 +996,8 @@ void ScribbleArea::paintBitmapBuffer( )
         mBufferImg->transform(view, true);
 
 //        To be fixed!
-//        targetImage->clear();
-//        targetImage->paste( mBufferImg, cm );
+        targetImage->clear();
+        targetImage->paste( mBufferImg, cm );
     }
 
     qCDebug( mLog ) << "Paste Rect" << mBufferImg->bounds();
@@ -1340,7 +1340,7 @@ void ScribbleArea::drawCanvas( int frame, QRect rect )
 
     // Display canvas
     //
-    //m_canvasBackItem->setPixmap(backCanvas);
+    //mTopItem->setPixmap(mCanvas);
 
     return;
 }
