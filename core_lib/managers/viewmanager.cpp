@@ -70,7 +70,7 @@ QTransform ViewManager::createViewTransform()
     float flipY = mIsFlipVertical ? -1.f : 1.f;
 
     QTransform s;
-    s.scale( mScale * flipX, mScale * flipY );
+//    s.scale( mScale * flipX, mScale * flipY );
 
     return std::move( t * s * r * c );
 }

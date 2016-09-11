@@ -28,6 +28,14 @@ GNU General Public License for more details.
 class Object;
 class Layer;
 
+enum class RENDER_LEVEL
+{
+    ALL,
+    BACK_ONLY,
+    CURRENT_LAYER_ONLY,
+    TOP_ONLY
+};
+
 
 struct RenderOptions
 {
@@ -65,15 +73,21 @@ public:
     void setTransformedSelection( QRect selection, QTransform transform );
     void ignoreTransformedSelection();
 
+
     void paint(Object* object, int layer, int frame, QRect rect , bool quick = false);
+
+    // Decompose image
+    void paintBackToLayer(Object* object, int layer, int frame, QRect rect , bool quick = false);
+    void paintLayer(Object* object, int layer, int frame, QRect rect , bool quick = false);
+    void paintTopToLayer(Object* object, int layer, int frame, QRect rect , bool quick = false);
 
     void paintFrameAtLayer(QPixmap &image, Object* object, int layer, int frame);
 
 private:
     void paintBackground(QPainter &painter);
     void paintOnionSkin( QPainter& painter );
-    void paintCurrentFrame( QPainter& painter );
-    void paintCurrentFrameAtLayer(QPainter& painter, int layerId );
+    void paintCurrentFrame( QPainter& painter, RENDER_LEVEL renderLevel );
+    void paintCurrentFrameAtLayer(QPainter& painter, int layerId);
 
     void paintBitmapFrame( QPainter&, int layerId, int nFrame, bool colorize = false , bool useLastKeyFrame = true );
     void paintVectorFrame(QPainter&, int layerId, int nFrame, bool colorize = false , bool useLastKeyFrame = true );
@@ -103,6 +117,7 @@ private:
 
     QLoggingCategory mLog;
 
+    void initPaint(Object *object, int layer, int frame, bool quick, QPainter &painter);
 };
 
 #endif // CANVASRENDERER_H

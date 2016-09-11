@@ -206,10 +206,19 @@ public:
 
 
 private:
+    RenderOptions getRenderOptions();
+
     void drawCanvas(int frame, QRect rect );
+    void drawCanvasBack(int frame, QRect rect);
+    void drawCanvasLayer(int frame, QRect rect);
+    void drawCanvasTop(int frame, QRect rect);
+
     QString getCachedFrameKey(int frame);
 
-    void loadTiles(const QPixmap &image);
+    void loadBackCanvas();
+    void loadTiles();
+    void loadTopCanvas();
+
     QGraphicsPixmapItem* getTileFromPosition(QPoint point);
 
     void drawAxis( QPainter& );
@@ -266,6 +275,10 @@ private:
     PreferenceManager *mPrefs = nullptr;
 
     QPixmap mCanvas;
+    QPixmap mCanvasBack;
+    QPixmap mCanvasLayer;
+    QPixmap mCanvasTop;
+
     CanvasRenderer mCanvasRenderer;
 
 
@@ -275,11 +288,16 @@ private:
     std::deque< clock_t > mDebugTimeQue;
 
     QGraphicsPixmapItem* mBackgroundItem;
-    QGraphicsPixmapItem* mTopItem;
+    QGraphicsPixmapItem* mCanvasBackItem;
+    QGraphicsPixmapItem* mCanvasTopItem;
+
     QGraphicsScene mScene;
     MPHandler *mMypaint;
 
     QHash<QString, QGraphicsPixmapItem*> mTiles;
+
+    qreal mH;
+
 
 };
 

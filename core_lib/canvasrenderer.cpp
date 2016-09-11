@@ -70,10 +70,8 @@ void CanvasRenderer::ignoreTransformedSelection()
     mRenderTransform = false;
 }
 
-void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect, bool quick )
+void CanvasRenderer::initPaint(Object *object, int layer, int frame, bool quick, QPainter& painter)
 {
-    Q_UNUSED(rect);
-
     Q_ASSERT( object );
     mObject = object;
 
@@ -83,8 +81,7 @@ void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect, bo
     // Clear Canvas
     mCanvas->fill( Qt::transparent );
 
-    // Paint Canvas
-    QPainter painter;
+    // Init painter
     painter.begin(mCanvas);
     painter.setWorldTransform( mViewTransform );
 
@@ -98,6 +95,15 @@ void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect, bo
     }
 
     painter.setWorldMatrixEnabled( true );
+}
+
+void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect, bool quick )
+{
+    Q_UNUSED(rect);
+
+    // Paint Canvas
+    QPainter painter;
+    initPaint(object, layer, frame, quick, painter);
 
     paintBackground( painter );
 
@@ -105,7 +111,63 @@ void CanvasRenderer::paint( Object* object, int layer, int frame, QRect rect, bo
         paintOnionSkin( painter );
     }
 
-    paintCurrentFrame( painter );
+    paintCurrentFrame( painter, RENDER_LEVEL::ALL );
+    paintCameraBorder( painter );
+
+    // post effects
+    if ( mOptions.bAxis )
+    {
+        paintAxis( painter );
+    }
+
+    if ( mOptions.bGrid )
+    {
+        paintGrid( painter );
+    }
+    painter.end();
+}
+
+void CanvasRenderer::paintBackToLayer(Object *object, int layer, int frame, QRect rect, bool quick)
+{
+    Q_UNUSED(rect);
+
+    // Paint Canvas
+    QPainter painter;
+    initPaint(object, layer, frame, quick, painter);
+
+    paintBackground( painter );
+
+    if (!quick) {
+        paintOnionSkin( painter );
+    }
+
+    paintCurrentFrame( painter, RENDER_LEVEL::BACK_ONLY );
+
+    painter.end();
+}
+
+void CanvasRenderer::paintLayer(Object *object, int layer, int frame, QRect rect, bool quick)
+{
+    Q_UNUSED(rect);
+
+    // Paint Canvas
+    QPainter painter;
+    initPaint(object, layer, frame, quick, painter);
+
+    paintCurrentFrame( painter, RENDER_LEVEL::CURRENT_LAYER_ONLY );
+
+    painter.end();
+}
+
+void CanvasRenderer::paintTopToLayer(Object *object, int layer, int frame, QRect rect, bool quick)
+{
+    Q_UNUSED(rect);
+
+    // Paint Canvas
+    QPainter painter;
+    initPaint(object, layer, frame, quick, painter);
+
+    paintCurrentFrame( painter, RENDER_LEVEL::TOP_ONLY );
     paintCameraBorder( painter );
 
     // post effects
@@ -392,12 +454,19 @@ void CanvasRenderer::paintTransformedSelection( QPainter& painter )
     }
 }
 
-void CanvasRenderer::paintCurrentFrame( QPainter& painter )
+void CanvasRenderer::paintCurrentFrame(QPainter& painter , RENDER_LEVEL renderLevel)
 {
 
     for ( int i = 0; i < mObject->getLayerCount(); ++i )
     {
-        paintCurrentFrameAtLayer(painter, i);
+        if ( renderLevel == RENDER_LEVEL::ALL ||
+             ((renderLevel == RENDER_LEVEL::BACK_ONLY) && (i < mLayerIndex)) ||
+             ((renderLevel == RENDER_LEVEL::CURRENT_LAYER_ONLY) && (i == mLayerIndex)) ||
+             ((renderLevel == RENDER_LEVEL::TOP_ONLY) && (i > mLayerIndex)) )
+        {
+            paintCurrentFrameAtLayer(painter, i);
+        }
+
     }
 }
 

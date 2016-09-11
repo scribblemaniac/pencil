@@ -122,9 +122,15 @@ bool ScribbleArea::init()
 
     mBackgroundItem = new QGraphicsPixmapItem();
     mScene.addItem(mBackgroundItem);
+    mBackgroundItem->setZValue(0);
 
-    mTopItem = new QGraphicsPixmapItem();
-    mScene.addItem(mTopItem);
+    mCanvasBackItem = new QGraphicsPixmapItem();
+    mScene.addItem(mCanvasBackItem);
+    mCanvasBackItem->setZValue(1);
+
+    mCanvasTopItem = new QGraphicsPixmapItem();
+    mScene.addItem(mCanvasTopItem);
+    mCanvasTopItem->setZValue(10000);
 
 
     updateBackground();
@@ -326,24 +332,30 @@ void ScribbleArea::showCurrentFrame()
     // We retrieve the canvas from the cache;
     // We draw it if it doesn't exist
     //
-    QString cachedFrameKey = getCachedFrameKey( frame );
+//    QString cachedFrameKey = getCachedFrameKey( frame );
 
-    bool hasCache = QPixmapCache::find( cachedFrameKey, mCanvas );
-    if ( !hasCache )
-    {
-        drawCanvas(frame, mCanvas.rect());
-    }
+//    bool hasCache = QPixmapCache::find( cachedFrameKey, mCanvas );
+//    if ( !hasCache )
+//    {
+//        drawCanvasLayer(frame, mCanvas.rect());
+//    }
 
-    loadTiles(mCanvas);
+    drawCanvasBack(frame, mCanvas.rect());
+    drawCanvasLayer(frame, mCanvas.rect());
+    drawCanvasTop(frame, mCanvas.rect());
+
+    loadBackCanvas();
+    loadTiles();
+    loadTopCanvas();
 }
 
-void ScribbleArea::loadTiles(const QPixmap &image)
+void ScribbleArea::loadTiles()
 {
     QSize tileSize = QSize(MYPAINT_TILE_SIZE, MYPAINT_TILE_SIZE);
 
 
-    int nbTilesOnWidth = ceil((float)image.width() / (float)tileSize.width());
-    int nbTilesOnHeight = ceil((float)image.height() / (float)tileSize.height());
+    int nbTilesOnWidth = ceil((float)mCanvasLayer.width() / (float)tileSize.width());
+    int nbTilesOnHeight = ceil((float)mCanvasLayer.height() / (float)tileSize.height());
 
     for (int h=0; h < nbTilesOnHeight; h++) {
 
@@ -353,11 +365,22 @@ void ScribbleArea::loadTiles(const QPixmap &image)
             QGraphicsPixmapItem *tile = getTileFromPosition(tilePos);
 
             QRect tileRect = QRect(tilePos, tileSize);
-            QPixmap tileImage = image.copy(tileRect);
+            QPixmap tileImage = mCanvasLayer.copy(tileRect);
 
             tile->setPixmap(tileImage);
         }
     }
+}
+
+void ScribbleArea::loadBackCanvas()
+{
+    mCanvasBackItem->setPixmap(mCanvasBack);
+}
+
+void ScribbleArea::loadTopCanvas()
+{
+    mCanvasTopItem->setPixmap(mCanvasTop);
+
 }
 
 QGraphicsPixmapItem *ScribbleArea::getTileFromPosition(QPoint point)
@@ -375,6 +398,7 @@ QGraphicsPixmapItem *ScribbleArea::getTileFromPosition(QPoint point)
         item->setPos(point.x(), point.y());
 
         mScene.addItem(item);
+        item->setZValue(30);
         mTiles.insert(posString, item);
 
         return item;
@@ -622,15 +646,32 @@ void ScribbleArea::wheelEvent( QWheelEvent* event )
     if ( !pixels.isNull() )
     {
         //qDebug() << pixels.y();
-        float delta = pixels.y() / 400.f;
-        float newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
+        qreal delta = pixels.y() / 400.f;
+        qreal newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
         mEditor->view()->scale( newScaleValue );
+
+        const int steps = event->delta() / 120;
+        static const double scaleFactor = 1.0;
+        static const qreal minFactor = 1.0;
+        static const qreal maxFactor = 100.0;
+
+        if(steps > 0) {
+            mH += scaleFactor;
+        }
+        else {
+            mH -= scaleFactor;
+        }
+
+        mH = qBound(minFactor, mH, maxFactor);
+
+        this->setTransformationAnchor(this->AnchorViewCenter);
+        this->setTransform(QTransform(mH, 0.0, 0.0, mH, 0, 0));
     }
     else if ( !angle.isNull() )
     {
-        float delta = angle.y() / 1200.f;
+        qreal delta = angle.y() / 1200.f;
         //qDebug() << degrees;
-        float newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
+        qreal newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
         qDebug() << newScaleValue;
         mEditor->view()->scale( newScaleValue );
     }
@@ -919,6 +960,15 @@ void ScribbleArea::resizeEvent( QResizeEvent *event )
     mCanvas = QPixmap( newSize );
     mCanvas.fill(Qt::transparent);
 
+    mCanvasBack = QPixmap( newSize );
+    mCanvasBack.fill(Qt::transparent);
+
+    mCanvasLayer = QPixmap( newSize );
+    mCanvasLayer.fill(Qt::transparent);
+
+    mCanvasTop = QPixmap( newSize );
+    mCanvasTop.fill(Qt::transparent);
+
     mMypaint->setSurfaceSize(newSize);
 
     QWidget::resizeEvent( event );
@@ -1010,8 +1060,8 @@ void ScribbleArea::paintBitmapBuffer( )
     layer->setModified( mEditor->currentFrame(), true );
     emit modification();
 
-    QPixmapCache::remove( "frame" + QString::number( mEditor->currentFrame() ) );
-    drawCanvas( mEditor->currentFrame(), this->rect() );
+//    QPixmapCache::remove( "frame" + QString::number( mEditor->currentFrame() ) );
+    drawCanvasLayer( mEditor->currentFrame(), this->rect() );
 //    update( rect );
 }
 
@@ -1056,7 +1106,7 @@ void ScribbleArea::paintBitmapBufferRect( QRect rect )
     emit modification();
 
     QPixmapCache::remove( "frame" + QString::number( mEditor->currentFrame() ) );
-    drawCanvas( mEditor->currentFrame(), this->rect() );
+    drawCanvasLayer( mEditor->currentFrame(), this->rect() );
 //    update( rect );
 }
 
@@ -1293,10 +1343,8 @@ void ScribbleArea::refreshVector( const QRectF& rect, int rad )
 //    event->accept();
 //}
 
-void ScribbleArea::drawCanvas( int frame, QRect rect )
+RenderOptions ScribbleArea::getRenderOptions()
 {
-    Object* object = mEditor->object();
-
     RenderOptions options;
     options.bPrevOnionSkin = mPrefs->isOn( SETTING::PREV_ONION );
     options.bNextOnionSkin = mPrefs->isOn( SETTING::NEXT_ONION );
@@ -1315,10 +1363,14 @@ void ScribbleArea::drawCanvas( int frame, QRect rect )
     options.nShowAllLayers = mShowAllLayers;
     options.bIsOnionAbsolute = (mPrefs->getString( SETTING::ONION_TYPE ) == "absolute");
 
-    mCanvasRenderer.setOptions( options );
+    return options;
+}
 
-    //qDebug() << "Antialias=" << options.bAntiAlias;
+void ScribbleArea::drawCanvas( int frame, QRect rect )
+{
+    Object* object = mEditor->object();
 
+    mCanvasRenderer.setOptions( getRenderOptions() );
     mCanvasRenderer.setCanvas( &mCanvas );
     mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
     mCanvasRenderer.paint( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
@@ -1337,10 +1389,41 @@ void ScribbleArea::drawCanvas( int frame, QRect rect )
         QPixmapCache::insert( cachedFrameKey, mCanvas );
     }
 
+    return;
+}
 
-    // Display canvas
-    //
-    //mTopItem->setPixmap(mCanvas);
+void ScribbleArea::drawCanvasBack( int frame, QRect rect )
+{
+    Object* object = mEditor->object();
+
+    mCanvasRenderer.setOptions( getRenderOptions() );
+    mCanvasRenderer.setCanvas( &mCanvasBack );
+    mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
+    mCanvasRenderer.paintBackToLayer( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
+
+    return;
+}
+
+void ScribbleArea::drawCanvasLayer( int frame, QRect rect )
+{
+    Object* object = mEditor->object();
+
+    mCanvasRenderer.setOptions( getRenderOptions() );
+    mCanvasRenderer.setCanvas( &mCanvasLayer );
+    mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
+    mCanvasRenderer.paintLayer( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
+
+    return;
+}
+
+void ScribbleArea::drawCanvasTop( int frame, QRect rect )
+{
+    Object* object = mEditor->object();
+
+    mCanvasRenderer.setOptions( getRenderOptions() );
+    mCanvasRenderer.setCanvas( &mCanvasTop );
+    mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
+    mCanvasRenderer.paintTopToLayer( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
 
     return;
 }
@@ -1350,6 +1433,7 @@ QString ScribbleArea::getCachedFrameKey(int frame)
     int lastFrameNumber = mEditor->layers()->LastFrameAtFrame( frame );
     return "frame" + QString::number( lastFrameNumber );
 }
+
 
 void ScribbleArea::setGaussianGradient( QGradient &gradient, QColor colour, qreal opacity, qreal mOffset )
 {
