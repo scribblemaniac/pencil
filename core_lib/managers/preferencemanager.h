@@ -58,6 +58,7 @@ public:
     void set(SETTING option, QString value );
     void set(SETTING option, int value );
     void set(SETTING option, bool value );
+    void set(QString option, QString value );
 
     void turnOn(SETTING option );
     void turnOff(SETTING option );
@@ -70,6 +71,8 @@ public:
 
     QString getString(SETTING option);
     int     getInt(SETTING option);
+
+    void get(QString option);
 
 Q_SIGNALS:
     void optionChanged( SETTING e );

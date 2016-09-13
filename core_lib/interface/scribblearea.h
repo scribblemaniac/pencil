@@ -125,6 +125,8 @@ public:
 
     bool isMouseInUse() { return mMouseInUse; }
 
+    void loadBrush(const QByteArray &content);
+
 signals:
     void modification();
     void modification( int );

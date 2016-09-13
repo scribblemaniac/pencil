@@ -284,3 +284,15 @@ void PreferenceManager::set( SETTING option, bool value )
         emit optionChanged( option );
     }
 }
+
+void PreferenceManager::set(QString option, QString value)
+{
+    QSettings settings( PENCIL2D, PENCIL2D );
+    settings.setValue( option, value );
+}
+
+void PreferenceManager::get(QString option)
+{
+    QSettings settings( PENCIL2D, PENCIL2D );
+    settings.value( option, "" );
+}

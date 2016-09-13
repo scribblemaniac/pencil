@@ -15,7 +15,8 @@ CONFIG += qt
 
 RESOURCES += \
     ../pencil.qrc \
-    resource/app.qrc
+    resource/app.qrc \
+    brushes.qrc
 
 INCLUDEPATH += \
     ../core_lib/graphics \

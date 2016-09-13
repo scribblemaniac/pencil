@@ -69,6 +69,8 @@ GNU General Public License for more details.
 
 #include "exportimageseqdialog.h"
 #include "shortcutfilter.h"
+#include "mpbrushselector.h"
+
 
 MainWindow2::MainWindow2( QWidget *parent ) : QMainWindow( parent )
 {
@@ -163,6 +165,14 @@ void MainWindow2::createDockWidgets()
         << mToolOptions
         << mToolBox;
 
+    // Add mypaint brush selector widget
+    //
+    mBrushSelector = new MPBrushSelector( ":brushes", NULL);
+
+    QDockWidget* p_dockBrush = new QDockWidget("Brush Library");
+    p_dockBrush->setWidget(mBrushSelector);
+
+
     /*
     mTimeline2 = new Timeline2;
     mTimeline2->setObjectName( "Timeline2" );
@@ -172,6 +182,7 @@ void MainWindow2::createDockWidgets()
     addDockWidget(Qt::RightDockWidgetArea,  mColorPalette);
     addDockWidget(Qt::RightDockWidgetArea,  mDisplayOptionWidget);
     addDockWidget(Qt::LeftDockWidgetArea,   mToolBox);
+    addDockWidget(Qt::LeftDockWidgetArea,   p_dockBrush );
     addDockWidget(Qt::LeftDockWidgetArea,   mToolOptions);
     addDockWidget(Qt::BottomDockWidgetArea, mTimeLine);
     //addDockWidget( Qt::BottomDockWidgetArea, mTimeline2);
@@ -199,6 +210,9 @@ void MainWindow2::createDockWidgets()
     makeConnections( mEditor, mColorPalette );
     makeConnections( mEditor, mDisplayOptionWidget );
     makeConnections( mEditor, mToolOptions );
+    makeConnections( mEditor, mBrushSelector );
+
+
 
     for ( BaseDockWidget* w : mDockWidgets )
     {
@@ -1118,6 +1132,12 @@ void MainWindow2::makeConnections(Editor* editor, DisplayOptionWidget* display)
 void MainWindow2::makeConnections( Editor* editor, ToolOptionWidget* toolOptions )
 {
     toolOptions->makeConnectionToEditor( editor );
+}
+
+void MainWindow2::makeConnections(Editor *editor, MPBrushSelector *brushSelector)
+{
+    editor->setMPBrushSelector(brushSelector);
+    connect( brushSelector, &MPBrushSelector::brushSelected, editor, &Editor::loadBrush );
 }
 
 

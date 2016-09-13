@@ -38,6 +38,7 @@ class PreferenceManager;
 class SoundManager;
 class ScribbleArea;
 class TimeLine;
+class MPBrushSelector;
 
 enum class SETTING;
 
@@ -75,6 +76,8 @@ public:
     Status setObject( Object* object );
 
     void setScribbleArea( ScribbleArea* pScirbbleArea ) { mScribbleArea = pScirbbleArea; }
+    void setMPBrushSelector( MPBrushSelector* brushSelector ) { mBrushSelector = brushSelector; }
+
     ScribbleArea* getScribbleArea() { return mScribbleArea; }
 
     int  currentFrame();
@@ -159,6 +162,8 @@ public: //slots
     void startPreviewMode();
     void endPreviewMode();
 
+public slots:
+    void loadBrush(QString toolName, QString brushName, const QByteArray &content);
 protected:
     // Need to move to somewhere...
     void dragEnterEvent( QDragEnterEvent* event );
@@ -182,6 +187,8 @@ private:
     ViewManager*       mViewManager       = nullptr;
     PreferenceManager* mPreferenceManager = nullptr;
     SoundManager*      mSoundManager      = nullptr;
+
+    MPBrushSelector*   mBrushSelector     = nullptr;
 
     std::vector< BaseManager* > mAllManagers;
 

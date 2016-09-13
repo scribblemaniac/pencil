@@ -944,3 +944,9 @@ void Editor::resetView()
 	view()->resetView();
     mScribbleArea->updateAllFrames();
 }
+
+void Editor::loadBrush(QString toolName, QString brushName, const QByteArray &content)
+{
+    preference()->set("LastBrushFor_"+toolName, brushName);
+    mScribbleArea->loadBrush(content);
+}

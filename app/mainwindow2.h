@@ -38,6 +38,7 @@ class ColorBox;
 class RecentFileMenu;
 class Timeline2;
 class CommandCenter;
+class MPBrushSelector;
 
 namespace Ui
 {
@@ -112,6 +113,7 @@ private:
     void makeConnections( Editor*, TimeLine* );
     void makeConnections( Editor*, DisplayOptionWidget* );
     void makeConnections( Editor*, ToolOptionWidget*);
+    void makeConnections( Editor*, MPBrushSelector*);
 
     // UI: central Drawing Area
     ScribbleArea* mScribbleArea;
@@ -124,6 +126,8 @@ private:
     ToolBoxWidget*        mToolBox             = nullptr;
     Timeline2*            mTimeline2           = nullptr;
     RecentFileMenu*       mRecentFileMenu      = nullptr;
+    MPBrushSelector*      mBrushSelector       = nullptr;
+
     //PreviewWidget*      mPreview = nullptr;
 
 public:

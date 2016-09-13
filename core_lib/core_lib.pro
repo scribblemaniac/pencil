@@ -93,7 +93,8 @@ HEADERS +=  \
     structure/soundclip.h \
     managers/soundmanager.h \
     structure/editorstate.h \
-    structure/filemanager.h
+    structure/filemanager.h \
+    interface/mpbrushselector.h
 
 
 SOURCES +=  graphics/bitmap/bitmapimage.cpp \
@@ -157,7 +158,8 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     structure/soundclip.cpp \
     managers/soundmanager.cpp \
     structure/editorstate.cpp \
-    structure/filemanager.cpp
+    structure/filemanager.cpp \
+    interface/mpbrushselector.cpp
 
 win32 {
     CONFIG -= flat

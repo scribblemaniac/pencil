@@ -143,6 +143,14 @@ bool ScribbleArea::init()
     return true;
 }
 
+/************************************************************************************/
+// MyPaint
+
+void ScribbleArea::loadBrush(const QByteArray &content)
+{
+    mMypaint->loadBrush(content);
+}
+
 void ScribbleArea::onNewTile(MPSurface *surface, MPTile *tile)
 {
     updateTile(surface, tile);
