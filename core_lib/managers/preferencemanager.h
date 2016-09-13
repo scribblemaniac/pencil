@@ -72,7 +72,7 @@ public:
     QString getString(SETTING option);
     int     getInt(SETTING option);
 
-    void get(QString option);
+    QString get(QString option);
 
 Q_SIGNALS:
     void optionChanged( SETTING e );

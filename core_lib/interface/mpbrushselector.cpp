@@ -30,11 +30,8 @@ MPBrushSelector::MPBrushSelector(const QString &brushLibPath, QWidget *p_parent)
   QTabWidget   (p_parent),
   m_brushesPath(brushLibPath)
 {
-    loadList("pencil");
-}
+    tabBar()->hide();
 
-void MPBrushSelector::loadList(QString toolName)
-{
     // First, we parse the "order.conf" file to fill m_brushLib
     QFile fileOrder(m_brushesPath + QDir::separator() + BRUSH_LIST);
     if (fileOrder.open(QIODevice::ReadOnly))
@@ -66,33 +63,58 @@ void MPBrushSelector::loadList(QString toolName)
         // Now we create a QListWidget (displaying icons) for each stringList
         foreach (const QString &caption, m_brushLib.keys())
         {
-            if (caption == toolName) {
-
-                const QStringList subList = m_brushLib.value(caption);
-                if (subList.isEmpty()) continue; // this should not happen...
-                QListWidget* p_lWdgt = new QListWidget();
-                p_lWdgt->setUniformItemSizes(true);
-                p_lWdgt->setViewMode        (QListView::IconMode);
-                p_lWdgt->setResizeMode      (QListView::Adjust);
-                p_lWdgt->setMovement        (QListView::Static);
-                p_lWdgt->setFlow            (QListView::LeftToRight);
-                p_lWdgt->setSelectionMode   (QAbstractItemView::SingleSelection);
-                p_lWdgt->setIconSize        (QSize(ICON_SZ,ICON_SZ));
-                connect(p_lWdgt, SIGNAL(itemClicked(QListWidgetItem*)), SLOT(itemClicked(QListWidgetItem*)));
-                // Add this ListWidget to the TabWidget:
-                addTab(p_lWdgt, caption);
-                // Populate the ListWidget with brushes (and their preview):
-                for (int n = 0 ; n < subList.count() ; n++)
-                {
-                    QString name (subList[n]);
-                    QIcon preview(m_brushesPath + QDir::separator() + name + BRUSH_PREVIEW_EXT);
-                    QListWidgetItem* p_item = new QListWidgetItem(preview, QString(), p_lWdgt, n); // no need to show the name as it is already visible in preview
-                    //p_item->setIconSize(QSize(128,128));
-                    p_item->setToolTip(QString(name));
-                }
+            const QStringList subList = m_brushLib.value(caption);
+            if (subList.isEmpty()) continue; // this should not happen...
+            QListWidget* p_lWdgt = new QListWidget();
+            p_lWdgt->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            p_lWdgt->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            p_lWdgt->setUniformItemSizes(true);
+            p_lWdgt->setViewMode        (QListView::IconMode);
+            p_lWdgt->setResizeMode      (QListView::Adjust);
+            p_lWdgt->setMovement        (QListView::Static);
+            p_lWdgt->setFlow            (QListView::LeftToRight);
+            p_lWdgt->setSelectionMode   (QAbstractItemView::SingleSelection);
+            p_lWdgt->setIconSize        (QSize(ICON_SZ,ICON_SZ));
+            connect(p_lWdgt, SIGNAL(itemClicked(QListWidgetItem*)), SLOT(itemClicked(QListWidgetItem*)));
+            // Add this ListWidget to the TabWidget:
+            addTab(p_lWdgt, caption);
+            // Populate the ListWidget with brushes (and their preview):
+            for (int n = 0 ; n < subList.count() ; n++)
+            {
+                QString name (subList[n]);
+                QIcon preview(m_brushesPath + QDir::separator() + name + BRUSH_PREVIEW_EXT);
+                QListWidgetItem* p_item = new QListWidgetItem(preview, QString(), p_lWdgt, n); // no need to show the name as it is already visible in preview
+                //p_item->setIconSize(QSize(128,128));
+                p_item->setToolTip(QString(name));
             }
         }
-        // for now, no brush is selected. Expecting some order from owner...
+
+        //Insert empty tab for other tools
+        QListWidget* emptyWdg = new QListWidget();
+        addTab(emptyWdg, "empty");
+
+    }
+}
+
+void MPBrushSelector::loadList(QString toolName)
+{
+    // first of all, we will deselect all other items in other panels :
+    bool foundSelection = false;
+
+    for (int i = 0 ; i < count() ; i++)
+    {
+        QString caption = tabText(i);
+
+        if (caption == toolName) {
+            setCurrentIndex(i);
+            foundSelection = true;
+        }
+    }
+    // If there is no tab matching the current tool,
+    // we select the last one (empty)
+    //
+    if (!foundSelection) {
+        setCurrentIndex(count() - 1);
     }
 }
 
@@ -126,25 +148,31 @@ void MPBrushSelector::itemClicked(QListWidgetItem *p_item)
 void MPBrushSelector::selectBrush (QString brushName)
 {
     if (!isValid()) return;
+
     QListWidget*      p_page = NULL;
     QListWidgetItem * p_item = NULL;
-    // We search for the brush requested :
-    for (int page = count()-1 ; page >= 0 && !p_item ; page--)
+
+    // We search for the brush requested
+    //
+    p_page = dynamic_cast<QListWidget*>(widget(currentIndex()));
+    QString caption = tabText(currentIndex());
+    const QStringList subList = m_brushLib.value(caption);
+    if (!brushName.isEmpty()) for (int idx = 0 ; idx < subList.count() ; idx++)
     {
-        // reverse loop so we leave it with first page
-        p_page = dynamic_cast<QListWidget*>(widget(page));
-        QString caption = tabText(page);
-        const QStringList subList = m_brushLib.value(caption);
-        if (!brushName.isEmpty()) for (int idx = 0 ; idx < subList.count() ; idx++)
-        {
-            if (subList.at(idx) == brushName) { p_item = p_page->item(idx); break; }
+        if (subList.at(idx) == brushName) {
+            p_item = p_page->item(idx);
         }
     }
-    // default one : we use the first tab page & the first item available:
-    if (!p_item && p_page && p_page->count()) p_item = p_page->item(0);
+
+    // default one : we use the first item available
+    //
+    if (!p_item) {
+        p_item = p_page->item(0);
+    }
+
     // Update GUI + load the brush (if any)
-    if (p_item)
-    {
+    //
+    if (p_item) {
         setCurrentWidget(p_page);
         p_page->setCurrentItem (p_item);
         itemClicked(p_item);

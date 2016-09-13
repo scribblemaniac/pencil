@@ -1079,7 +1079,7 @@ void MainWindow2::makeConnections( Editor* editor, ColorBox* colorBox )
 
 void MainWindow2::makeConnections( Editor* editor, ScribbleArea* scribbleArea )
 {
-    connect( editor->tools(), &ToolManager::toolChanged, scribbleArea, &ScribbleArea::setCurrentTool );
+    connect( editor->tools(), &ToolManager::toolChanged, editor, &Editor::setCurrentTool );
     connect( editor->tools(), &ToolManager::toolPropertyChanged, scribbleArea, &ScribbleArea::updateToolCursor );
 
     connect( editor, &Editor::currentFrameChanged, scribbleArea, &ScribbleArea::showCurrentFrame );

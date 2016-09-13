@@ -58,6 +58,8 @@ GNU General Public License for more details.
 #include "timeline.h"
 #include "util.h"
 
+#include "mpbrushselector.h"
+
 #define MIN(a,b) ((a)>(b)?(b):(a))
 
 
@@ -480,6 +482,43 @@ Status Editor::setObject( Object* newObject )
     updateObject();
 
     return Status::OK;
+}
+
+void Editor::setCurrentTool(ToolType eToolMode)
+{
+    mScribbleArea->setCurrentTool(eToolMode);
+
+    QString toolName = "empty";
+
+    switch ( eToolMode )
+    {
+    case ToolType::PENCIL:
+        toolName = "pencil";
+        break;
+    case ToolType::ERASER:
+        toolName = "eraser";
+        break;
+    case ToolType::PEN:
+        toolName = "pen";
+        break;
+    case ToolType::BRUSH:
+        toolName = "brush";
+        break;
+    case ToolType::SMUDGE:
+        toolName = "smudge";
+        break;
+    default:
+        toolName = "empty";
+        break;
+    }
+
+    mBrushSelector->loadList(toolName);
+
+    if (toolName != "empty") {
+        QString lastUsed = preference()->get("LastBrushFor_"+toolName);
+        mBrushSelector->selectBrush(lastUsed);
+    }
+
 }
 
 void Editor::updateObject()

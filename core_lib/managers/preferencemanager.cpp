@@ -291,8 +291,8 @@ void PreferenceManager::set(QString option, QString value)
     settings.setValue( option, value );
 }
 
-void PreferenceManager::get(QString option)
+QString PreferenceManager::get(QString option)
 {
     QSettings settings( PENCIL2D, PENCIL2D );
-    settings.value( option, "" );
+    return settings.value( option, "" ).toString();
 }

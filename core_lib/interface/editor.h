@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include <QList>
 #include "backupelement.h"
 #include "pencilerror.h"
+#include "pencildef.h"
 
 
 class QDragEnterEvent;
@@ -77,6 +78,8 @@ public:
 
     void setScribbleArea( ScribbleArea* pScirbbleArea ) { mScribbleArea = pScirbbleArea; }
     void setMPBrushSelector( MPBrushSelector* brushSelector ) { mBrushSelector = brushSelector; }
+
+    void setCurrentTool( ToolType eToolMode );
 
     ScribbleArea* getScribbleArea() { return mScribbleArea; }
 

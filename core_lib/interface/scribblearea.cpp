@@ -1085,8 +1085,6 @@ void ScribbleArea::paintBitmapBuffer( )
         switch ( currentTool()->type() )
         {
             case ERASER:
-                cm = QPainter::CompositionMode_DestinationOut;
-                break;
             case BRUSH:
             case PEN:
             case PENCIL:
