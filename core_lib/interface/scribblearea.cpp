@@ -704,42 +704,42 @@ void ScribbleArea::keyReleaseEvent( QKeyEvent *event )
 // mouse and tablet event handlers
 void ScribbleArea::wheelEvent( QWheelEvent* event )
 {
-    QPoint pixels = event->pixelDelta();
-    QPoint angle = event->angleDelta();
-    if ( !pixels.isNull() )
-    {
-        //qDebug() << pixels.y();
-        qreal delta = pixels.y() / 400.f;
-        qreal newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
-        mEditor->view()->scale( newScaleValue );
+//    QPoint pixels = event->pixelDelta();
+//    QPoint angle = event->angleDelta();
+//    if ( !pixels.isNull() )
+//    {
+//        //qDebug() << pixels.y();
+//        qreal delta = pixels.y() / 400.f;
+//        qreal newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
+//        mEditor->view()->scale( newScaleValue );
 
-        const int steps = event->delta() / 120;
-        static const double scaleFactor = 1.0;
-        static const qreal minFactor = 1.0;
-        static const qreal maxFactor = 100.0;
+//        const int steps = event->delta() / 120;
+//        static const double scaleFactor = 1.0;
+//        static const qreal minFactor = 1.0;
+//        static const qreal maxFactor = 100.0;
 
-        if(steps > 0) {
-            mH += scaleFactor;
-        }
-        else {
-            mH -= scaleFactor;
-        }
+//        if(steps > 0) {
+//            mH += scaleFactor;
+//        }
+//        else {
+//            mH -= scaleFactor;
+//        }
 
-        mH = qBound(minFactor, mH, maxFactor);
+//        mH = qBound(minFactor, mH, maxFactor);
 
-        this->setTransformationAnchor(this->AnchorViewCenter);
-        this->setTransform(QTransform(mH, 0.0, 0.0, mH, 0, 0));
-    }
-    else if ( !angle.isNull() )
-    {
-        qreal delta = angle.y() / 1200.f;
-        //qDebug() << degrees;
-        qreal newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
-        qDebug() << newScaleValue;
-        mEditor->view()->scale( newScaleValue );
-    }
+//        this->setTransformationAnchor(this->AnchorViewCenter);
+//        this->setTransform(QTransform(mH, 0.0, 0.0, mH, 0, 0));
+//    }
+//    else if ( !angle.isNull() )
+//    {
+//        qreal delta = angle.y() / 1200.f;
+//        //qDebug() << degrees;
+//        qreal newScaleValue = mEditor->view()->scaling() * ( 1.f + delta );
+//        qDebug() << newScaleValue;
+//        mEditor->view()->scale( newScaleValue );
+//    }
 
-    event->accept();
+//    event->accept();
 }
 
 void ScribbleArea::tabletEvent( QTabletEvent *event )
