@@ -156,6 +156,9 @@ public: //slots
 
     void settingUpdated(SETTING);
 
+    void startPreviewMode();
+    void endPreviewMode();
+
 protected:
     // Need to move to somewhere...
     void dragEnterEvent( QDragEnterEvent* event );

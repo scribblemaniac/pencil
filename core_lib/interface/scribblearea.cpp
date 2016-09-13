@@ -110,7 +110,7 @@ bool ScribbleArea::init()
 
     setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding ) );
 
-    QPixmapCache::setCacheLimit( 200 * 1024 );
+    QPixmapCache::setCacheLimit( 100 * 1024 );
 
     mNeedUpdateAll = false;
 
@@ -120,13 +120,18 @@ bool ScribbleArea::init()
     // color wheel popup
     //m_popupPaletteWidget = new PopupColorPaletteWidget( this );
 
+
     mBackgroundItem = new QGraphicsPixmapItem();
     mScene.addItem(mBackgroundItem);
     mBackgroundItem->setZValue(0);
 
+    mCanvasItem = new QGraphicsPixmapItem();
+    mScene.addItem(mCanvasItem);
+    mCanvasItem->setZValue(1);
+
     mCanvasBackItem = new QGraphicsPixmapItem();
     mScene.addItem(mCanvasBackItem);
-    mCanvasBackItem->setZValue(1);
+    mCanvasBackItem->setZValue(2);
 
     mCanvasTopItem = new QGraphicsPixmapItem();
     mScene.addItem(mCanvasTopItem);
@@ -329,36 +334,75 @@ void ScribbleArea::showCurrentFrame()
     mMypaint->loadImage(currentImage.toImage());
 
 
-    // We retrieve the canvas from the cache;
-    // We draw it if it doesn't exist
+    // We retrieve the entire canvas from the cache;
+    // We draw it if it doesn't exist.
     //
-    QString cachedBackKey = getCachedFrameKey( frame ) + "back";
+    // This is used for optimizing scrubbing and move/scale speed.
+    //
+    QString cachedFrameKey = getCachedFrameKey( frame );
 
-    bool hasBackCache = QPixmapCache::find( cachedBackKey, mCanvasBack );
-    if ( !hasBackCache )
+    bool hasCache = QPixmapCache::find( cachedFrameKey, mCanvas );
+    if ( !hasCache )
     {
+        drawCanvas(frame, mCanvas.rect());
+    }
+
+    if (isInPreviewMode) {
+        loadFullCanvas();
+    }
+    else {
         drawCanvasBack(frame, mCanvasBack.rect());
-    }
-
-    QString cachedLayerKey = getCachedFrameKey( frame ) + "layer";
-
-    bool hasLayerCache = QPixmapCache::find( cachedLayerKey, mCanvasLayer );
-    if ( !hasLayerCache )
-    {
         drawCanvasLayer(frame, mCanvasLayer.rect());
-    }
-
-    QString cachedTopKey = getCachedFrameKey( frame ) + "top";
-
-    bool hasTopCache = QPixmapCache::find( cachedTopKey, mCanvasTop );
-    if ( !hasTopCache )
-    {
         drawCanvasTop(frame, mCanvasTop.rect());
+
+        loadBackCanvas();
+        loadTiles();
+        loadTopCanvas();
     }
 
-    loadBackCanvas();
-    loadTiles();
-    loadTopCanvas();
+}
+
+void ScribbleArea::switchToPreviewMode()
+{
+    if (!isInPreviewMode) {
+
+        // Hide Decomposed Canvas show Full Canvas
+        //
+        foreach (QGraphicsItem* gItem, mScene.items()) {
+            gItem->setVisible(false);
+        }
+        mBackgroundItem->setVisible(true);
+        mCanvasItem->setVisible(true);
+
+        mNeedQuickUpdate = true;
+        isInPreviewMode = true;
+
+        showCurrentFrame();
+    }
+}
+
+void ScribbleArea::switchToDrawingMode()
+{
+    if (isInPreviewMode) {
+
+        // Hide Full Canvas show Decomposed Canvas
+        //
+        foreach (QGraphicsItem* gItem, mScene.items()) {
+            gItem->setVisible(true);
+        }
+        mCanvasItem->setVisible(false);
+
+        mNeedQuickUpdate = false;
+        isInPreviewMode = false;
+
+        showCurrentFrame();
+    }
+}
+
+void ScribbleArea::loadFullCanvas()
+{
+    mCanvasItem->setPixmap(mCanvas);
+    mCanvasItem->setVisible(true);
 }
 
 void ScribbleArea::loadTiles()
@@ -392,7 +436,6 @@ void ScribbleArea::loadBackCanvas()
 void ScribbleArea::loadTopCanvas()
 {
     mCanvasTopItem->setPixmap(mCanvasTop);
-
 }
 
 QGraphicsPixmapItem *ScribbleArea::getTileFromPosition(QPoint point)
@@ -1387,19 +1430,16 @@ void ScribbleArea::drawCanvas( int frame, QRect rect )
     mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
     mCanvasRenderer.paint( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
 
-    if (!mNeedQuickUpdate) {
+    // Cache current frame for faster render
+    //
+    QString cachedFrameKey = getCachedFrameKey( frame );
 
-        // Cache current frame for faster render
-        //
-        QString cachedFrameKey = getCachedFrameKey( frame );
-
-        QPixmap pm;
-        if (QPixmapCache::find(cachedFrameKey, &pm)) {
-            QPixmapCache::remove( cachedFrameKey );
-        }
-
-        QPixmapCache::insert( cachedFrameKey, mCanvas );
+    QPixmap pm;
+    if (QPixmapCache::find(cachedFrameKey, &pm)) {
+        QPixmapCache::remove( cachedFrameKey );
     }
+
+    QPixmapCache::insert( cachedFrameKey, mCanvas );
 
     return;
 }
@@ -1413,20 +1453,6 @@ void ScribbleArea::drawCanvasBack( int frame, QRect rect )
     mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
     mCanvasRenderer.paintBackToLayer( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
 
-    if (!mNeedQuickUpdate) {
-
-        // Cache current frame for faster render
-        //
-        QString cachedFrameKey = getCachedFrameKey( frame ) + "back";
-
-        QPixmap pm;
-        if (QPixmapCache::find(cachedFrameKey, &pm)) {
-            QPixmapCache::remove( cachedFrameKey );
-        }
-
-        QPixmapCache::insert( cachedFrameKey, mCanvasBack );
-    }
-
     return;
 }
 
@@ -1439,20 +1465,6 @@ void ScribbleArea::drawCanvasLayer( int frame, QRect rect )
     mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
     mCanvasRenderer.paintLayer( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
 
-    if (!mNeedQuickUpdate) {
-
-        // Cache current frame for faster render
-        //
-        QString cachedFrameKey = getCachedFrameKey( frame ) + "layer";
-
-        QPixmap pm;
-        if (QPixmapCache::find(cachedFrameKey, &pm)) {
-            QPixmapCache::remove( cachedFrameKey );
-        }
-
-        QPixmapCache::insert( cachedFrameKey, mCanvasLayer );
-    }
-
     return;
 }
 
@@ -1464,20 +1476,6 @@ void ScribbleArea::drawCanvasTop( int frame, QRect rect )
     mCanvasRenderer.setCanvas( &mCanvasTop );
     mCanvasRenderer.setViewTransform( mEditor->view()->getView() );
     mCanvasRenderer.paintTopToLayer( object, mEditor->layers()->currentLayerIndex(), frame, rect, mNeedQuickUpdate );
-
-    if (!mNeedQuickUpdate) {
-
-        // Cache current frame for faster render
-        //
-        QString cachedFrameKey = getCachedFrameKey( frame ) + "top";
-
-        QPixmap pm;
-        if (QPixmapCache::find(cachedFrameKey, &pm)) {
-            QPixmapCache::remove( cachedFrameKey );
-        }
-
-        QPixmapCache::insert( cachedFrameKey, mCanvasTop );
-    }
 
     return;
 }

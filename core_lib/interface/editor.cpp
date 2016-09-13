@@ -732,6 +732,16 @@ void Editor::updateCurrentFrame()
     mScribbleArea->updateCurrentFrame();
 }
 
+void Editor::startPreviewMode()
+{
+    mScribbleArea->switchToPreviewMode();
+}
+
+void Editor::endPreviewMode()
+{
+    mScribbleArea->switchToDrawingMode();
+}
+
 void Editor::scrubTo( int frame )
 {
 	if ( frame < 1 )

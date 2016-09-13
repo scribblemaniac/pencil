@@ -201,6 +201,9 @@ public:
     void refreshVector( const QRectF& rect, int rad );
     void setGaussianGradient( QGradient &gradient, QColor colour, qreal opacity, qreal offset );
 
+    void switchToPreviewMode();
+    void switchToDrawingMode();
+
     BitmapImage* mBufferImg = nullptr; // used to pre-draw vector modifications
     BitmapImage* mStrokeImg = nullptr; // used for brush strokes before they are finalized
 
@@ -215,6 +218,7 @@ private:
 
     QString getCachedFrameKey(int frame);
 
+    void loadFullCanvas();
     void loadBackCanvas();
     void loadTiles();
     void loadTopCanvas();
@@ -287,6 +291,8 @@ private:
     QLoggingCategory mLog;
     std::deque< clock_t > mDebugTimeQue;
 
+    QGraphicsPixmapItem* mCanvasItem;
+
     QGraphicsPixmapItem* mBackgroundItem;
     QGraphicsPixmapItem* mCanvasBackItem;
     QGraphicsPixmapItem* mCanvasTopItem;
@@ -296,7 +302,10 @@ private:
 
     QHash<QString, QGraphicsPixmapItem*> mTiles;
 
+    bool isInPreviewMode = false;
+
     qreal mH;
+
 
 
 };
