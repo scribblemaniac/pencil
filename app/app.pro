@@ -45,7 +45,8 @@ HEADERS += \
     colorpalettewidget.h \
     colorwheel.h \
     filedialogex.h \
-    displayoptionwidget.h
+    displayoptionwidget.h \
+    pencilapp.h
     # popupcolorpalettewidget.h
 
 SOURCES += \
@@ -65,7 +66,8 @@ SOURCES += \
     colorpalettewidget.cpp \
     colorwheel.cpp \
     filedialogex.cpp \
-    displayoptionwidget.cpp
+    displayoptionwidget.cpp \
+    pencilapp.cpp
     # spopupcolorpalettewidget.cpp
 
 FORMS += \

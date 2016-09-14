@@ -129,6 +129,16 @@ MainWindow2::~MainWindow2()
     delete ui;
 }
 
+void MainWindow2::onTabletProximity(QTabletEvent* event)
+{
+    if (event->type() == QEvent::TabletEnterProximity) {
+        mScribbleArea->onTabletEnterProximity(event);
+    }
+    else if(event->type() == QEvent::TabletLeaveProximity) {
+        mScribbleArea->onTabletLeaveProximity(event);
+    }
+}
+
 void MainWindow2::resizeEvent( QResizeEvent *event )
 {
     Q_UNUSED( event );

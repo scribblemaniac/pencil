@@ -23,6 +23,7 @@ GNU General Public License for more details.
 #include "mainwindow2.h"
 #include <iostream>
 #include <cstring>
+#include "pencilapp.h"
 
 using std::cout;
 using std::endl;
@@ -30,7 +31,7 @@ using std::endl;
 
 int main(int argc, char* argv[])
 {
-    QApplication app(argc, argv);
+    PencilApp app(argc, argv);
     app.setApplicationName( "Pencil2D" );
 
     QTranslator qtTranslator;
@@ -46,6 +47,8 @@ int main(int argc, char* argv[])
 
     MainWindow2 mainWindow;
     mainWindow.setWindowTitle( QString("Pencil2D - Nightly Build %1").arg( __DATE__ ) );
+
+    app.setMainWindow(&mainWindow);
     
     if ( argc == 1 || (argc > 1 && strcmp( argv[1], "-NSDocumentRevisionsDebugMode" ) == 0)  )
     {

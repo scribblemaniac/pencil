@@ -747,18 +747,24 @@ void ScribbleArea::tabletEvent( QTabletEvent *event )
     //qDebug() << "Device" << event->device() << "Pointer type" << event->pointerType();
     mStrokeManager->tabletEvent( event );
 
-    bool isMouseInUse = event->pointerType() == QTabletEvent::Cursor;
-
-//    qreal pressure = mStrokeManager->getPressure();
-//    qreal powerPressure = pow( ( float )p, 2.0f);
+    // Make sure tablet is in use
+    if (mMouseInUse) {
+        onTabletEnterProximity(event);
+    }
 
     currentTool()->adjustPressureSensitiveProperties( mStrokeManager->getPressure(),
-                                                      isMouseInUse );
+                                                      mMouseInUse );
 
     currentTool()->adjustTiltProperties( mStrokeManager->getXTilt(),
                                          mStrokeManager->getYTilt(),
-                                         isMouseInUse );
+                                         mMouseInUse );
 
+    event->ignore(); // indicates that the tablet event is not accepted yet, so that it is propagated as a mouse event)
+}
+
+void ScribbleArea::onTabletEnterProximity(const QTabletEvent *event)
+{
+    mMouseInUse = false;
     if ( event->pointerType() == QTabletEvent::Eraser )
     {
         editor()->tools()->tabletSwitchToEraser();
@@ -766,7 +772,12 @@ void ScribbleArea::tabletEvent( QTabletEvent *event )
     else {
         editor()->tools()->tabletRestorePrevTool();
     }
-    event->ignore(); // indicates that the tablet event is not accepted yet, so that it is propagated as a mouse event)
+}
+
+void ScribbleArea::onTabletLeaveProximity(const QTabletEvent *event)
+{
+    mMouseInUse = true;
+    editor()->tools()->tabletRestorePrevTool();
 }
 
 bool ScribbleArea::isLayerPaintable() const

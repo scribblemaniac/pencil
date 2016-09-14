@@ -83,6 +83,8 @@ public:
 
     void openFile(QString filename);
 
+    void onTabletProximity(QTabletEvent *event);
+
 protected:
     void tabletEvent( QTabletEvent* ) override;
     void closeEvent( QCloseEvent* ) override;

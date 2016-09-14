@@ -210,6 +210,9 @@ public:
     BitmapImage* mStrokeImg = nullptr; // used for brush strokes before they are finalized
 
 
+    void onTabletEnterProximity(const QTabletEvent *event);
+    void onTabletLeaveProximity(const QTabletEvent *event);
+
 private:
     RenderOptions getRenderOptions();
 
