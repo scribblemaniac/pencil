@@ -19,7 +19,7 @@ public:
 
     void adjustPressureSensitiveProperties( qreal pressure, bool mouseDevice ) override;
 
-    void drawStroke();
+//    void drawStroke();
     void paintAt( QPointF point );
 
     void setWidth( const qreal width ) override;

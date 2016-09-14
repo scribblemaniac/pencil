@@ -107,7 +107,6 @@ void PencilTool::mousePressEvent( QMouseEvent *event )
     {
         mEditor->backup( typeName() );
 
-        mScribbleArea->setAllDirty();
         mScribbleArea->startStroke(); //start and appends first stroke
 
         //Layer *layer = m_pEditor->getCurrentLayer();

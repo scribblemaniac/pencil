@@ -16,7 +16,7 @@ public:
     void mouseMoveEvent( QMouseEvent* ) override;
     void mouseReleaseEvent( QMouseEvent* ) override;
 
-    void drawStroke();
+//    void drawStroke();
 
     void adjustPressureSensitiveProperties( qreal pressure, bool mouseDevice ) override;
 

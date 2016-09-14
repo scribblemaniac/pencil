@@ -150,7 +150,6 @@ void BrushTool::mousePressEvent( QMouseEvent *event )
     if ( event->button() == Qt::LeftButton )
     {
         mEditor->backup( typeName() );
-        mScribbleArea->setAllDirty();
     }
 
     mouseDownPoint = getCurrentPoint();
@@ -247,79 +246,79 @@ void BrushTool::paintAt( QPointF point )
     }
 }
 
-void BrushTool::drawStroke()
-{
-    StrokeTool::drawStroke();
-    QList<QPointF> p = m_pStrokeManager->interpolateStroke();
+//void BrushTool::drawStroke()
+//{
+//    StrokeTool::drawStroke();
+//    QList<QPointF> p = m_pStrokeManager->interpolateStroke();
 
-    Layer* layer = mEditor->layers()->currentLayer();
+//    Layer* layer = mEditor->layers()->currentLayer();
 
-    if ( layer->type() == Layer::BITMAP )
-    {
-        for ( int i = 0; i < p.size(); i++ )
-        {
-            p[ i ] = mEditor->view()->mapScreenToCanvas( p[ i ] );
-        }
-        qreal opacity = 1.0f;
-        if (properties.pressure == true)
-        {
-        opacity = mCurrentPressure / 2;
-        }
-        mCurrentWidth = properties.width;
-        qreal brushWidth = mCurrentWidth;
+//    if ( layer->type() == Layer::BITMAP )
+//    {
+//        for ( int i = 0; i < p.size(); i++ )
+//        {
+//            p[ i ] = mEditor->view()->mapScreenToCanvas( p[ i ] );
+//        }
+//        qreal opacity = 1.0f;
+//        if (properties.pressure == true)
+//        {
+//        opacity = mCurrentPressure / 2;
+//        }
+//        mCurrentWidth = properties.width;
+//        qreal brushWidth = mCurrentWidth;
 
-        qreal brushStep = (0.5 * brushWidth) - ((properties.feather/100.0) * brushWidth * 0.5);
-        brushStep = qMax( 1.0, brushStep );
+//        qreal brushStep = (0.5 * brushWidth) - ((properties.feather/100.0) * brushWidth * 0.5);
+//        brushStep = qMax( 1.0, brushStep );
 
-        BlitRect rect;
+//        BlitRect rect;
 
-        QPointF a = lastBrushPoint;
-        QPointF b = getCurrentPoint();
+//        QPointF a = lastBrushPoint;
+//        QPointF b = getCurrentPoint();
 
-        qreal distance = 4 * QLineF( b, a ).length();
-        int steps = qRound( distance ) / brushStep;
+//        qreal distance = 4 * QLineF( b, a ).length();
+//        int steps = qRound( distance ) / brushStep;
 
-        for ( int i = 0; i < steps; i++ )
-        {
-            QPointF point = lastBrushPoint + ( i + 1 ) * ( brushStep )* ( b - lastBrushPoint ) / distance;
-            rect.extend( point.toPoint() );
-            mScribbleArea->drawBrush( point,
-                                      brushWidth,
-                                      properties.feather,
-                                      mEditor->color()->frontColor(),
-                                      opacity,
-                                      properties.useFeather );
+//        for ( int i = 0; i < steps; i++ )
+//        {
+//            QPointF point = lastBrushPoint + ( i + 1 ) * ( brushStep )* ( b - lastBrushPoint ) / distance;
+//            rect.extend( point.toPoint() );
+//            mScribbleArea->drawBrush( point,
+//                                      brushWidth,
+//                                      properties.feather,
+//                                      mEditor->color()->frontColor(),
+//                                      opacity,
+//                                      properties.useFeather );
 
-            if ( i == ( steps - 1 ) )
-            {
-                lastBrushPoint = point;
-            }
-        }
+//            if ( i == ( steps - 1 ) )
+//            {
+//                lastBrushPoint = point;
+//            }
+//        }
 
-        int rad = qRound( brushWidth ) / 2 + 2;
-        mScribbleArea->paintBitmapBufferRect(rect);
-        mScribbleArea->refreshBitmap( rect, rad );
-    }
-    else if ( layer->type() == Layer::VECTOR )
-    {
-        qreal brushWidth = properties.width * mCurrentPressure;
+//        int rad = qRound( brushWidth ) / 2 + 2;
+//        mScribbleArea->paintBitmapBufferRect(rect);
+//        mScribbleArea->refreshBitmap( rect, rad );
+//    }
+//    else if ( layer->type() == Layer::VECTOR )
+//    {
+//        qreal brushWidth = properties.width * mCurrentPressure;
 
-        int rad = qRound( ( brushWidth / 2 + 2 ) * mEditor->view()->scaling() );
+//        int rad = qRound( ( brushWidth / 2 + 2 ) * mEditor->view()->scaling() );
 
-        QPen pen( mEditor->color()->frontColor(),
-                  brushWidth * mEditor->view()->scaling(),
-                  Qt::SolidLine,
-                  Qt::RoundCap,
-                  Qt::RoundJoin );
+//        QPen pen( mEditor->color()->frontColor(),
+//                  brushWidth * mEditor->view()->scaling(),
+//                  Qt::SolidLine,
+//                  Qt::RoundCap,
+//                  Qt::RoundJoin );
 
-        if ( p.size() == 4 )
-        {
-            QPainterPath path( p[ 0 ] );
-            path.cubicTo( p[ 1 ],
-                          p[ 2 ],
-                          p[ 3 ] );
-            mScribbleArea->drawPath( path, pen, Qt::NoBrush, QPainter::CompositionMode_Source );
-            mScribbleArea->refreshVector( path.boundingRect().toRect(), rad );
-        }
-    }
-}
+//        if ( p.size() == 4 )
+//        {
+//            QPainterPath path( p[ 0 ] );
+//            path.cubicTo( p[ 1 ],
+//                          p[ 2 ],
+//                          p[ 3 ] );
+//            mScribbleArea->drawPath( path, pen, Qt::NoBrush, QPainter::CompositionMode_Source );
+//            mScribbleArea->refreshVector( path.boundingRect().toRect(), rad );
+//        }
+//    }
+//}

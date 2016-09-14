@@ -1122,19 +1122,17 @@ void ScribbleArea::paintBitmapBuffer( )
         targetImage->paste( mBufferImg, cm );
     }
 
-    qCDebug( mLog ) << "Paste Rect" << mBufferImg->bounds();
+    qCDebug( mLog ) << "Draw Bitmap Buffer - Paste Rect" << mBufferImg->bounds();
 
     QRect rect = mEditor->view()->getView().mapRect( mBufferImg->bounds() );
 
     // Clear the buffer
     mBufferImg->clear();
 
+    drawCanvas( mEditor->currentFrame(), this->rect() );
+
     layer->setModified( mEditor->currentFrame(), true );
     emit modification();
-
-//    QPixmapCache::remove( "frame" + QString::number( mEditor->currentFrame() ) );
-    drawCanvasLayer( mEditor->currentFrame(), this->rect() );
-//    update( rect );
 }
 
 void ScribbleArea::paintBitmapBufferRect( QRect rect )
@@ -1169,7 +1167,7 @@ void ScribbleArea::paintBitmapBufferRect( QRect rect )
         targetImage->paste( mBufferImg, cm );
     }
 
-    qCDebug( mLog ) << "Paste Rect" << mBufferImg->bounds();
+    qCDebug( mLog ) << "Draw Bitmap Buffer Rect - Paste Rect" << mBufferImg->bounds();
 
     // Clear the buffer
     mBufferImg->clear();

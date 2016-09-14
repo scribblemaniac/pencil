@@ -138,7 +138,6 @@ void SmudgeTool::mousePressEvent(QMouseEvent *event)
         if (layer->type() == Layer::BITMAP)
         {
             mEditor->backup(typeName());
-            mScribbleArea->setAllDirty();
             startStroke();
             lastBrushPoint = getCurrentPoint();
         }
@@ -184,10 +183,7 @@ void SmudgeTool::mouseReleaseEvent(QMouseEvent *event)
     {
         if (layer->type() == Layer::BITMAP)
         {
-            drawStroke();
             mScribbleArea->paintBitmapBuffer();
-            mScribbleArea->setAllDirty();
-            endStroke();
         }
         else if (layer->type() == Layer::VECTOR)
         {
@@ -202,6 +198,7 @@ void SmudgeTool::mouseReleaseEvent(QMouseEvent *event)
             mScribbleArea->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
         }
     }
+    endStroke();
 }
 
 void SmudgeTool::mouseMoveEvent(QMouseEvent *event)
@@ -240,87 +237,87 @@ void SmudgeTool::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void SmudgeTool::drawStroke()
-{
-    if ( !mScribbleArea->isLayerPaintable() ) return;
+//void SmudgeTool::drawStroke()
+//{
+//    if ( !mScribbleArea->isLayerPaintable() ) return;
 
-    Layer* layer = mEditor->layers()->currentLayer();
-    if (layer == NULL) { return; }
+//    Layer* layer = mEditor->layers()->currentLayer();
+//    if (layer == NULL) { return; }
 
-    BitmapImage *targetImage = ((LayerBitmap *)layer)->getLastBitmapImageAtFrame(mEditor->currentFrame(), 0);
-    StrokeTool::drawStroke();
-    QList<QPointF> p = m_pStrokeManager->interpolateStroke();
+//    BitmapImage *targetImage = ((LayerBitmap *)layer)->getLastBitmapImageAtFrame(mEditor->currentFrame(), 0);
+//    StrokeTool::drawStroke();
+//    QList<QPointF> p = m_pStrokeManager->interpolateStroke();
 
-    for (int i = 0; i < p.size(); i++)
-    {
-        p[ i ] = mEditor->view()->mapScreenToCanvas( p[ i ] );
-    }
+//    for (int i = 0; i < p.size(); i++)
+//    {
+//        p[ i ] = mEditor->view()->mapScreenToCanvas( p[ i ] );
+//    }
 
-    qreal opacity = 1.0;
-    qreal brushWidth = mCurrentWidth +  0.0 * properties.feather;
-    qreal offset = qMax(0.0, mCurrentWidth - 0.5 * properties.feather) / brushWidth;
-    //opacity = currentPressure; // todo: Probably not interesting?!
-    //brushWidth = brushWidth * opacity;
+//    qreal opacity = 1.0;
+//    qreal brushWidth = mCurrentWidth +  0.0 * properties.feather;
+//    qreal offset = qMax(0.0, mCurrentWidth - 0.5 * properties.feather) / brushWidth;
+//    //opacity = currentPressure; // todo: Probably not interesting?!
+//    //brushWidth = brushWidth * opacity;
 
-    BlitRect rect;
-    QPointF a = lastBrushPoint;
-    QPointF b = getCurrentPoint();
+//    BlitRect rect;
+//    QPointF a = lastBrushPoint;
+//    QPointF b = getCurrentPoint();
 
 
-    if (toolMode == 0) // liquify hard (default)
-    {
-        qreal brushStep = 2;
-        qreal distance = QLineF(b, a).length()/2.0;
-        int steps = qRound(distance / brushStep);
-        int rad = qRound(brushWidth / 2.0) + 2;
+//    if (toolMode == 0) // liquify hard (default)
+//    {
+//        qreal brushStep = 2;
+//        qreal distance = QLineF(b, a).length()/2.0;
+//        int steps = qRound(distance / brushStep);
+//        int rad = qRound(brushWidth / 2.0) + 2;
 
-        QPointF sourcePoint = lastBrushPoint;
-        for (int i = 0; i < steps; i++)
-        {
-            QPointF targetPoint = lastBrushPoint + (i + 1) * (brushStep) * (b - lastBrushPoint) / distance;
-            rect.extend(targetPoint.toPoint());
-            mScribbleArea->liquifyBrush( targetImage,
-                                                sourcePoint,
-                                                targetPoint,
-                                                brushWidth,
-                                                offset,
-                                                opacity);
+//        QPointF sourcePoint = lastBrushPoint;
+//        for (int i = 0; i < steps; i++)
+//        {
+//            QPointF targetPoint = lastBrushPoint + (i + 1) * (brushStep) * (b - lastBrushPoint) / distance;
+//            rect.extend(targetPoint.toPoint());
+//            mScribbleArea->liquifyBrush( targetImage,
+//                                                sourcePoint,
+//                                                targetPoint,
+//                                                brushWidth,
+//                                                offset,
+//                                                opacity);
 
-            if (i == (steps - 1))
-            {
-                lastBrushPoint = targetPoint;
-            }
-            sourcePoint = targetPoint;
-            mScribbleArea->refreshBitmap(rect, rad);
-            mScribbleArea->paintBitmapBuffer();
-        }
-    }
-    else // liquify smooth
-    {
-        qreal brushStep = 2.0;
-        qreal distance = QLineF(b, a).length();
-        int steps = qRound(distance / brushStep);
-        int rad = qRound(brushWidth / 2.0) + 2;
+//            if (i == (steps - 1))
+//            {
+//                lastBrushPoint = targetPoint;
+//            }
+//            sourcePoint = targetPoint;
+//            mScribbleArea->refreshBitmap(rect, rad);
+//            mScribbleArea->paintBitmapBuffer();
+//        }
+//    }
+//    else // liquify smooth
+//    {
+//        qreal brushStep = 2.0;
+//        qreal distance = QLineF(b, a).length();
+//        int steps = qRound(distance / brushStep);
+//        int rad = qRound(brushWidth / 2.0) + 2;
 
-        QPointF sourcePoint = lastBrushPoint;
-        for (int i = 0; i < steps; i++)
-        {
-            QPointF targetPoint = lastBrushPoint + (i + 1) * (brushStep) * (b - lastBrushPoint) / distance;
-            rect.extend(targetPoint.toPoint());
-            mScribbleArea->blurBrush( targetImage,
-                                                sourcePoint,
-                                                targetPoint,
-                                                brushWidth,
-                                                offset,
-                                                opacity);
+//        QPointF sourcePoint = lastBrushPoint;
+//        for (int i = 0; i < steps; i++)
+//        {
+//            QPointF targetPoint = lastBrushPoint + (i + 1) * (brushStep) * (b - lastBrushPoint) / distance;
+//            rect.extend(targetPoint.toPoint());
+//            mScribbleArea->blurBrush( targetImage,
+//                                                sourcePoint,
+//                                                targetPoint,
+//                                                brushWidth,
+//                                                offset,
+//                                                opacity);
 
-            if (i == (steps - 1))
-            {
-                lastBrushPoint = targetPoint;
-            }
-            sourcePoint = targetPoint;
-            mScribbleArea->refreshBitmap(rect, rad);
-            mScribbleArea->paintBitmapBuffer();
-        }
-    }
-}
+//            if (i == (steps - 1))
+//            {
+//                lastBrushPoint = targetPoint;
+//            }
+//            sourcePoint = targetPoint;
+//            mScribbleArea->refreshBitmap(rect, rad);
+//            mScribbleArea->paintBitmapBuffer();
+//        }
+//    }
+//}
