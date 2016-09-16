@@ -141,8 +141,8 @@ MainWindow2::~MainWindow2()
 
 void MainWindow2::createDockWidgets()
 {
-    mTimeLine = new TimeLine( this );
-    mTimeLine->setObjectName( "TimeLine" );
+    mTimeline2 = new Timeline2;
+    mTimeline2->setObjectName( "Timeline" );
 
     mColorWheel = new ColorBox( tr("Color Wheel"), this );
     mColorWheel->setToolTip( tr( "color palette:<br>use <b>(C)</b><br>toggle at cursor" ) );
@@ -162,7 +162,7 @@ void MainWindow2::createDockWidgets()
     mToolBox->setObjectName( "ToolBox" );
 
     mDockWidgets
-        << mTimeLine
+        << mTimeline2
         << mColorWheel
         << mColorPalette
         << mDisplayOptionWidget
@@ -172,18 +172,12 @@ void MainWindow2::createDockWidgets()
     mStartIcon = QIcon(":icons/controls/play.png");
     mStopIcon = QIcon(":icons/controls/stop.png");
 
-    /*
-    mTimeline2 = new Timeline2;
-    mTimeline2->setObjectName( "Timeline2" );
-    mDockWidgets.append( mTimeline2 );
-    */
     addDockWidget(Qt::RightDockWidgetArea,  mColorWheel);
     addDockWidget(Qt::RightDockWidgetArea,  mColorPalette);
     addDockWidget(Qt::RightDockWidgetArea,  mDisplayOptionWidget);
     addDockWidget(Qt::LeftDockWidgetArea,   mToolBox);
     addDockWidget(Qt::LeftDockWidgetArea,   mToolOptions);
-    addDockWidget(Qt::BottomDockWidgetArea, mTimeLine);
-    //addDockWidget( Qt::BottomDockWidgetArea, mTimeline2);
+    addDockWidget(Qt::BottomDockWidgetArea, mTimeline2);
 
     for ( BaseDockWidget* pWidget : mDockWidgets )
     {
@@ -204,7 +198,6 @@ void MainWindow2::createDockWidgets()
     */
 
     makeConnections( mEditor );
-    makeConnections( mEditor, mTimeLine );
     makeConnections( mEditor, mColorWheel );
     makeConnections( mEditor, mColorPalette );
     makeConnections( mEditor, mDisplayOptionWidget );
@@ -293,10 +286,10 @@ void MainWindow2::createMenus()
     connect( ui->actionLoop, &QAction::triggered, pPlaybackManager, &PlaybackManager::setLooping );
     connect( ui->actionLoopControl, &QAction::triggered, pPlaybackManager, &PlaybackManager::enableRangedPlayback );
     connect( pPlaybackManager, &PlaybackManager::loopStateChanged, ui->actionLoop, &QAction::setChecked );
-    connect( pPlaybackManager, &PlaybackManager::loopStateChanged, mTimeLine, &TimeLine::setLoop );
+    //connect( pPlaybackManager, &PlaybackManager::loopStateChanged, mTimeLine, &TimeLine::setLoop );
     connect( pPlaybackManager, &PlaybackManager::rangedPlaybackStateChanged, ui->actionLoopControl, &QAction::setChecked );
-    connect( pPlaybackManager, &PlaybackManager::rangedPlaybackStateChanged, mTimeLine, &TimeLine::setRangeState );
-    connect( pPlaybackManager, &PlaybackManager::playStateChanged, mTimeLine, &TimeLine::setPlaying );
+    //connect( pPlaybackManager, &PlaybackManager::rangedPlaybackStateChanged, mTimeLine, &TimeLine::setRangeState );
+    //connect( pPlaybackManager, &PlaybackManager::playStateChanged, mTimeLine, &TimeLine::setPlaying );
     connect( pPlaybackManager, &PlaybackManager::playStateChanged, this, &MainWindow2::changePlayState );
 
     connect(ui->actionAdd_Frame, &QAction::triggered, mEditor, &Editor::addNewKey );
@@ -333,7 +326,7 @@ void MainWindow2::createMenus()
         mToolOptions->toggleViewAction(),
         mColorWheel->toggleViewAction(),
         mColorPalette->toggleViewAction(),
-        mTimeLine->toggleViewAction(),
+        mTimeline2->toggleViewAction(),
         mDisplayOptionWidget->toggleViewAction()
     };
     winMenu->clear();
@@ -579,7 +572,7 @@ bool MainWindow2::saveObject( QString strSavedFileName )
     mRecentFileMenu->addRecentFile( strSavedFileName );
     mRecentFileMenu->saveToDisk();
 
-    mTimeLine->updateContent();
+    //mTimeline->updateContent();
 
     setWindowTitle( strSavedFileName );
     mBackupAtSave = mEditor->currentBackup();
@@ -654,7 +647,7 @@ void MainWindow2::importImage()
     settings.setValue( "lastImportPath", strFilePath );
 
     mScribbleArea->updateCurrentFrame();
-    mTimeLine->updateContent();
+    //mTimeLine->updateContent();
 }
 
 void MainWindow2::importImageSequence()
@@ -863,7 +856,7 @@ void MainWindow2::dockAllSubWidgets()
     mToolBox->setFloating(false);
     mToolOptions->setFloating(false);
     mDisplayOptionWidget->setFloating(false);
-    mTimeLine->setFloating(false);
+    mTimeline2->setFloating(false);
     mColorPalette->setFloating(false);
     mColorWheel->setFloating( false );
 }
@@ -998,7 +991,7 @@ void MainWindow2::setupKeyboardShortcuts()
     mToolOptions->toggleViewAction()->setShortcut( cmdKeySeq( CMD_TOGGLE_TOOL_OPTIONS ) );
     mColorWheel->toggleViewAction()->setShortcut( cmdKeySeq( CMD_TOGGLE_COLOR_WHEEL ) );
     mColorPalette->toggleViewAction()->setShortcut( cmdKeySeq( CMD_TOGGLE_COLOR_LIBRARY ) );
-    mTimeLine->toggleViewAction()->setShortcut( cmdKeySeq( CMD_TOGGLE_TIMELINE ) );
+    mTimeline2->toggleViewAction()->setShortcut( cmdKeySeq( CMD_TOGGLE_TIMELINE ) );
     mDisplayOptionWidget->toggleViewAction()->setShortcut( cmdKeySeq( CMD_TOGGLE_DISPLAY_OPTIONS ) );
 
     ui->actionHelp->setShortcut( cmdKeySeq( CMD_HELP ) );
