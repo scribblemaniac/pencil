@@ -6,80 +6,200 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>629</width>
+    <width>1116</width>
     <height>250</height>
    </rect>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
   </property>
   <property name="windowTitle">
    <string>Timeline</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
     <item>
-     <widget class="QWidget" name="TimelineControl" native="true">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>35</height>
-       </size>
+     <widget class="QWidget" name="TimelineControls" native="true">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
-       <property name="leftMargin">
-        <number>5</number>
-       </property>
-       <property name="topMargin">
-        <number>5</number>
-       </property>
-       <property name="rightMargin">
-        <number>5</number>
-       </property>
        <property name="bottomMargin">
-        <number>5</number>
+        <number>12</number>
        </property>
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="LayerLabel">
          <property name="text">
-          <string>Layers</string>
+          <string>Layers:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButton">
-         <property name="styleSheet">
-          <string notr="true">background-color: qlineargradient(spread:pad, x1:0.187818, y1:0.949, x2:0.0851364, y2:0.278, stop:0 rgba(216, 216, 216, 255), stop:1 rgba(250, 250, 250, 255));
-
-border:1px solid #555555;
-
-border-radius:5px;</string>
+        <widget class="QPushButton" name="NewLayer">
+         <property name="text">
+          <string>+</string>
          </property>
+         <property name="default">
+          <bool>false</bool>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="DeleteLayer">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="Spacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="KeyLabel">
+         <property name="text">
+          <string>Keys:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="NewKey">
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="DeleteKey">
+         <property name="text">
+          <string>-</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="DuplicateKey">
+         <property name="text">
+          <string>Duplicate</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="OnionSkinLabel">
+         <property name="text">
+          <string>Onion skin:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="OnionSkin">
          <property name="text">
           <string>...</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="toolButton_2">
-         <property name="styleSheet">
-          <string notr="true">background-color: qlineargradient(spread:pad, x1:0.187818, y1:0.949, x2:0.0851364, y2:0.278, stop:0 rgba(216, 216, 216, 255), stop:1 rgba(250, 250, 250, 255));
-
-border:1px solid #555555;
-
-border-radius:5px;</string>
+        <widget class="Line" name="Separator">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ScrubStart">
          <property name="text">
-          <string>...</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../pencil.qrc">
+           <normaloff>:/icons/controls/startplay.png</normaloff>:/icons/controls/startplay.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="Play">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../pencil.qrc">
+           <normaloff>:/icons/controls/play.png</normaloff>:/icons/controls/play.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="ScrubEnd">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../pencil.qrc">
+           <normaloff>:/icons/controls/endplay.png</normaloff>:/icons/controls/endplay.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="RangeEnabled">
+         <property name="text">
+          <string>Range</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="RangeStart">
+         <property name="minimum">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="RangeEnd">
+         <property name="minimum">
+          <number>2</number>
+         </property>
+         <property name="value">
+          <number>10</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="SoundEnabled">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../../pencil.qrc">
+           <normaloff>:/icons/controls/sound.png</normaloff>:/icons/controls/sound.png</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="FPS">
+         <property name="suffix">
+          <string> FPS</string>
+         </property>
+         <property name="minimum">
+          <number>1</number>
+         </property>
+         <property name="maximum">
+          <number>90</number>
+         </property>
+         <property name="value">
+          <number>12</number>
          </property>
         </widget>
        </item>
@@ -87,11 +207,24 @@ border-radius:5px;</string>
      </widget>
     </item>
     <item>
-     <widget class="QGraphicsView" name="TimelineView"/>
+     <widget class="QLabel" name="TimelinePlaceholder">
+      <property name="styleSheet">
+       <string notr="true">background:white;border:1px solid #ccc;</string>
+      </property>
+      <property name="text">
+       <string>Timeline tracks</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../pencil.qrc"/>
+  <include location="../../pencil.qrc"/>
+ </resources>
  <connections/>
 </ui>
