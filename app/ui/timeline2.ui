@@ -34,7 +34,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QWidget" name="TimelineControls" native="true">
+     <widget class="QWidget" name="timelineControls" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -55,14 +55,14 @@
         <number>12</number>
        </property>
        <item>
-        <widget class="QLabel" name="LayerLabel">
+        <widget class="QLabel" name="layerLabel">
          <property name="text">
           <string>Layers:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="NewLayer">
+        <widget class="QPushButton" name="newLayer">
          <property name="text">
           <string>+</string>
          </property>
@@ -75,14 +75,14 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="DeleteLayer">
+        <widget class="QPushButton" name="deleteLayer">
          <property name="text">
           <string>-</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="Spacer">
+        <spacer name="spacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -95,56 +95,56 @@
         </spacer>
        </item>
        <item>
-        <widget class="QLabel" name="KeyLabel">
+        <widget class="QLabel" name="keyLabel">
          <property name="text">
           <string>Keys:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="NewKey">
+        <widget class="QPushButton" name="newKey">
          <property name="text">
           <string>+</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="DeleteKey">
+        <widget class="QPushButton" name="deleteKey">
          <property name="text">
           <string>-</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="DuplicateKey">
+        <widget class="QPushButton" name="duplicateKey">
          <property name="text">
           <string>Duplicate</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="OnionSkinLabel">
+        <widget class="QLabel" name="onionSkinLabel">
          <property name="text">
           <string>Onion skin:</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QToolButton" name="OnionSkin">
+        <widget class="QToolButton" name="onionSkin">
          <property name="text">
           <string>...</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="Line" name="Separator">
+        <widget class="Line" name="separator">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="ScrubStart">
+        <widget class="QPushButton" name="scrubStart">
          <property name="text">
           <string/>
          </property>
@@ -155,7 +155,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="Play">
+        <widget class="QPushButton" name="play">
          <property name="text">
           <string/>
          </property>
@@ -166,7 +166,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="ScrubEnd">
+        <widget class="QPushButton" name="scrubEnd">
          <property name="text">
           <string/>
          </property>
@@ -177,21 +177,21 @@
         </widget>
        </item>
        <item>
-        <widget class="QCheckBox" name="RangeEnabled">
+        <widget class="QCheckBox" name="rangeEnabled">
          <property name="text">
           <string>Range</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="RangeStart">
+        <widget class="QSpinBox" name="rangeStart">
          <property name="minimum">
           <number>1</number>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="RangeEnd">
+        <widget class="QSpinBox" name="rangeEnd">
          <property name="minimum">
           <number>2</number>
          </property>
@@ -201,7 +201,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="SoundEnabled">
+        <widget class="QPushButton" name="soundEnabled">
          <property name="text">
           <string/>
          </property>
@@ -212,7 +212,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QSpinBox" name="FPS">
+        <widget class="QSpinBox" name="fps">
          <property name="suffix">
           <string> FPS</string>
          </property>
