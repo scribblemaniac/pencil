@@ -231,7 +231,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="TimelinePlaceholder">
+     <widget class="QLabel" name="timelinePlaceholder">
       <property name="styleSheet">
        <string notr="true">background:white;border:1px solid #ccc;</string>
       </property>
