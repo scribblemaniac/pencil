@@ -24,6 +24,11 @@ GNU General Public License for more details.
 #include "vertexref.h"
 #include "keyframe.h"
 
+#include "mphandler.h"
+#include "mpbrush.h"
+#include "mpsurface.h"
+#include "mptile.h"
+
 class Object;  // forward declaration
 class QPainter;
 
@@ -141,6 +146,7 @@ private:
     QList<QPointF> getfillContourPoints(QPoint point);
     void updateImageSize(BezierCurve& updatedCurve);
     QSize mSize;
+    MPHandler *mMypaint;
 };
 
 #endif

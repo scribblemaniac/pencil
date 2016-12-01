@@ -1068,6 +1068,7 @@ void ScribbleArea::startStroke()
 void ScribbleArea::strokeTo(QPointF point, float pressure, float xtilt, float ytilt)
 {
     mMypaint->strokeTo(point.x(), point.y(), pressure, xtilt, ytilt);
+    qDebug() << "StrokeTo:" << point.x() << point.y() << pressure << xtilt << ytilt;
 }
 
 void ScribbleArea::endStroke()

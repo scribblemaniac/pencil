@@ -24,6 +24,7 @@ GNU General Public License for more details.
 VectorImage::VectorImage()
 {
     deselectAll();
+    mMypaint = MPHandler::handler();
 }
 
 VectorImage::~VectorImage()
@@ -914,8 +915,25 @@ void VectorImage::paintImage(QPainter& painter,
     QRect mappedViewRect = QRect(0,0, painter.device()->width(), painter.device()->height() );
     QRectF viewRect = painterMatrix.inverted().mapRect( mappedViewRect );
 
+
+    mMypaint->clearSurface();
+    //QPixmap currentImage = QPixmap(qCeil(viewRect.width()), qCeil(viewRect.height()));
+    //mMypaint->loadImage(currentImage.toImage());
+
+    for(int i=0; i<m_curves.size(); i++) {
+        mMypaint->startStroke();
+        for(int j=0; j< m_curves[i].getVertexSize(); j++) {
+            QPoint p = painterMatrix.map(m_curves[i].getVertex(j).toPoint());
+            mMypaint->strokeTo(p.x(), p.y(), m_curves[i].getPressure(j), 0, 0);
+        }
+        mMypaint->endStroke();
+    }
+    QImage result(mMypaint->renderImage());
+
+    painter.drawImage(viewRect, result);
+
     // --- draw filled areas ----
-    if (!simplified)
+    /*if (!simplified)
     {
         for(int i=0; i< area.size(); i++)
         {
@@ -954,7 +972,7 @@ void VectorImage::paintImage(QPainter& painter,
     {
         curve.drawPath( painter, myParent, selectionTransformation, simplified, showThinCurves );
         painter.setClipping(false);
-    }
+    }*/
 }
 
 void VectorImage::outputImage(QImage* image,
@@ -963,7 +981,21 @@ void VectorImage::outputImage(QImage* image,
                               bool showThinCurves,
 							  bool antialiasing)
 {
-	image->fill(qRgba(0,0,0,0));
+    /*mMypaint->clearSurface();
+    QPixmap currentImage = QPixmap(image->size());
+    mMypaint->loadImage(currentImage.toImage());
+
+    for(int i=0; i<m_curves.size(); i++) {
+        mMypaint->startStroke();
+        for(int j=0; j< m_curves[i].getVertexSize(); j++) {
+            mMypaint->strokeTo(m_curves[i].getVertex(j).x(), m_curves[i].getVertex(j).y(), m_curves[i].getPressure(j), 0, 0);
+        }
+        mMypaint->endStroke();
+    }
+    QImage result(mMypaint->renderImage());
+
+    QPainter painter( &result );*/
+    image->fill(qRgba(0,0,0,0));
     QPainter painter( image );
     painter.setTransform( myView );
     paintImage( painter, simplified, showThinCurves, antialiasing );
