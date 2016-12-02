@@ -93,7 +93,10 @@ HEADERS +=  \
     managers/soundmanager.h \
     interface/backgroundwidget.h \
     structure/editorstate.h \
-    structure/filemanager.h
+    structure/filemanager.h \
+    interface/layerlabel.h \
+    interface/layerlabeledit.h \
+    interface/tracklist.h
 
 
 SOURCES +=  graphics/bitmap/bitmapimage.cpp \
@@ -157,7 +160,9 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     managers/soundmanager.cpp \
     interface/backgroundwidget.cpp \
     structure/editorstate.cpp \
-    structure/filemanager.cpp
+    structure/filemanager.cpp \
+    interface/layerlabeledit.cpp \
+    interface/tracklist.cpp
 
 win32 {
     CONFIG -= flat

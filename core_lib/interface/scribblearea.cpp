@@ -334,7 +334,7 @@ void ScribbleArea::keyPressEvent( QKeyEvent *event )
             }
             break;
         case Qt::Key_Return:
-            if ( somethingSelected )
+            /*if ( somethingSelected )
             {
                 paintTransformedSelection();
                 deselectAll();
@@ -342,7 +342,8 @@ void ScribbleArea::keyPressEvent( QKeyEvent *event )
             else
             {
                 event->ignore();
-            }
+            }*/
+            event->ignore();
             break;
         case Qt::Key_Escape:
             if ( somethingSelected )

@@ -23,6 +23,8 @@ public:
 private:
     Ui::Timeline2* ui;
     Editor* mEditor;
+
+    int mLastSelected;
 };
 
 #endif // TIMELINE2_H

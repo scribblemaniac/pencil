@@ -58,7 +58,7 @@ public:
     void setName( QString name ) { mName = name; }
     QString name() { return mName; }
 
-    void switchVisibility() { mVisible = !mVisible; }
+    void switchVisibility() { mVisible = !mVisible; emit visibilityChanged(); }
 
     bool visible() { return mVisible; }
 
@@ -118,6 +118,9 @@ public:
     virtual void editProperties();
 
     void setUpdated();
+
+signals:
+    void visibilityChanged();
 
 protected:
     void setId( int LayerId ) { mId = LayerId; }
