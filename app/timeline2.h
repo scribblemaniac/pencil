@@ -14,7 +14,7 @@ class Timeline2 : public BaseDockWidget
     Q_OBJECT
 
 public:
-    explicit Timeline2(QWidget* parent = 0);
+    explicit Timeline2(Editor* editor, QWidget* parent = 0);
     ~Timeline2();
 
     void initUI() override;
@@ -22,6 +22,7 @@ public:
 
 private:
     Ui::Timeline2* ui;
+    Editor* mEditor;
 };
 
 #endif // TIMELINE2_H

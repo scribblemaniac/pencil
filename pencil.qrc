@@ -61,5 +61,7 @@
         <file>background/checkerboard.png</file>
         <file>icons/onion_type.png</file>
         <file>icons/controls/stop.png</file>
+        <file>icons/eye_closed.svg</file>
+        <file>icons/eye_open.svg</file>
     </qresource>
 </RCC>

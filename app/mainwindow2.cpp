@@ -141,7 +141,7 @@ MainWindow2::~MainWindow2()
 
 void MainWindow2::createDockWidgets()
 {
-    mTimeline2 = new Timeline2;
+    mTimeline2 = new Timeline2( mEditor );
     mTimeline2->setObjectName( "Timeline" );
 
     mColorWheel = new ColorBox( tr("Color Wheel"), this );
