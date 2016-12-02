@@ -8,6 +8,8 @@ namespace Ui {
 class Timeline2;
 }
 
+class Layer;
+class QGraphicsItem;
 
 class Timeline2 : public BaseDockWidget
 {
@@ -21,6 +23,8 @@ public:
     void updateUI() override;
 
 private:
+    void addLayerTrack( QGraphicsItem* empty, Layer* layer );
+
     Ui::Timeline2* ui;
     Editor* mEditor;
 

@@ -16,7 +16,6 @@ void LayerLabelEdit::setOriginalText(const QString &text)
 
 void LayerLabelEdit::keyPressEvent(QKeyEvent *event)
 {
-    qDebug() << "Keypress" << event->key();
     if ( event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
     {
         emit finished();
