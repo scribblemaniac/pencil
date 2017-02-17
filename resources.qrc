@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/fancy.svg</file>
+        <file>resources/fancy16x16.png</file>
+        <file>resources/fancy24x24.png</file>
+        <file>resources/fancy32x32.png</file>
+        <file>resources/fancy64x64.png</file>
+        <file>resources/simple.svg</file>
+        <file>resources/simple16x16.png</file>
+        <file>resources/simple24x24.png</file>
+        <file>resources/simple32x32.png</file>
+        <file>resources/simple64x64.png</file>
+        <file>resources/fancy16x16.bmp</file>
+        <file>resources/fancy24x24.bmp</file>
+        <file>resources/fancy32x32.bmp</file>
+        <file>resources/fancy64x64.bmp</file>
+        <file>resources/simple16x16.bmp</file>
+        <file>resources/simple24x24.bmp</file>
+        <file>resources/simple32x32.bmp</file>
+        <file>resources/simple64x64.bmp</file>
+    </qresource>
+</RCC>
