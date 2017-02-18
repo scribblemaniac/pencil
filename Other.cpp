@@ -3,22 +3,22 @@
 #include <QIcon>
 #include <QPixmap>
 
-BENCHMARK(QIcon, Init, 10, 50)
+BENCHMARK(QIcon, Init, 10, 1000)
 {
     QIcon i;
 }
 
-BENCHMARK(QIcon, InitNull, 10, 50)
+BENCHMARK(QIcon, InitNull, 10, 1000)
 {
     QIcon i{QString()};
 }
 
-BENCHMARK(QPainter, Init, 10, 50)
+BENCHMARK(QPainter, Init, 10, 1000)
 {
     QPixmap pixmap;
 }
 
-BENCHMARK_P(QPainter, InitSize, 10, 50, (QSize size))
+BENCHMARK_P(QPainter, InitSize, 10, 1000, (QSize size))
 {
     QPixmap pixmap(size);
 }

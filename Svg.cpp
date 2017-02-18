@@ -21,12 +21,12 @@ public:
     QIcon *i;
 };
 
-BENCHMARK_F(SvgFixture1, QIconSimpleInit, 10, 50)
+BENCHMARK_F(SvgFixture1, QIconSimpleInit, 10, 1000)
 {
     i = new QIcon(simpleLoc);
 }
 
-BENCHMARK_F(SvgFixture1, QIconFancyInit, 10, 50)
+BENCHMARK_F(SvgFixture1, QIconFancyInit, 10, 1000)
 {
     i = new QIcon(fancyLoc);
 }
@@ -44,7 +44,7 @@ public:
     QIcon *icon;
 };
 
-BENCHMARK_P_F(SvgFixture2, QIconAddFile, 10, 50, (QString loc))
+BENCHMARK_P_F(SvgFixture2, QIconAddFile, 10, 1000, (QString loc))
 {
     icon->addFile(loc);
 }
@@ -65,7 +65,7 @@ public:
     QIcon *simpleIcon;
 };
 
-BENCHMARK_P_F(SvgFixture3, QIconSimplePixmap, 10, 50, (QSize size))
+BENCHMARK_P_F(SvgFixture3, QIconSimplePixmap, 10, 1000, (QSize size))
 {
     simpleIcon->pixmap(size);
 }
@@ -88,7 +88,7 @@ public:
     QIcon *fancyIcon;
 };
 
-BENCHMARK_P_F(SvgFixture4, QIconFancyPixmap, 10, 50, (QSize size))
+BENCHMARK_P_F(SvgFixture4, QIconFancyPixmap, 10, 1000, (QSize size))
 {
     fancyIcon->pixmap(size);
 }
@@ -111,7 +111,7 @@ public:
     QSvgRenderer *renderer;
 };
 
-BENCHMARK_P_F(SvgFixture5, QSvgRendererLoad, 10, 50, (QString loc))
+BENCHMARK_P_F(SvgFixture5, QSvgRendererLoad, 10, 1000, (QString loc))
 {
     renderer->load(loc);
 }
@@ -138,7 +138,7 @@ public:
     QPainter *painter;
 };
 
-BENCHMARK_P_F(SvgFixture6, QSvgRendererSimpleRender, 10, 50, (QRectF bounds)) {
+BENCHMARK_P_F(SvgFixture6, QSvgRendererSimpleRender, 10, 1000, (QRectF bounds)) {
     renderer->render(painter, bounds);
 }
 
@@ -166,7 +166,7 @@ public:
     QPainter *painter;
 };
 
-BENCHMARK_P_F(SvgFixture7, QSvgRendererFancyRender, 10, 50, (QRectF bounds)) {
+BENCHMARK_P_F(SvgFixture7, QSvgRendererFancyRender, 10, 1000, (QRectF bounds)) {
     renderer->render(painter, bounds);
 }
 

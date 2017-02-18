@@ -18,7 +18,7 @@ public:
     QIcon *icon;
 };
 
-BENCHMARK_P_F(BmpFixture1, QIconInit, 10, 50, (int i))
+BENCHMARK_P_F(BmpFixture1, QIconInit, 10, 1000, (int i))
 {
     icon = new QIcon(simpleLoc[i]);
 }
@@ -41,7 +41,7 @@ public:
     QIcon *icon;
 };
 
-BENCHMARK_P_F(BmpFixture2, QIconAddFile, 10, 50, (QString loc))
+BENCHMARK_P_F(BmpFixture2, QIconAddFile, 10, 1000, (QString loc))
 {
     icon->addFile(loc);
 }
@@ -64,7 +64,7 @@ public:
     QPixmap *pixmap;
 };
 
-BENCHMARK_P_F(BmpFixture3, QPixmapInit, 10, 50, (QString loc))
+BENCHMARK_P_F(BmpFixture3, QPixmapInit, 10, 1000, (QString loc))
 {
     pixmap = new QPixmap(loc);
 }
@@ -87,7 +87,7 @@ public:
     QImage *img;
 };
 
-BENCHMARK_P_F(BmpFixture4, QImageInit, 10, 50, (QString loc))
+BENCHMARK_P_F(BmpFixture4, QImageInit, 10, 1000, (QString loc))
 {
     img = new QImage(loc);
 }

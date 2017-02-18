@@ -19,7 +19,7 @@ public:
     QIcon *icon;
 };
 
-BENCHMARK_P_F(PngFixture1, QIconInit, 10, 50, (int i))
+BENCHMARK_P_F(PngFixture1, QIconInit, 10, 1000, (int i))
 {
     icon = new QIcon(simpleLoc[i]);
 }
@@ -42,7 +42,7 @@ public:
     QIcon *icon;
 };
 
-BENCHMARK_P_F(PngFixture2, QIconAddFile, 10, 50, (QString loc))
+BENCHMARK_P_F(PngFixture2, QIconAddFile, 10, 1000, (QString loc))
 {
     icon->addFile(loc);
 }
@@ -69,7 +69,7 @@ public:
     QIcon *simpleIcon[4];
 };
 
-BENCHMARK_P_F(PngFixture3, QIconPixmap, 5, 50, (int i, QSize size))
+BENCHMARK_P_F(PngFixture3, QIconPixmap, 10, 1000, (int i, QSize size))
 {
     simpleIcon[i]->pixmap(size);
 }
@@ -107,7 +107,7 @@ public:
     QPixmap *pixmap;
 };
 
-BENCHMARK_P_F(PngFixture4, QPixmapInit, 10, 50, (QString loc))
+BENCHMARK_P_F(PngFixture4, QPixmapInit, 10, 1000, (QString loc))
 {
     pixmap = new QPixmap(loc);
 }
@@ -117,7 +117,7 @@ BENCHMARK_P_INSTANCE(PngFixture4, QPixmapInit, (simpleLoc[1]));
 BENCHMARK_P_INSTANCE(PngFixture4, QPixmapInit, (simpleLoc[2]));
 BENCHMARK_P_INSTANCE(PngFixture4, QPixmapInit, (simpleLoc[3]));
 
-BENCHMARK_P_F(PngFixture4, QPixmapFast, 5, 50, (int i, QSize size))
+BENCHMARK_P_F(PngFixture4, QPixmapFast, 10, 1000, (int i, QSize size))
 {
     pixmap = new QPixmap(simpleLoc[i]);
     pixmap->scaled(size, Qt::IgnoreAspectRatio, Qt::FastTransformation);
@@ -143,7 +143,7 @@ BENCHMARK_P_INSTANCE(PngFixture4, QPixmapFast, (3, QSize(24, 24)));
 BENCHMARK_P_INSTANCE(PngFixture4, QPixmapFast, (3, QSize(32, 32)));
 BENCHMARK_P_INSTANCE(PngFixture4, QPixmapFast, (3, QSize(64, 64)));
 
-BENCHMARK_P_F(PngFixture4, QPixmapSmooth, 5, 50, (int i, QSize size))
+BENCHMARK_P_F(PngFixture4, QPixmapSmooth, 10, 1000, (int i, QSize size))
 {
     pixmap = new QPixmap(simpleLoc[i]);
     pixmap->scaled(size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
@@ -189,7 +189,7 @@ public:
     QPixmap *simplePixmap[4];
 };
 
-BENCHMARK_P_F(PngFixture5, QPainterDrawPixmap, 5, 50, (int i, QRectF size))
+BENCHMARK_P_F(PngFixture5, QPainterDrawPixmap, 10, 1000, (int i, QRectF size))
 {
     painter->drawPixmap(size, *simplePixmap[i], simplePixmap[i]->rect());
 }
@@ -234,7 +234,7 @@ public:
     QImage *simpleImage[4];
 };
 
-BENCHMARK_P_F(PngFixture6, QPainterDrawImage, 5, 50, (int i, QRectF size))
+BENCHMARK_P_F(PngFixture6, QPainterDrawImage, 10, 1000, (int i, QRectF size))
 {
     painter->drawImage(size, *simpleImage[i]);
 }
@@ -272,7 +272,7 @@ public:
     QImage *img;
 };
 
-BENCHMARK_P_F(PngFixture7, QImageInit, 10, 50, (QString loc))
+BENCHMARK_P_F(PngFixture7, QImageInit, 10, 1000, (QString loc))
 {
     img = new QImage(loc);
 }
