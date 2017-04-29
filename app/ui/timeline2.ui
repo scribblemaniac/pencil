@@ -63,8 +63,16 @@
        </item>
        <item>
         <widget class="QPushButton" name="newLayer">
+         <property name="toolTip">
+          <string>Add Layer</string>
+         </property>
          <property name="text">
-          <string>+</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/add.png</normalon>
+          </iconset>
          </property>
          <property name="default">
           <bool>false</bool>
@@ -76,8 +84,16 @@
        </item>
        <item>
         <widget class="QPushButton" name="deleteLayer">
+         <property name="toolTip">
+          <string>Remove Layer</string>
+         </property>
          <property name="text">
-          <string>-</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/remove.png</normalon>
+          </iconset>
          </property>
         </widget>
        </item>
@@ -103,22 +119,46 @@
        </item>
        <item>
         <widget class="QPushButton" name="newKey">
+         <property name="toolTip">
+          <string>Add Frame</string>
+         </property>
          <property name="text">
-          <string>+</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/add.png</normalon>
+          </iconset>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="deleteKey">
+         <property name="toolTip">
+          <string>Remove Frame</string>
+         </property>
          <property name="text">
-          <string>-</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/remove.png</normalon>
+          </iconset>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="duplicateKey">
+         <property name="toolTip">
+          <string>Duplicate Frame</string>
+         </property>
          <property name="text">
-          <string>Duplicate</string>
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/icons/controls/duplicate.png</normalon>
+          </iconset>
          </property>
         </widget>
        </item>
@@ -131,6 +171,9 @@
        </item>
        <item>
         <widget class="QToolButton" name="onionSkin">
+         <property name="toolTip">
+          <string>Toggle match keyframes</string>
+         </property>
          <property name="text">
           <string>...</string>
          </property>
@@ -145,6 +188,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="scrubStart">
+         <property name="toolTip">
+          <string>Return to start</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -156,6 +202,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="play">
+         <property name="toolTip">
+          <string>Play</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -167,6 +216,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="scrubEnd">
+         <property name="toolTip">
+          <string>Skip to end</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -178,6 +230,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="rangeEnabled">
+         <property name="toolTip">
+          <string>Limit playback to range</string>
+         </property>
          <property name="text">
           <string>Range</string>
          </property>
@@ -185,6 +240,9 @@
        </item>
        <item>
         <widget class="QSpinBox" name="rangeStart">
+         <property name="toolTip">
+          <string>Playback range start</string>
+         </property>
          <property name="minimum">
           <number>1</number>
          </property>
@@ -192,6 +250,9 @@
        </item>
        <item>
         <widget class="QSpinBox" name="rangeEnd">
+         <property name="toolTip">
+          <string>Playback range end</string>
+         </property>
          <property name="minimum">
           <number>2</number>
          </property>
@@ -202,6 +263,9 @@
        </item>
        <item>
         <widget class="QPushButton" name="soundEnabled">
+         <property name="toolTip">
+          <string>Toggle sound</string>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -213,6 +277,9 @@
        </item>
        <item>
         <widget class="QSpinBox" name="fps">
+         <property name="toolTip">
+          <string>Playback framerate</string>
+         </property>
          <property name="suffix">
           <string> FPS</string>
          </property>
