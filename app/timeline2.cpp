@@ -13,6 +13,7 @@
 #include "layerlabeledit.h"
 #include "layermanager.h"
 #include "tracklist.h"
+#include "layericon.h"
 
 Timeline2::Timeline2(Editor *editor, QWidget *parent) : BaseDockWidget(parent)
 {
@@ -161,30 +162,8 @@ void Timeline2::addLayerTrack( QGraphicsItem* empty, Layer *layer )
     });
 
     // Layer type icon
-    QPixmap* typePixmap = Q_NULLPTR;
-    switch( layer->type() )
-    {
-    case Layer::BITMAP:
-        typePixmap = new QPixmap( ":icons/layer-bitmap.png" );
-        break;
-    case Layer::VECTOR:
-        typePixmap = new QPixmap( ":icons/layer-vector.png" );
-        break;
-    case Layer::SOUND:
-        typePixmap = new QPixmap( ":icons/layer-sound.png" );
-        break;
-    case Layer::CAMERA:
-        typePixmap = new QPixmap( ":icons/layer-camera.png" );
-        break;
-    default:
-        break;
-    }
-    if( typePixmap )
-    {
-        QGraphicsPixmapItem* icon = new QGraphicsPixmapItem( *typePixmap );
-        icon->setParentItem( empty );
-        icon->setPos( 24, 3 );
-    }
+    LayerIcon* layerIcon = new LayerIcon( layer, mEditor, empty );
+    layerIcon->setPos( 24, 3 );
 
     // Label
     LayerLabel* labelWidget = new LayerLabel( layer->name() );
@@ -201,7 +180,7 @@ void Timeline2::addLayerTrack( QGraphicsItem* empty, Layer *layer )
     labelEditWidget->setOriginalText( layer->name() );
     labelEditWidget->hide();
     labelEditWidget->setFont( QFont( "Helvetica", 12 ) );
-    labelEditWidget->setStyleSheet( "border: none; background: transparent; margin-left: -2px;");
+    labelEditWidget->setStyleSheet( "border: none; background: transparent; margin-left: -2px;" );
     labelEditWidget->setTextMargins( 0, 0, 0, 0 );
     connect(labelWidget, &LayerLabel::doubleClicked, [=] () { labelEditWidget->setOriginalText( labelWidget->text() ); });
     connect(labelWidget, &LayerLabel::doubleClicked, labelEditWidget, &LayerLabelEdit::show);

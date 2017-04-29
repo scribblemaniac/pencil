@@ -96,7 +96,8 @@ HEADERS +=  \
     structure/filemanager.h \
     interface/layerlabel.h \
     interface/layerlabeledit.h \
-    interface/tracklist.h
+    interface/tracklist.h \
+    interface/layericon.h
 
 
 SOURCES +=  graphics/bitmap/bitmapimage.cpp \
@@ -162,7 +163,8 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     structure/editorstate.cpp \
     structure/filemanager.cpp \
     interface/layerlabeledit.cpp \
-    interface/tracklist.cpp
+    interface/tracklist.cpp \
+    interface/layericon.cpp
 
 win32 {
     CONFIG -= flat
