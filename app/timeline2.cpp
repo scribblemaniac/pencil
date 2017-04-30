@@ -14,6 +14,7 @@
 #include "layermanager.h"
 #include "tracklist.h"
 #include "layericon.h"
+#include "keyframeheader.h"
 
 Timeline2::Timeline2(Editor *editor, QWidget *parent) : BaseDockWidget(parent)
 {
@@ -44,10 +45,6 @@ void Timeline2::initUI()
     QVBoxLayout* layerWrapperLayout = new QVBoxLayout( layerWrapper );
     layerWrapperLayout->setMargin(0);
     layerWrapperLayout->setSpacing(0);
-
-    // Create a wrapper for the keyframe header and tracks
-    QWidget* keyframeWrapper = new QWidget( splitter );
-    QVBoxLayout* keyframeWrapperLayout = new QVBoxLayout( keyframeWrapper );
 
     // Layer header
     QWidget* layerHeaderWrapper = new QWidget();
@@ -105,8 +102,15 @@ void Timeline2::initUI()
         mLastSelected = i;
     } );
 
-    // Temporary placeholder
-    QLabel* test1 = new QLabel( "Keyframe", keyframeWrapper );
+    // Create a wrapper for the keyframe header and tracks
+    QWidget* keyframeWrapper = new QWidget( splitter );
+    QVBoxLayout* keyframeWrapperLayout = new QVBoxLayout( keyframeWrapper );
+    keyframeWrapperLayout->setMargin(0);
+    keyframeWrapperLayout->setSpacing(0);
+
+    // Keyframe header
+    KeyframeHeader* keyframeHeader = new KeyframeHeader( mEditor );
+    keyframeWrapperLayout->addWidget( keyframeHeader->views().first() );
 
     splitter->setSizes( QList<int>() << 100 << 600 );
 }

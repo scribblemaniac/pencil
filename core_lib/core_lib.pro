@@ -97,7 +97,8 @@ HEADERS +=  \
     interface/layerlabel.h \
     interface/layerlabeledit.h \
     interface/tracklist.h \
-    interface/layericon.h
+    interface/layericon.h \
+    interface/keyframeheader.h
 
 
 SOURCES +=  graphics/bitmap/bitmapimage.cpp \
@@ -164,7 +165,8 @@ SOURCES +=  graphics/bitmap/bitmapimage.cpp \
     structure/filemanager.cpp \
     interface/layerlabeledit.cpp \
     interface/tracklist.cpp \
-    interface/layericon.cpp
+    interface/layericon.cpp \
+    interface/keyframeheader.cpp
 
 win32 {
     CONFIG -= flat

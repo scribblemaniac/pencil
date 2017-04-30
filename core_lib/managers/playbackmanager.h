@@ -27,6 +27,8 @@ public:
     
     int markInFrame() { return mMarkInFrame; }
     int markOutFrame() { return mMarkOutFrame; }
+
+    bool isRangedPlayback() { return mIsRangedPlayback; }
     
     void setFps( int fps );
     void setLooping( bool isLoop );
