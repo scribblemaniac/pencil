@@ -15,6 +15,7 @@
 #include "tracklist.h"
 #include "layericon.h"
 #include "keyframeheader.h"
+#include "playbackmanager.h"
 
 Timeline2::Timeline2(Editor *editor, QWidget *parent) : BaseDockWidget(parent)
 {
@@ -32,6 +33,21 @@ Timeline2::~Timeline2()
 
 void Timeline2::initUI()
 {
+    // Connect control buttons
+    // Play/Stop button
+    connect( ui->play, &QPushButton::clicked, [=] ()
+    {
+        if ( mEditor->playback()->isPlaying() )
+        {
+            mEditor->playback()->stop();
+        }
+        else
+        {
+            mEditor->playback()->play();
+        }
+    } );
+    connect( mEditor->playback(), &PlaybackManager::playStateChanged, this, &Timeline2::updatePlayButton );
+
     // Hide timeline placeholder (it only exists for visual effect in QT Designer)
     ui->timelinePlaceholder->setVisible(false);
 
@@ -97,7 +113,8 @@ void Timeline2::initUI()
     selectedBackground = layerTracks->addRect( 0, 1, 1200, 20, Qt::NoPen, linearGradient );
     selectedBackground->setPos( 0, 21 * mEditor->layers()->currentLayerIndex() );
     selectedBackground->setZValue( -1 );
-    connect( mEditor->layers(), &LayerManager::currentLayerChanged, [&, layerTracksView, selectedBackground] ( int i ) {
+    connect( mEditor->layers(), &LayerManager::currentLayerChanged, [&, layerTracksView, selectedBackground] ( int i )
+    {
         selectedBackground->setPos( 0, 21 * i + 1 );
         mLastSelected = i;
     } );
@@ -196,4 +213,21 @@ void Timeline2::addLayerTrack( QGraphicsItem* empty, Layer *layer )
     labelEditProxy->setWidget( labelEditWidget );
     labelEditProxy->setParentItem( empty );
     labelEditProxy->setPos( 50, 4 );
+}
+
+// Updates the play button to either display Play or Stop
+void Timeline2::updatePlayButton( bool isPlaying )
+{
+    if ( isPlaying )
+    {
+        // Video is playing, so display Stop
+        ui->play->setToolTip( "Stop" );
+        ui->play->setIcon( QIcon( ":icons/controls/stop.png" ) );
+    }
+    else
+    {
+        // Video is not playing, so display Play
+        ui->play->setToolTip( "Play" );
+        ui->play->setIcon( QIcon( ":icons/controls/play.png" ) );
+    }
 }

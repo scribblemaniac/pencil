@@ -22,6 +22,9 @@ public:
     void initUI() override;
     void updateUI() override;
 
+public slots:
+    void updatePlayButton( bool isPlaying );
+
 private:
     void addLayerTrack( QGraphicsItem* empty, Layer* layer );
 
