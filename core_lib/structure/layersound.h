@@ -29,7 +29,7 @@ class LayerSound : public Layer
 public:
     LayerSound( Object* object );
     ~LayerSound();
-    QDomElement createDomElement(QDomDocument& doc) override;
+    Status writeXmlData( QXmlStreamWriter& doc ) override;
     void loadDomElement(QDomElement element, QString dataDirPath) override;
 
     Status loadSoundClipAtFrame( const QString& sSoundClipName, const QString& filePathString, int frame );

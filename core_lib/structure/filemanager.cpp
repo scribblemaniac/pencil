@@ -335,26 +335,44 @@ Status FileManager::save(Object* object, QString strFileName)
         return Status::ERROR_FILE_CANNOT_OPEN;
     }
 
-    QDomDocument xmlDoc("PencilDocument");
-    QDomElement root = xmlDoc.createElement("document");
-    QDomProcessingInstruction encoding = xmlDoc.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
-    xmlDoc.appendChild(encoding);
-    xmlDoc.appendChild(root);
+    QXmlStreamWriter xmlDoc(file.get());
+    xmlDoc.writeStartDocument();
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::save"
+                                    << "XML Document start"
+                     );
+    }
+
+    xmlDoc.writeStartElement("document");
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::save"
+                                    << "document tag"
+                     );
+    }
+
+    Status s;
 
     // save editor information
-    QDomElement projectDataElement = saveProjectData(object->data(), xmlDoc);
-    root.appendChild(projectDataElement);
+    s = saveProjectData(object->data(), xmlDoc);
     qCDebug(mLog) << "Save Project Data";
+    if(!s.ok())
+    {
+        s.setDetailsList(s.detailsList() << "From FileManager::save");
+        return s;
+    }
 
     // save object
-    QDomElement objectElement = object->saveXML(xmlDoc);
-    root.appendChild(objectElement);
+    s = object->saveXML(xmlDoc);
     qCDebug(mLog) << "Save Object Node";
-
-    const int IndentSize = 2;
-
-    QTextStream out(file.get());
-    xmlDoc.save(out, IndentSize);
+    if(!s.ok())
+    {
+        s.setDetailsList(s.detailsList() << "From FileManager::save");
+        return s;
+    }
 
     if (!isOldFile)
     {
@@ -401,66 +419,164 @@ ObjectData* FileManager::loadProjectData(const QDomElement& docElem)
 }
 
 
-QDomElement FileManager::saveProjectData(ObjectData* data, QDomDocument& xmlDoc)
+Status FileManager::saveProjectData(ObjectData* data, QXmlStreamWriter& xmlDoc)
 {
-    QDomElement rootTag = xmlDoc.createElement("projectdata");
+    if(xmlDoc.hasError()) return Status::FAIL;
+
+    xmlDoc.writeStartElement("projectdata");
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "projectdata tag"
+                     );
+    }
 
     // Current Frame
-    QDomElement currentFrameTag = xmlDoc.createElement("currentFrame");
-    currentFrameTag.setAttribute("value", data->getCurrentFrame());
-    rootTag.appendChild(currentFrameTag);
+    xmlDoc.writeStartElement("currentFrame");
+    xmlDoc.writeAttribute("value", QString::number(data->getCurrentFrame()));
+    xmlDoc.writeEndElement(); // End currentFrame tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "currentFrame tag"
+                                    << QString("value = %1").arg(data->getCurrentFrame())
+                     );
+    }
 
     // Current Colour
-    QDomElement currentColorTag = xmlDoc.createElement("currentColor");
+    xmlDoc.writeStartElement("currentColor");
     QColor color = data->getCurrentColor();
-    currentColorTag.setAttribute("r", color.red());
-    currentColorTag.setAttribute("g", color.green());
-    currentColorTag.setAttribute("b", color.blue());
-    currentColorTag.setAttribute("a", color.alpha());
-    rootTag.appendChild(currentColorTag);
+    xmlDoc.writeAttribute("r", QString::number(color.red()));
+    xmlDoc.writeAttribute("g", QString::number(color.green()));
+    xmlDoc.writeAttribute("b", QString::number(color.blue()));
+    xmlDoc.writeAttribute("a", QString::number(color.alpha()));
+    xmlDoc.writeEndElement(); // End currentColor tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "currentColor tag"
+                                    << QString("r = %1").arg(color.red())
+                                    << QString("g = %1").arg(color.green())
+                                    << QString("b = %1").arg(color.blue())
+                                    << QString("a = %1").arg(color.alpha())
+                     );
+    }
 
     // Current Layer
-    QDomElement currentLayerTag = xmlDoc.createElement("currentLayer");
-    currentLayerTag.setAttribute("value", data->getCurrentLayer());
-    rootTag.appendChild(currentLayerTag);
+    xmlDoc.writeStartElement("currentLayer");
+    xmlDoc.writeAttribute("value", QString::number(data->getCurrentLayer()));
+    xmlDoc.writeEndElement(); // End currentLayer tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "currentLayer tag"
+                                    << QString("value = %1").arg(data->getCurrentLayer())
+                     );
+    }
 
     // Current View
-    QDomElement currentViewTag = xmlDoc.createElement("currentView");
+    xmlDoc.writeStartElement("currentView");
     QTransform view = data->getCurrentView();
-    currentViewTag.setAttribute("m11", view.m11());
-    currentViewTag.setAttribute("m12", view.m12());
-    currentViewTag.setAttribute("m21", view.m21());
-    currentViewTag.setAttribute("m22", view.m22());
-    currentViewTag.setAttribute("dx", view.dx());
-    currentViewTag.setAttribute("dy", view.dy());
-    rootTag.appendChild(currentViewTag);
+    xmlDoc.writeAttribute("m11", QString::number(view.m11()));
+    xmlDoc.writeAttribute("m12", QString::number(view.m12()));
+    xmlDoc.writeAttribute("m21", QString::number(view.m21()));
+    xmlDoc.writeAttribute("m22", QString::number(view.m22()));
+    xmlDoc.writeAttribute("dx", QString::number(view.dx()));
+    xmlDoc.writeAttribute("dy", QString::number(view.dy()));
+    xmlDoc.writeEndElement(); // End currentView tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "currentView tag"
+                                    << QString("m11 = %1").arg(view.m11())
+                                    << QString("m12 = %1").arg(view.m12())
+                                    << QString("m21 = %1").arg(view.m21())
+                                    << QString("m22 = %1").arg(view.m22())
+                                    << QString("dx = %1").arg(view.dx())
+                                    << QString("dy = %1").arg(view.dy())
+                     );
+    }
 
     // Fps
-    QDomElement fpsTag = xmlDoc.createElement("fps");
-    fpsTag.setAttribute("value", data->getFrameRate());
-    rootTag.appendChild(fpsTag);
+    xmlDoc.writeStartElement("fps");
+    xmlDoc.writeAttribute("value", QString::number(data->getFrameRate()));
+    xmlDoc.writeEndElement(); // End fps tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "fps tag"
+                                    << QString("value = %1").arg(data->getFrameRate())
+                     );
+    }
 
     // Current Layer
-    QDomElement tagIsLoop = xmlDoc.createElement("isLoop");
-    tagIsLoop.setAttribute("value", data->isLooping() ? "true" : "false");
-    rootTag.appendChild(tagIsLoop);
+    xmlDoc.writeStartElement("isLoop");
+    xmlDoc.writeAttribute("value", data->isLooping() ? "true" : "false");
+    xmlDoc.writeEndElement(); // End isLoop tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "isLoop tag"
+                                    << QString("value = %1").arg(data->isLooping() ? "true" : "false")
+                     );
+    }
 
     // Current Layer
-    QDomElement tagRangedPlayback = xmlDoc.createElement("isRangedPlayback");
-    tagRangedPlayback.setAttribute("value", data->isRangedPlayback() ? "true" : "false");
-    rootTag.appendChild(tagRangedPlayback);
+    xmlDoc.writeStartElement("isRangedPlayback");
+    xmlDoc.writeAttribute("value", data->isRangedPlayback() ? "true" : "false");
+    xmlDoc.writeEndElement(); // End isRangedPlayback tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "isRangedPlayback tag"
+                                    << QString("value = %1").arg(data->isRangedPlayback() ? "true" : "false")
+                     );
+    }
 
     // Current Layer
-    QDomElement tagMarkInFrame = xmlDoc.createElement("markInFrame");
-    tagMarkInFrame.setAttribute("value", data->getMarkInFrameNumber());
-    rootTag.appendChild(tagMarkInFrame);
+    xmlDoc.writeStartElement("markInFrame");
+    xmlDoc.writeAttribute("value", QString::number(data->getMarkInFrameNumber()));
+    xmlDoc.writeEndElement(); // End markInFrame tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "markInFrame tag"
+                                    << QString("value = %1").arg(data->getMarkInFrameNumber())
+                     );
+    }
 
     // Current Layer
-    QDomElement tagMarkOutFrame = xmlDoc.createElement("markOutFrame");
-    tagMarkOutFrame.setAttribute("value", data->getMarkOutFrameNumber());
-    rootTag.appendChild(tagMarkOutFrame);
+    xmlDoc.writeStartElement("markOutFrame");
+    xmlDoc.writeAttribute("value", QString::number(data->getMarkOutFrameNumber()));
+    xmlDoc.writeEndElement(); // End markOutFrame
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "markOutFrame tag"
+                                    << QString("value = %1").arg(data->getMarkOutFrameNumber())
+                     );
+    }
 
-    return rootTag;
+    xmlDoc.writeEndElement(); // End projectdata tag
+    if(xmlDoc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "FileManager::saveProjectData"
+                                    << "projectdata tag end"
+                     );
+    }
+
+    return Status::OK;
 }
 
 void FileManager::extractProjectData(const QDomElement& element, ObjectData* data)

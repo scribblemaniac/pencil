@@ -67,21 +67,48 @@ void Object::init()
     loadDefaultPalette();
 }
 
-QDomElement Object::saveXML(QDomDocument& doc)
+Status Object::saveXML(QXmlStreamWriter& doc)
 {
     qDebug() << dataDir();
     qDebug() << workingDir();
     qDebug() << mainXMLFile();
 
-    QDomElement tag = doc.createElement("object");
+    if(doc.hasError()) return Status::FAIL;
 
+    doc.writeStartElement("object");
+
+    if(doc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "Object::saveXML"
+                                    << "object tag"
+                     );
+    }
+
+    Status s;
     for (int i = 0; i < getLayerCount(); i++)
     {
         Layer* layer = getLayer(i);
-        QDomElement layerTag = layer->createDomElement(doc);
-        tag.appendChild(layerTag);
+        s = layer->writeXmlData(doc);
+
+        if(!s.ok())
+        {
+            s.setDetailsList(s.detailsList() << "From Object::saveXML");
+            return s;
+        }
     }
-    return tag;
+
+    doc.writeEndElement(); // End object tag
+
+    if(doc.hasError())
+    {
+        return Status(Status::FAIL,
+                      QStringList() << "Object::saveXML"
+                                    << "object tag end"
+                      );
+    }
+
+    return Status::OK;
 }
 
 bool Object::loadXML(QDomElement docElem, ProgressCallback progress)

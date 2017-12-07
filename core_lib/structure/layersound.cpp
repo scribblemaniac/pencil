@@ -63,30 +63,74 @@ void LayerSound::updateFrameLengths(int fps)
     });
 }
 
-QDomElement LayerSound::createDomElement(QDomDocument& doc)
+Status LayerSound::writeXmlData(QXmlStreamWriter& doc)
 {
-    QDomElement layerTag = doc.createElement("layer");
+    if(doc.hasError()) return Status::FAIL;
 
-    layerTag.setAttribute("id", id());
-    layerTag.setAttribute("name", name());
-    layerTag.setAttribute("visibility", visible());
-    layerTag.setAttribute("type", type());
+    doc.writeStartElement("layer");
 
-    foreachKeyFrame([&doc, &layerTag](KeyFrame* pKeyFrame)
+    doc.writeAttribute("id", QString::number(id()));
+    doc.writeAttribute("name", name());
+    doc.writeAttribute("visibility", visible() ? "1" : "0");
+    doc.writeAttribute("type", QString::number(type()));
+
+    if(doc.hasError())
     {
+        QStringList debugInfo = QStringList() << "LayerSound::writeXMLData"
+                                              << "layer tag"
+                                              << QString("id = %1").arg(id())
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    QStringList debugInfoKeyFrame;
+
+    foreachKeyFrame([&](KeyFrame* pKeyFrame)
+    {
+        // Don't bother processing the key frame if you can't write it
+        if(doc.hasError()) return;
+
         SoundClip* clip = static_cast<SoundClip*>(pKeyFrame);
 
-        QDomElement imageTag = doc.createElement("sound");
-        imageTag.setAttribute("frame", clip->pos());
-        imageTag.setAttribute("name", clip->soundClipName());
+        doc.writeStartElement("sound");
+        doc.writeAttribute("frame", QString::number(clip->pos()));
+        doc.writeAttribute("name", clip->soundClipName());
 
         QFileInfo info(clip->fileName());
         //qDebug() << "Save=" << info.fileName();
-        imageTag.setAttribute("src", info.fileName());
-        layerTag.appendChild(imageTag);
+        doc.writeAttribute("src", info.fileName());
+        doc.writeEndElement(); // End sound tag
+
+        if(doc.hasError())
+        {
+            debugInfoKeyFrame << "LayerSound::writeXMLData"
+                              << "sound tag"
+                              << QString("frame = %1").arg(clip->pos())
+                              << QString("name = %1").arg(clip->soundClipName())
+                              << QString("src = %1").arg(info.fileName());
+        }
     });
 
-    return layerTag;
+    if(!debugInfoKeyFrame.empty()) {
+        return Status(Status::FAIL, debugInfoKeyFrame);
+    }
+
+    doc.writeEndElement(); // End layer tag
+
+    if(doc.hasError())
+    {
+        QStringList debugInfo = QStringList() << "LayerSound::writeXMLData"
+                                              << "layer tag end"
+                                              << QString("id = %1").arg(id())
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    return Status::OK;
 }
 
 void LayerSound::loadDomElement(QDomElement element, QString dataDirPath)

@@ -54,7 +54,7 @@ public:
     void loadImageAtFrame(int frame, float dx, float dy, float rotate, float scale);
     
     void editProperties() override;
-    QDomElement createDomElement(QDomDocument& doc) override;
+    Status writeXmlData( QXmlStreamWriter& doc ) override;
     void loadDomElement(QDomElement element, QString dataDirPath) override;
 
     Camera* getCameraAtFrame(int frameNumber);

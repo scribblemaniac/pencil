@@ -75,27 +75,73 @@ QString LayerBitmap::fileName(int frame) const
     return layerNumberString + "." + frameNumberString + ".png";
 }
 
-QDomElement LayerBitmap::createDomElement(QDomDocument& doc)
+Status LayerBitmap::writeXmlData( QXmlStreamWriter& doc )
 {
-    QDomElement layerTag = doc.createElement("layer");
-    layerTag.setAttribute("id", id());
-    layerTag.setAttribute("name", name());
-    layerTag.setAttribute("visibility", visible());
-    layerTag.setAttribute("type", type());
+    if(doc.hasError()) return Status::FAIL;
 
-    foreachKeyFrame([&](KeyFrame* pKeyFrame)
+    doc.writeStartElement("layer");
+
+    doc.writeAttribute("id", QString::number(id()));
+    doc.writeAttribute("name", name());
+    doc.writeAttribute("visibility", visible() ? "1" : "0");
+    doc.writeAttribute("type", QString::number(type()));
+
+    if(doc.hasError())
     {
+        QStringList debugInfo = QStringList() << "LayerBitmap::writeXMLData"
+                                              << "layer tag"
+                                              << QString("id = %1").arg(id())
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    QStringList debugInfoKeyFrame;
+
+    foreachKeyFrame([&](KeyFrame* pKeyFrame) // TODO: use something else
+    {
+        // Don't bother processing the key frame if you can't write it
+        if(doc.hasError()) return;
+
         BitmapImage* pImg = static_cast<BitmapImage*>(pKeyFrame);
 
-        QDomElement imageTag = doc.createElement("image");
-        imageTag.setAttribute("frame", pKeyFrame->pos());
-        imageTag.setAttribute("src", fileName(pKeyFrame->pos()));
-        imageTag.setAttribute("topLeftX", pImg->topLeft().x());
-        imageTag.setAttribute("topLeftY", pImg->topLeft().y());
-        layerTag.appendChild(imageTag);
+        doc.writeStartElement("image");
+        doc.writeAttribute("frame", QString::number(pKeyFrame->pos()));
+        doc.writeAttribute("src", fileName(pKeyFrame->pos()));
+        doc.writeAttribute("topLeftX", QString::number(pImg->topLeft().x()));
+        doc.writeAttribute("topLeftY", QString::number(pImg->topLeft().y()));
+        doc.writeEndElement(); // End image tag
+
+        if(doc.hasError())
+        {
+            debugInfoKeyFrame << "LayerBitmap::writeXMLData"
+                              << "image tag"
+                              << QString("frame = %1").arg(pKeyFrame->pos())
+                              << QString("src = %1").arg(fileName(pKeyFrame->pos()))
+                              << QString("topLeftX = %1").arg(pImg->topLeft().x())
+                              << QString("topLeftY = %1").arg(pImg->topLeft().y());
+        }
     });
 
-    return layerTag;
+    if(!debugInfoKeyFrame.empty()) {
+        return Status(Status::FAIL, debugInfoKeyFrame);
+    }
+
+    doc.writeEndElement(); // End layer tag
+
+    if(doc.hasError())
+    {
+        QStringList debugInfo = QStringList() << "LayerBitmap::writeXMLData"
+                                              << "layer tag end"
+                                              << QString("id = %1").arg(id())
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    return Status::OK;
 }
 
 void LayerBitmap::loadDomElement(QDomElement element, QString dataDirPath)

@@ -270,30 +270,78 @@ void LayerCamera::editProperties()
     }
 }
 
-QDomElement LayerCamera::createDomElement( QDomDocument& doc )
+Status LayerCamera::writeXmlData( QXmlStreamWriter& doc )
 {
-    QDomElement layerTag = doc.createElement("layer");
+    if(doc.hasError()) return Status::FAIL;
+
+    doc.writeStartElement("layer");
     
-    layerTag.setAttribute("name", name());
-    layerTag.setAttribute("visibility", visible());
-    layerTag.setAttribute("type", type());
-    layerTag.setAttribute("width", viewRect.width());
-    layerTag.setAttribute("height", viewRect.height());
+    doc.writeAttribute("name", name());
+    doc.writeAttribute("visibility", visible() ? "1" : "0");
+    doc.writeAttribute("type", QString::number(type()));
+    doc.writeAttribute("width", QString::number(viewRect.width()));
+    doc.writeAttribute("height", QString::number(viewRect.height()));
+
+    if(doc.hasError())
+    {
+        QStringList debugInfo = QStringList() << "LayerCamera::writeXMLData"
+                                              << "layer tag"
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type())
+                                              << QString("width = %1").arg(viewRect.width())
+                                              << QString("height = %1").arg(viewRect.height());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    QStringList debugInfoKeyFrame;
 
     foreachKeyFrame( [&]( KeyFrame* pKeyFrame )
     {
-        Camera* camera = static_cast< Camera* >( pKeyFrame );
-        QDomElement keyTag = doc.createElement("camera");
-        keyTag.setAttribute( "frame", camera->pos() );
+        // Don't bother processing the key frame if you can't write it
+        if(doc.hasError()) return;
 
-        keyTag.setAttribute( "r", camera->rotation() );
-        keyTag.setAttribute( "s", camera->scaling() );
-        keyTag.setAttribute( "dx",  camera->translation().x() );
-        keyTag.setAttribute( "dy",  camera->translation().y() );
-        layerTag.appendChild( keyTag );
+        Camera* camera = static_cast< Camera* >( pKeyFrame );
+        doc.writeStartElement("camera");
+        doc.writeAttribute( "frame", QString::number(camera->pos()) );
+
+        doc.writeAttribute( "r", QString::number(camera->rotation()) );
+        doc.writeAttribute( "s", QString::number(camera->scaling()) );
+        doc.writeAttribute( "dx",  QString::number(camera->translation().x()) );
+        doc.writeAttribute( "dy",  QString::number(camera->translation().y()) );
+        doc.writeEndElement(); // End camera tag
+
+        if(doc.hasError())
+        {
+            debugInfoKeyFrame << "LayerCamera::writeXMLData"
+                              << "camera tag"
+                              << QString("pKeyFrame->pos() = %1").arg(pKeyFrame->pos())
+                              << QString("r = %1").arg(camera->rotation())
+                              << QString("s = %1").arg(camera->scaling())
+                              << QString("dx = %1").arg(camera->translation().x())
+                              << QString("dy = %1").arg(camera->translation().y());
+        }
     } );
+
+    if(!debugInfoKeyFrame.empty()) {
+        return Status(Status::FAIL, debugInfoKeyFrame);
+    }
     
-    return layerTag;
+    doc.writeEndElement(); // End layer tag
+
+    if(doc.hasError())
+    {
+        QStringList debugInfo = QStringList() << "LayerCamera::writeXMLData"
+                                              << "layer tag end"
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type())
+                                              << QString("width = %1").arg(viewRect.width())
+                                              << QString("height = %1").arg(viewRect.height());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    return Status::OK;
 }
 
 void LayerCamera::loadDomElement(QDomElement element, QString dataDirPath)

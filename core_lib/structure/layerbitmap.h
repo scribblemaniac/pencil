@@ -31,7 +31,7 @@ public:
 
     void loadImageAtFrame( QString strFilePath, QPoint topLeft, int frameNumber );
 
-    QDomElement createDomElement( QDomDocument& doc ) override;
+    Status writeXmlData( QXmlStreamWriter& doc ) override;
     void loadDomElement( QDomElement element, QString dataDirPath ) override;
 
     BitmapImage* getBitmapImageAtFrame( int frameNumber );

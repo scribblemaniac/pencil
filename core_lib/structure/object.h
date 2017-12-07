@@ -76,7 +76,7 @@ public:
     QString mainXMLFile() const { return mMainXMLFile; }
     void    setMainXMLFile( QString file ){ mMainXMLFile = file; }
 
-    QDomElement saveXML( QDomDocument& doc );
+    Status saveXML(QXmlStreamWriter &doc );
 	bool loadXML( QDomElement element, ProgressCallback progress = [] (float){} );
 
     void paintImage( QPainter& painter, int frameNumber, bool background, bool antialiasing ) const;

@@ -29,6 +29,7 @@ GNU General Public License for more details.
 
 class Object;
 class ObjectData;
+class QXmlStreamWriter;
 
 
 class FileManager : public QObject
@@ -57,7 +58,7 @@ private:
     bool loadPalette( Object* );
     
     ObjectData* loadProjectData( const QDomElement& element );
-    QDomElement saveProjectData( ObjectData*, QDomDocument& xmlDoc );
+    Status saveProjectData(ObjectData*, QXmlStreamWriter &xmlDoc );
 
     void extractProjectData( const QDomElement& element, ObjectData* data );
 

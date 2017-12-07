@@ -68,7 +68,7 @@ public:
 
     virtual Status saveKeyFrame( KeyFrame*, QString path ) = 0;
     virtual void loadDomElement( QDomElement element, QString dataDirPath ) = 0;
-    virtual QDomElement createDomElement( QDomDocument& doc ) = 0;
+    virtual Status writeXmlData( QXmlStreamWriter& doc ) = 0;
     
     bool keyExists( int position ) const;
     int  getPreviousKeyFramePosition( int position );

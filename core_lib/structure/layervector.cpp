@@ -128,25 +128,67 @@ QString LayerVector::fileName(int frame)
     return layerNumberString + "." + frameNumberString + ".vec";
 }
 
-QDomElement LayerVector::createDomElement(QDomDocument& doc)
+Status LayerVector::writeXmlData(QXmlStreamWriter& doc)
 {
-    QDomElement layerTag = doc.createElement("layer");
+    if(doc.hasError()) return Status::FAIL;
 
-    layerTag.setAttribute("id", id());
-    layerTag.setAttribute("name", name());
-    layerTag.setAttribute("visibility", visible());
-    layerTag.setAttribute("type", type());
+    doc.writeStartElement("layer");
+
+    doc.writeAttribute("id", QString::number(id()));
+    doc.writeAttribute("name", name());
+    doc.writeAttribute("visibility", visible() ? "1" : "0");
+    doc.writeAttribute("type", QString::number(type()));
+
+    if(doc.hasError())
+    {
+        QStringList debugInfo = QStringList() << "LayerVector::writeXMLData"
+                                              << "layer tag"
+                                              << QString("id = %1").arg(id())
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    QStringList debugInfoKeyFrame;
 
     foreachKeyFrame([&](KeyFrame* pKeyFrame)
     {
-        //QDomElement imageTag = framesVector[index]->createDomElement(doc); // if we want to embed the data
-        QDomElement imageTag = doc.createElement("image");
-        imageTag.setAttribute("frame", pKeyFrame->pos());
-        imageTag.setAttribute("src", fileName(pKeyFrame->pos()));
-        layerTag.appendChild(imageTag);
+        // Don't bother processing the key frame if you can't write it
+        if(doc.hasError()) return;
+
+        doc.writeStartElement("image");
+        doc.writeAttribute("frame", QString::number(pKeyFrame->pos()));
+        doc.writeAttribute("src", fileName(pKeyFrame->pos()));
+        doc.writeEndElement(); // End image tag
+
+        if(doc.hasError())
+        {
+            debugInfoKeyFrame << "LayerVector::writeXMLData"
+                              << "image tag"
+                              << QString("frame = %1").arg(pKeyFrame->pos())
+                              << QString("src = %1").arg(fileName(pKeyFrame->pos()));
+        }
     });
 
-    return layerTag;
+    if(!debugInfoKeyFrame.empty()) {
+        return Status(Status::FAIL, debugInfoKeyFrame);
+    }
+
+    doc.writeEndElement(); // End layer tag
+
+    if(doc.hasError())
+    {
+        QStringList debugInfo = QStringList() << "LayerVector::writeXMLData"
+                                              << "layer tag end"
+                                              << QString("id = %1").arg(id())
+                                              << QString("name = %1").arg(name())
+                                              << QString("visibility = %1").arg(visible())
+                                              << QString("type = %1").arg(type());
+        return Status(Status::FAIL, debugInfo);
+    }
+
+    return Status::OK;
 }
 
 void LayerVector::loadDomElement(QDomElement element, QString dataDirPath)
