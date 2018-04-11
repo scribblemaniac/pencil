@@ -13,7 +13,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 */
-
+// Simulate code changes
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 
