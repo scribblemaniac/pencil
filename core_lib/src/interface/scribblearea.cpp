@@ -921,6 +921,7 @@ void ScribbleArea::initializeGL() {
 
 void ScribbleArea::paintGL()
 {
+    auto t0 = std::chrono::steady_clock::now();
     if (!mMouseInUse || currentTool()->type() == MOVE || currentTool()->type() == HAND || mMouseRightButtonInUse)
     {
         // --- we retrieve the canvas from the cache; we create it if it doesn't exist
@@ -1084,6 +1085,9 @@ void ScribbleArea::paintGL()
             }
         }
     }
+
+    auto t1 = std::chrono::steady_clock::now();
+    qDebug() << "Scribble speed" << (t1-t0).count();
 
     // outlines the frame of the viewport
 #ifdef _DEBUG
