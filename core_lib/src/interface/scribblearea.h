@@ -29,6 +29,7 @@ GNU General Public License for more details.
 #include <QPoint>
 #include <QWidget>
 #include <QPixmapCache>
+#include <QOpenGLWidget>
 
 #include "log.h"
 #include "pencildef.h"
@@ -44,7 +45,7 @@ class BaseTool;
 class StrokeManager;
 
 
-class ScribbleArea : public QWidget
+class ScribbleArea : public QOpenGLWidget
 {
     Q_OBJECT
 
@@ -152,7 +153,8 @@ protected:
     void mouseDoubleClickEvent( QMouseEvent* ) override;
     void keyPressEvent( QKeyEvent* ) override;
     void keyReleaseEvent( QKeyEvent* ) override;
-    void paintEvent( QPaintEvent* ) override;
+    void initializeGL() override;
+    void paintGL() override;
     void resizeEvent( QResizeEvent* ) override;
 
 public:

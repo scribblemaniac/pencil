@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #include <cmath>
 #include <QMessageBox>
 #include <QPixmapCache>
+#include <QOpenGLFunctions>
 
 #include "beziercurve.h"
 #include "object.h"
@@ -38,7 +39,7 @@ GNU General Public License for more details.
 #include "viewmanager.h"
 
 
-ScribbleArea::ScribbleArea(QWidget* parent) : QWidget(parent),
+ScribbleArea::ScribbleArea(QWidget* parent) : QOpenGLWidget(parent),
 mLog("ScribbleArea")
 {
     setObjectName("ScribbleArea");
@@ -908,7 +909,17 @@ void ScribbleArea::handleDrawingOnEmptyFrame()
     }
 }
 
-void ScribbleArea::paintEvent(QPaintEvent* event)
+void ScribbleArea::initializeGL() {
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    // Set background color to white
+    // If you want to support the fancier background options,
+    // they will have to be added in paintGL
+    f->glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    //Partial updating may be worth looking into for brush strokes:
+    //this->setUpdateBehavior(PartialUpdate);
+}
+
+void ScribbleArea::paintGL()
 {
     if (!mMouseInUse || currentTool()->type() == MOVE || currentTool()->type() == HAND || mMouseRightButtonInUse)
     {
@@ -920,7 +931,7 @@ void ScribbleArea::paintEvent(QPaintEvent* event)
 
         if (!QPixmapCache::find(cachedKey, &mCanvas))
         {
-            drawCanvas(mEditor->currentFrame(), event->rect());
+            drawCanvas(mEditor->currentFrame(), QRect());
 
             mPixmapCacheKeys[frameNumber] = QPixmapCache::insert(mCanvas);
             //qDebug() << "Repaint canvas!";
@@ -942,6 +953,8 @@ void ScribbleArea::paintEvent(QPaintEvent* event)
 
     // paints the canvas
     painter.setWorldMatrixEnabled(false);
+    // Another way to add backgrounds
+    //painter.fillRect(QRect(QPoint(0, 0), mCanvas.size()), QBrush(Qt::white));
     painter.drawPixmap(QPoint(0, 0), mCanvas);
 
     Layer* layer = mEditor->layers()->currentLayer();
@@ -1080,7 +1093,7 @@ void ScribbleArea::paintEvent(QPaintEvent* event)
     painter.drawRect(QRect(0, 0, width(), height()));
 #endif
 
-    event->accept();
+    //event->accept();
 }
 
 void ScribbleArea::drawCanvas(int frame, QRect rect)
