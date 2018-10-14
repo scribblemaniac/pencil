@@ -140,8 +140,13 @@ Status MovieExporter::run(const Object* obj,
         STATUS_CHECK(assembleAudio(obj, ffmpegPath, minorProgress));
         minorProgress(1.f);
         majorProgress(0.25f, 1.f);
-        progressMessage("Generating movie...");
-        STATUS_CHECK(generateMovie(obj, ffmpegPath, desc.strFileName, minorProgress));
+        progressMessage("Generating movies...");
+        for(int i = 0; i <= 63; i++) {
+            QString fname = desc.strFileName;
+            fname = fname.remove(fname.size() - 5, 5);
+            fname = fname + "-" + QString::number(i) + ".webm";
+            STATUS_CHECK(generateMovie(obj, ffmpegPath, fname, minorProgress, i));
+        }
     }
     minorProgress(1.f);
     majorProgress(1.f, 1.f);
@@ -261,7 +266,8 @@ Status MovieExporter::generateMovie(
         const Object* obj,
         QString ffmpegPath,
         QString strOutputFile,
-        std::function<void(float)> progress)
+        std::function<void(float)> progress,
+        int quality)
 {
     if (mCanceled)
     {
@@ -335,10 +341,26 @@ Status MovieExporter::generateMovie(
         strCmd += QString(" -plays %1").arg(loop ? "0" : "1");
     }
 
-    if (strOutputFile.endsWith("mp4", Qt::CaseInsensitive))
+    if (strOutputFile.endsWith(".mp4", Qt::CaseInsensitive) || strOutputFile.endsWith(".webm", Qt::CaseInsensitive))
     {
         strCmd += QString(" -pix_fmt yuv420p");
     }
+    if (strOutputFile.endsWith(".avi", Qt::CaseInsensitive))
+    {
+        strCmd += QString(" -q:v %1 -c:v mpeg4 -vtag xvid").arg(quality); // -c:v libxvid
+    }
+    else if (strOutputFile.endsWith(".mp4", Qt::CaseInsensitive))
+    {
+        strCmd += QString(" -tune animation -crf %1").arg(quality);
+    }
+    else if (strOutputFile.endsWith(".ogv", Qt::CaseInsensitive))
+    {
+        strCmd += QString(" -c:v libtheora -q:v %1").arg(quality);
+    }
+    else {
+        strCmd += QString(" -crf %1 -b:v 0 -cpu-used 5").arg(quality);
+    }
+
     strCmd += " -y";
     strCmd += QString(" \"%1\"").arg(strOutputFile);
 
