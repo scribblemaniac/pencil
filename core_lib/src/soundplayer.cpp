@@ -60,6 +60,7 @@ void SoundPlayer::play()
 {
     if ( mMediaPlayer )
     {
+        qDebug() << "Buffer status" << mMediaPlayer->bufferStatus();
         mMediaPlayer->play();
     }
 }
@@ -77,6 +78,15 @@ int64_t SoundPlayer::duration()
     if ( mMediaPlayer )
     {
         return mMediaPlayer->duration();
+    }
+    return 0;
+}
+
+qint64 SoundPlayer::getMediaPlayerPosition()
+{
+    if( mMediaPlayer )
+    {
+        return mMediaPlayer->position();
     }
     return 0;
 }

@@ -887,6 +887,7 @@ void Editor::scrubTo(int frame)
     if (mPlaybackManager && !mPlaybackManager->isPlaying())
     {
         emit updateTimeLine(); // needs to update the timeline to update onion skin positions
+        mPlaybackManager->prepareSounds(frame);
     }
     mObject->updateActiveFrames(frame);
 }

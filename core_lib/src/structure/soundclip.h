@@ -44,6 +44,7 @@ public:
     SoundPlayer* player() const { return mPlayer.get(); }
 
     void play();
+    void setPosition(int frameNumber, int fps);
     void playFromPosition(int frameNumber, int fps);
     void stop();
 

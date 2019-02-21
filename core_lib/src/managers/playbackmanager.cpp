@@ -233,6 +233,32 @@ void PlaybackManager::setFps(int fps)
     }
 }
 
+void PlaybackManager::prepareSounds(int frame)
+{
+    // If sound is turned off, don't play anything.
+    if (!mIsPlaySound)
+    {
+        return;
+    }
+
+    std::vector< LayerSound* > kSoundLayers;
+    for (int i = 0; i < object()->getLayerCount(); ++i)
+    {
+        Layer* layer = object()->getLayer(i);
+        if (layer->type() == Layer::SOUND)
+        {
+            LayerSound* soundLayer = static_cast<LayerSound*>(layer);
+            if (layer->keyExistsWhichCovers(frame))
+            {
+                qDebug() << "Preparing sound";
+                KeyFrame* key = layer->getKeyFrameWhichCovers(frame);
+                SoundClip* clip = static_cast<SoundClip*>(key);
+                clip->setPosition(frame, mFps);
+            }
+        }
+    }
+}
+
 void PlaybackManager::playSounds(int frame)
 {
     // If sound is turned off, don't play anything.

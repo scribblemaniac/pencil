@@ -85,7 +85,7 @@ void SoundClip::play()
     }
 }
 
-void SoundClip::playFromPosition(int frameNumber, int fps)
+void SoundClip::setPosition(int frameNumber, int fps)
 {
     int framesIntoSound = frameNumber;
     if (pos() > 1)
@@ -95,9 +95,17 @@ void SoundClip::playFromPosition(int frameNumber, int fps)
     qreal msPerFrame = 1000.0 / fps;
     qint64 msIntoSound = qRound(framesIntoSound * msPerFrame);
 
-    if (mPlayer)
+    if (mPlayer && mPlayer->getMediaPlayerPosition() != msIntoSound)
     {
         mPlayer->setMediaPlayerPosition(msIntoSound);
+    }
+}
+
+void SoundClip::playFromPosition(int frameNumber, int fps)
+{
+    if (mPlayer)
+    {
+        setPosition(frameNumber, fps);
         mPlayer->play();
     }
 }

@@ -42,6 +42,7 @@ public:
     int64_t duration();
     SoundClip* clip() { return mSoundClip; }
 
+    qint64 getMediaPlayerPosition();
     void setMediaPlayerPosition( qint64 pos );
 
 Q_SIGNALS:

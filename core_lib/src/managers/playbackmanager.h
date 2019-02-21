@@ -60,6 +60,7 @@ public:
     void setRangedEndFrame(int frame);
     void enableSound(bool b);
 
+    void prepareSounds(int frame);
     void stopSounds();
 
 Q_SIGNALS:
