@@ -978,7 +978,7 @@
   </action>
   <action name="actionPegbarAlignment">
    <property name="text">
-    <string>Peg bar Alignment</string>
+    <string>Peg Bar Alignment</string>
    </property>
   </action>
  </widget>

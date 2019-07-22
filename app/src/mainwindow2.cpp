@@ -29,6 +29,7 @@ GNU General Public License for more details.
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QTabletEvent>
+#include <QVector>
 
 // core_lib headers
 #include "pencildef.h"
@@ -444,20 +445,13 @@ void MainWindow2::pegBarReg()
     }
 
     PegBarAlignmentDialog* pegreg = new PegBarAlignmentDialog(this);
-    QStringList bitmaplayers;
-    for (int i = 0; i < mEditor->layers()->count(); i++)
-    {
-        if (mEditor->layers()->getLayer(i)->type() == Layer::BITMAP)
-        {
-            bitmaplayers.append(mEditor->layers()->getLayer(i)->name());
-        }
-    }
+    QVector<LayerBitmap *> bitmapLayers = QVector<LayerBitmap *>::fromStdVector(mEditor->object()->getLayersByType<LayerBitmap>());
 
-    pegreg->setLayerList(bitmaplayers);
-    pegreg->setLabText(mEditor->layers()->currentLayer()->name() + ", " + QString::number(mEditor->currentFrame()));
+    pegreg->setLayerList(bitmapLayers);
+    pegreg->setReferenceKeyText(mEditor->layers()->currentLayer()->name() + ", " + QString::number(mEditor->currentFrame()));
     int ret = pegreg->exec();
-    bitmaplayers = pegreg->getLayerList();
-    if (bitmaplayers.isEmpty())
+    bitmapLayers = pegreg->getSelectedLayers();
+    if (bitmapLayers.isEmpty())
     {
         QMessageBox::information(this, nullptr,
                                  tr("No Layer selected!"),
@@ -465,9 +459,9 @@ void MainWindow2::pegBarReg()
         return;
     }
 
-    if (ret == pegreg->Accepted)
+    if (ret == QDialog::Accepted)
     {
-        Status::StatusInt statusint = mEditor->pegBarAlignment(bitmaplayers);
+        Status::StatusInt statusint = mEditor->pegBarAlignment(bitmapLayers);
         if (statusint.errorcode == Status::FAIL)
         {
             QMessageBox::information(this, nullptr,

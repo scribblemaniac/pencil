@@ -48,4 +48,6 @@ private:
     bool needSaveFrame(KeyFrame* key, const QString& strSavePath);
 };
 
+Q_DECLARE_METATYPE(LayerBitmap*)
+
 #endif

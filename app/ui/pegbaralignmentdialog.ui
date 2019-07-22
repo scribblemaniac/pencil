@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>200</height>
+    <height>221</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,13 +21,13 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Peg bar Alignment</string>
+      <string>Peg Bar Alignment</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>Select layer(-s) to align</string>
+         <string>Select layer(s) to align</string>
         </property>
        </widget>
       </item>

@@ -19,10 +19,9 @@ GNU General Public License for more details.
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+
 #include "keyframe.h"
 #include "bitmapimage.h"
-
-
 
 
 LayerBitmap::LayerBitmap(Object* object) : Layer(object, Layer::BITMAP)

@@ -42,6 +42,7 @@ class ScribbleArea;
 class TimeLine;
 class BackupElement;
 class ActiveFramePool;
+class LayerBitmap;
 
 enum class SETTING;
 
@@ -139,7 +140,7 @@ public: //slots
 
     void switchVisibilityOfLayer(int layerNumber);
     void swapLayers(int i, int j);
-    Status::StatusInt pegBarAlignment(QStringList layers);
+    Status::StatusInt pegBarAlignment(const QVector<LayerBitmap*> layers);
 
     void backup(QString undoText);
     void backup(int layerNumber, int frameNumber, QString undoText);

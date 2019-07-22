@@ -996,14 +996,14 @@ void Editor::swapLayers(int i, int j)
     mScribbleArea->updateAllFrames();
 }
 
-Status::StatusInt Editor::pegBarAlignment(QStringList layers)
+Status::StatusInt Editor::pegBarAlignment(const QVector<LayerBitmap*> layers)
 {
     Status::StatusInt retLeft;
     Status::StatusInt retRight;
 
     QRectF rect = mScribbleArea->getSelection();
-    LayerBitmap* layerbitmap = static_cast<LayerBitmap*>(mLayerManager->currentLayer());
-    BitmapImage* img = layerbitmap->getBitmapImageAtFrame(currentFrame());
+    LayerBitmap* currentLayer = static_cast<LayerBitmap*>(mLayerManager->currentLayer());
+    BitmapImage* img = currentLayer->getBitmapImageAtFrame(currentFrame());
     retLeft = img->findLeft(rect, 121);
     retRight = img->findTop(rect, 121);
     if (retLeft.errorcode == Status::FAIL || retRight.errorcode == Status::FAIL)
@@ -1015,19 +1015,18 @@ Status::StatusInt Editor::pegBarAlignment(QStringList layers)
     int peg_y = retRight.value;
 
     // move other layers
-    for (int i = 0; i < layers.count(); i++)
+    foreach (LayerBitmap* layerBitmap, layers)
     {
-        layerbitmap = static_cast<LayerBitmap*>(mLayerManager->findLayerByName(layers.at(i)));
-        for (int k = layerbitmap->firstKeyFramePosition(); k <= layerbitmap->getMaxKeyFramePosition(); k++)
+        for (int k = layerBitmap->firstKeyFramePosition(); k <= layerBitmap->getMaxKeyFramePosition(); k++)
         {
-            if (layerbitmap->keyExists(k))
+            if (layerBitmap->keyExists(k))
             {
-                img = layerbitmap->getBitmapImageAtFrame(k);
+                img = layerBitmap->getBitmapImageAtFrame(k);
                 retLeft = img->findLeft(rect, 121);
                 if (retLeft.errorcode == Status::FAIL)
                 {
                     QMessageBox::information(nullptr, nullptr,
-                                             tr("Peg bar not found at %1, %2").arg(layerbitmap->name()).arg(k),
+                                             tr("Peg bar not found at %1, %2").arg(layerBitmap->name()).arg(k),
                                              QMessageBox::Ok);
                     return retLeft;
                 }
@@ -1035,7 +1034,7 @@ Status::StatusInt Editor::pegBarAlignment(QStringList layers)
                 if (retRight.errorcode == Status::FAIL)
                 {
                     QMessageBox::information(nullptr, nullptr,
-                                             tr("Peg bar not found at %1, %2").arg(layerbitmap->name()).arg(k),
+                                             tr("Peg bar not found at %1, %2").arg(layerBitmap->name()).arg(k),
                                              QMessageBox::Ok);
                     return retRight;
                 }

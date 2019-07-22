@@ -20,6 +20,7 @@ GNU General Public License for more details.
 
 #include <QStringList>
 
+
 class DebugDetails
 {
 public:
@@ -35,6 +36,7 @@ private:
     void appendSystemInfo();
     QStringList mDetails;
 };
+
 
 class Status
 {
@@ -71,7 +73,8 @@ public:
         ERROR_NEED_AT_LEAST_ONE_CAMERA_LAYER
     };
 
-    struct StatusInt{
+    struct StatusInt
+    {
         int value = 0;
         ErrorCode errorcode = Status::OK;
     };
@@ -97,7 +100,6 @@ private:
     QString mDescription;
     DebugDetails mDetails;
 };
-
 
 
 #ifndef STATUS_CHECK 
