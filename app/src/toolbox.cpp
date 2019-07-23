@@ -127,17 +127,17 @@ void ToolBoxWidget::initUI()
         .arg( GetToolTips( CMD_TOOL_SMUDGE ) ) );
 
     connect(ui->clearButton, &QToolButton::clicked, this, &ToolBoxWidget::clearButtonClicked);
-    connect(ui->pencilButton, &QToolButton::clicked, this, &ToolBoxWidget::pencilOn);
-    connect(ui->eraserButton, &QToolButton::clicked, this, &ToolBoxWidget::eraserOn);
-    connect(ui->selectButton, &QToolButton::clicked, this, &ToolBoxWidget::selectOn);
-    connect(ui->moveButton, &QToolButton::clicked, this, &ToolBoxWidget::moveOn);
-    connect(ui->penButton, &QToolButton::clicked, this, &ToolBoxWidget::penOn);
-    connect(ui->handButton, &QToolButton::clicked, this, &ToolBoxWidget::handOn);
-    connect(ui->polylineButton, &QToolButton::clicked, this, &ToolBoxWidget::polylineOn);
-    connect(ui->bucketButton, &QToolButton::clicked, this, &ToolBoxWidget::bucketOn);
-    connect(ui->eyedropperButton, &QToolButton::clicked, this, &ToolBoxWidget::eyedropperOn);
-    connect(ui->brushButton, &QToolButton::clicked, this, &ToolBoxWidget::brushOn);
-    connect(ui->smudgeButton, &QToolButton::clicked, this, &ToolBoxWidget::smudgeOn);
+    connect(ui->pencilButton, &QToolButton::clicked, this, &ToolBoxWidget::pencilButtonClicked);
+    connect(ui->eraserButton, &QToolButton::clicked, this, &ToolBoxWidget::eraserButtonClicked);
+    connect(ui->selectButton, &QToolButton::clicked, this, &ToolBoxWidget::selectButtonClicked);
+    connect(ui->moveButton, &QToolButton::clicked, this, &ToolBoxWidget::moveButtonClicked);
+    connect(ui->penButton, &QToolButton::clicked, this, &ToolBoxWidget::penButtonClicked);
+    connect(ui->handButton, &QToolButton::clicked, this, &ToolBoxWidget::handButtonClicked);
+    connect(ui->polylineButton, &QToolButton::clicked, this, &ToolBoxWidget::polylineButtonClicked);
+    connect(ui->bucketButton, &QToolButton::clicked, this, &ToolBoxWidget::bucketButtonClicked);
+    connect(ui->eyedropperButton, &QToolButton::clicked, this, &ToolBoxWidget::eyedropperButtonClicked);
+    connect(ui->brushButton, &QToolButton::clicked, this, &ToolBoxWidget::brushButtonClicked);
+    connect(ui->smudgeButton, &QToolButton::clicked, this, &ToolBoxWidget::smudgeButtonClicked);
 
     delete ui->toolGroup->layout();
     FlowLayout* flowlayout = new FlowLayout;
@@ -164,112 +164,124 @@ void ToolBoxWidget::updateUI()
 {
 }
 
-void ToolBoxWidget::pencilOn()
+void ToolBoxWidget::pencilButtonClicked()
 {
     if (!leavingTool(ui->pencilButton)) { return; }
-
+    ui->pencilButton->setChecked(false);
     editor()->tools()->setCurrentTool(PENCIL);
-
-    deselectAllTools();
-    ui->pencilButton->setChecked(true);
 }
 
-void ToolBoxWidget::eraserOn()
+void ToolBoxWidget::eraserButtonClicked()
 {
     if (!leavingTool(ui->eraserButton)) { return; }
-
+    ui->eraserButton->setChecked(false);
     editor()->tools()->setCurrentTool(ERASER);
-
-    deselectAllTools();
-    ui->eraserButton->setChecked(true);
 }
 
-void ToolBoxWidget::selectOn()
+void ToolBoxWidget::selectButtonClicked()
 {
     if (!leavingTool(ui->selectButton)) { return; }
-
+    ui->selectButton->setChecked(false);
     editor()->tools()->setCurrentTool(SELECT);
-
-    deselectAllTools();
-    ui->selectButton->setChecked(true);
 }
 
-void ToolBoxWidget::moveOn()
+void ToolBoxWidget::moveButtonClicked()
 {
     if (!leavingTool(ui->moveButton)) { return; }
-
+    ui->moveButton->setChecked(false);
     editor()->tools()->setCurrentTool(MOVE);
-
-    deselectAllTools();
-    ui->moveButton->setChecked(true);
 }
 
-void ToolBoxWidget::penOn()
+void ToolBoxWidget::penButtonClicked()
 {
     if (!leavingTool(ui->penButton)) { return; }
-
+    ui->penButton->setChecked(false);
     editor()->tools()->setCurrentTool(PEN);
-
-    deselectAllTools();
-    ui->penButton->setChecked(true);
 }
 
-void ToolBoxWidget::handOn()
+void ToolBoxWidget::handButtonClicked()
 {
     if (!leavingTool(ui->handButton)) { return; }
-
+    ui->handButton->setChecked(false);
     editor()->tools()->setCurrentTool( HAND );
-
-    deselectAllTools();
-    ui->handButton->setChecked(true);
 }
 
-void ToolBoxWidget::polylineOn()
+void ToolBoxWidget::polylineButtonClicked()
 {
     if (!leavingTool(ui->polylineButton)) { return; }
-
+    ui->polylineButton->setChecked(false);
     editor()->tools()->setCurrentTool(POLYLINE);
-
-    deselectAllTools();
-    ui->polylineButton->setChecked(true);
 }
 
-void ToolBoxWidget::bucketOn()
+void ToolBoxWidget::bucketButtonClicked()
 {
     if (!leavingTool(ui->bucketButton)) { return; }
-
+    ui->bucketButton->setChecked(false);
     editor()->tools()->setCurrentTool(BUCKET);
-
-    deselectAllTools();
-    ui->bucketButton->setChecked(true);
 }
 
-void ToolBoxWidget::eyedropperOn()
+void ToolBoxWidget::eyedropperButtonClicked()
 {
     if (!leavingTool(ui->eyedropperButton)) { return; }
+    ui->eyedropperButton->setChecked(false);
     editor()->tools()->setCurrentTool(EYEDROPPER);
-
-    deselectAllTools();
-    ui->eyedropperButton->setChecked(true);
 }
 
-void ToolBoxWidget::brushOn()
+void ToolBoxWidget::brushButtonClicked()
 {
     if (!leavingTool(ui->brushButton)) { return; }
-
+    ui->brushButton->setChecked(false);
     editor()->tools()->setCurrentTool( BRUSH );
-
-    deselectAllTools();
-    ui->brushButton->setChecked(true);
 }
 
-void ToolBoxWidget::smudgeOn()
+void ToolBoxWidget::smudgeButtonClicked()
 {
     if (!leavingTool(ui->smudgeButton)) { return; }
+    ui->smudgeButton->setChecked(false);
     editor()->tools()->setCurrentTool(SMUDGE);
+}
 
+void ToolBoxWidget::setSelectedTool(ToolType toolType)
+{
     deselectAllTools();
-    ui->smudgeButton->setChecked(true);
+    switch (toolType)
+    {
+    case ToolType::PENCIL:
+        ui->pencilButton->setChecked(true);
+        break;
+    case ToolType::ERASER:
+        ui->eraserButton->setChecked(true);
+        break;
+    case ToolType::SELECT:
+        ui->selectButton->setChecked(true);
+        break;
+    case ToolType::MOVE:
+        ui->moveButton->setChecked(true);
+        break;
+    case ToolType::PEN:
+        ui->penButton->setChecked(true);
+        break;
+    case ToolType::HAND:
+        ui->handButton->setChecked(true);
+        break;
+    case ToolType::POLYLINE:
+        ui->polylineButton->setChecked(true);
+        break;
+    case ToolType::BUCKET:
+        ui->bucketButton->setChecked(true);
+        break;
+    case ToolType::EYEDROPPER:
+        ui->eyedropperButton->setChecked(true);
+        break;
+    case ToolType::BRUSH:
+        ui->brushButton->setChecked(true);
+        break;
+    case ToolType::SMUDGE:
+        ui->smudgeButton->setChecked(true);
+        break;
+    default:
+        Q_ASSERT(false);
+    }
 }
 
 void ToolBoxWidget::deselectAllTools()
@@ -287,6 +299,7 @@ void ToolBoxWidget::deselectAllTools()
     ui->smudgeButton->setChecked(false);
 }
 
+// TODO Move this logic to ToolManager::setCurrentTool
 bool ToolBoxWidget::leavingTool(QToolButton* toolButton)
 {
     if (!editor()->tools()->leavingThisTool())

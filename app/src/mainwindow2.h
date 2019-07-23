@@ -20,7 +20,6 @@ GNU General Public License for more details.
 
 #include <QMainWindow>
 #include "preferencemanager.h"
-#include "pegbaralignmentdialog.h"
 
 
 template<typename T> class QList;
@@ -43,7 +42,7 @@ class Timeline2;
 class ActionCommands;
 class ImportImageSeqDialog;
 class BackupElement;
-
+class SemiModalDialog;
 
 
 namespace Ui
@@ -66,8 +65,9 @@ public:
     void undoActSetEnabled();
     void updateSaveState();
     void clearRecentFilesList();
+    void openSemiModalDialog(SemiModalDialog* dialog);
+    void resetSemiModalDialog();
     void openPegAlignDialog();
-    void closePegAlignDialog();
 
 public:
     void setOpacity(int opacity);
@@ -106,6 +106,7 @@ protected:
 
 private slots:
     void resetAndDockAllSubWidgets();
+    void changeTool();
 
 private:
     bool openObject(QString strFilename, bool checkForChanges);
@@ -134,6 +135,7 @@ private:
     void makeConnections(Editor*, TimeLine*);
     void makeConnections(Editor*, DisplayOptionWidget*);
     void makeConnections(Editor*, ToolOptionWidget*);
+    void makeConnections(Editor*, ToolBoxWidget*);
 
     void bindActionWithSetting(QAction*, SETTING);
 
@@ -153,7 +155,7 @@ private:
     // backup
     BackupElement* mBackupAtSave = nullptr;
 
-    PegBarAlignmentDialog* mPegAlign = nullptr;
+    SemiModalDialog* mSemiModalDialog = nullptr;
 
 private:
     ActionCommands* mCommands = nullptr;

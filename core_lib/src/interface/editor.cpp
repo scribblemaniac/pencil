@@ -36,6 +36,7 @@ GNU General Public License for more details.
 #include "layercamera.h"
 #include "backupelement.h"
 
+#include "modalmanager.h"
 #include "colormanager.h"
 #include "toolmanager.h"
 #include "layermanager.h"
@@ -44,6 +45,7 @@ GNU General Public License for more details.
 #include "preferencemanager.h"
 #include "soundmanager.h"
 #include "selectionmanager.h"
+#include "modalmanager.h"
 
 #include "scribblearea.h"
 #include "timeline.h"
@@ -74,6 +76,7 @@ Editor::~Editor()
 bool Editor::init()
 {
     // Initialize managers
+    mModalManager = new ModalManager(this);
     mColorManager = new ColorManager(this);
     mLayerManager = new LayerManager(this);
     mToolManager = new ToolManager(this);
@@ -85,6 +88,7 @@ bool Editor::init()
 
     mAllManagers =
     {
+        mModalManager,
         mColorManager,
         mToolManager,
         mLayerManager,

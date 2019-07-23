@@ -41,14 +41,17 @@ HEADERS +=  \
     src/interface/backupelement.h \
     src/interface/editor.h \
     src/interface/flowlayout.h \
+    src/interface/nulldialog.h \
     src/interface/recentfilemenu.h \
     src/interface/scribblearea.h \
+    src/interface/semimodaldialog.h \
     src/interface/timecontrols.h \
     src/interface/timeline.h \
     src/interface/timelinecells.h \
     src/interface/basedockwidget.h \
     src/interface/backgroundwidget.h \
     src/managers/basemanager.h \
+    src/managers/modalmanager.h \
     src/managers/selectionmanager.h \
     src/managers/colormanager.h \
     src/managers/layermanager.h \
@@ -114,12 +117,14 @@ SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
     src/interface/flowlayout.cpp \
     src/interface/recentfilemenu.cpp \
     src/interface/scribblearea.cpp \
+    src/interface/semimodaldialog.cpp \
     src/interface/timecontrols.cpp \
     src/interface/timeline.cpp \
     src/interface/timelinecells.cpp \
     src/interface/basedockwidget.cpp \
     src/interface/backgroundwidget.cpp \
     src/managers/basemanager.cpp \
+    src/managers/modalmanager.cpp \
     src/managers/selectionmanager.cpp \
     src/managers/colormanager.cpp \
     src/managers/layermanager.cpp \

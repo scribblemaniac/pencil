@@ -44,17 +44,19 @@ public:
     void updateUI() override;
 
 public slots:
-    void pencilOn();
-    void eraserOn();
-    void selectOn();
-    void moveOn();
-    void penOn();
-    void handOn();
-    void polylineOn();
-    void bucketOn();
-    void eyedropperOn();
-    void brushOn();
-    void smudgeOn();
+    void pencilButtonClicked();
+    void eraserButtonClicked();
+    void selectButtonClicked();
+    void moveButtonClicked();
+    void penButtonClicked();
+    void handButtonClicked();
+    void polylineButtonClicked();
+    void bucketButtonClicked();
+    void eyedropperButtonClicked();
+    void brushButtonClicked();
+    void smudgeButtonClicked();
+
+    void setSelectedTool(ToolType toolType);
 
 signals:
     void clearButtonClicked();

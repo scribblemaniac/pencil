@@ -1,15 +1,14 @@
 #ifndef PEGBARALIGNMENTDIALOG_H
 #define PEGBARALIGNMENTDIALOG_H
 
-#include <QDialog>
-#include <QStringList>
 #include "editor.h"
+#include "semimodaldialog.h"
 
 namespace Ui {
 class PegBarAlignmentDialog;
 }
 
-class PegBarAlignmentDialog : public QDialog
+class PegBarAlignmentDialog : public SemiModalDialog
 {
     Q_OBJECT
 
@@ -31,6 +30,8 @@ public:
     void updatePegRegDialog();
     void alignPegs();
 
+    //virtual bool blockToolSwitch(ToolType toolType) override;
+
 public slots:
     void setBtnAlignEnabled();
     void setRefLayer(QString s);
@@ -42,7 +43,6 @@ signals:
 private:
     Ui::PegBarAlignmentDialog *ui;
     QStringList mLayernames;
-    Editor* mEditor = nullptr;
     bool areaSelected = false;
     bool referenceSelected = false;
     bool layerSelected = false;

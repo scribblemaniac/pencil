@@ -44,6 +44,7 @@ GNU General Public License for more details.
 #include "soundmanager.h"
 #include "viewmanager.h"
 #include "selectionmanager.h"
+#include "modalmanager.h"
 
 #include "actioncommands.h"
 #include "fileformat.h"     //contains constants used by Pencil File Format
@@ -67,6 +68,10 @@ GNU General Public License for more details.
 #include "recentfilemenu.h"
 #include "shortcutfilter.h"
 #include "app_util.h"
+
+#include "semimodaldialog.h"
+#include "pegbaralignmentdialog.h"
+#include "nulldialog.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -125,6 +130,8 @@ MainWindow2::MainWindow2(QWidget *parent) :
     mEditor->tools()->setDefaultTool();
     ui->background->init(mEditor->preference());
     mEditor->updateObject();
+
+    resetSemiModalDialog();
 
     setWindowTitle(PENCIL_WINDOW_TITLE);
 }
@@ -212,6 +219,7 @@ void MainWindow2::createDockWidgets()
     makeConnections(mEditor, mColorInspector);
     makeConnections(mEditor, mColorPalette);
     makeConnections(mEditor, mToolOptions);
+    makeConnections(mEditor, mToolBox);
 
     for (BaseDockWidget* w : mDockWidgets)
     {
@@ -322,17 +330,30 @@ void MainWindow2::createMenus()
     connect(ui->actionMove_Frame_Backward, &QAction::triggered, mCommands, &ActionCommands::moveFrameBackward);
 
     //--- Tool Menu ---
-    connect(ui->actionMove, &QAction::triggered, mToolBox, &ToolBoxWidget::moveOn);
-    connect(ui->actionSelect, &QAction::triggered, mToolBox, &ToolBoxWidget::selectOn);
-    connect(ui->actionBrush, &QAction::triggered, mToolBox, &ToolBoxWidget::brushOn);
-    connect(ui->actionPolyline, &QAction::triggered, mToolBox, &ToolBoxWidget::polylineOn);
-    connect(ui->actionSmudge, &QAction::triggered, mToolBox, &ToolBoxWidget::smudgeOn);
-    connect(ui->actionPen, &QAction::triggered, mToolBox, &ToolBoxWidget::penOn);
-    connect(ui->actionHand, &QAction::triggered, mToolBox, &ToolBoxWidget::handOn);
-    connect(ui->actionPencil, &QAction::triggered, mToolBox, &ToolBoxWidget::pencilOn);
-    connect(ui->actionBucket, &QAction::triggered, mToolBox, &ToolBoxWidget::bucketOn);
-    connect(ui->actionEyedropper, &QAction::triggered, mToolBox, &ToolBoxWidget::eyedropperOn);
-    connect(ui->actionEraser, &QAction::triggered, mToolBox, &ToolBoxWidget::eraserOn);
+    ui->actionMove->setData(ToolType::MOVE);
+    ui->actionSelect->setData(ToolType::SELECT);
+    ui->actionBrush->setData(ToolType::BRUSH);
+    ui->actionPolyline->setData(ToolType::POLYLINE);
+    ui->actionSmudge->setData(ToolType::SMUDGE);
+    ui->actionPen->setData(ToolType::PEN);
+    ui->actionHand->setData(ToolType::HAND);
+    ui->actionPencil->setData(ToolType::PENCIL);
+    ui->actionBucket->setData(ToolType::BUCKET);
+    ui->actionEyedropper->setData(ToolType::EYEDROPPER);
+    ui->actionEraser->setData(ToolType::ERASER);
+
+    QVector<QAction*> toolActions = QVector<QAction*>()
+            << ui->actionMove << ui->actionSelect
+            << ui->actionBrush << ui->actionPolyline
+            << ui->actionSmudge << ui->actionPen
+            << ui->actionHand << ui->actionPencil
+            << ui->actionBucket << ui->actionEyedropper
+            << ui->actionEraser;
+    foreach (const QAction* action, toolActions)
+    {
+        connect(action, &QAction::triggered, this, &MainWindow2::changeTool);
+    }
+
     connect(ui->actionResetToolsDefault, &QAction::triggered, mEditor->tools(), &ToolManager::resetAllTools);
 
     //--- Window Menu ---
@@ -416,30 +437,34 @@ void MainWindow2::clearRecentFilesList()
     getPrefDialog()->updateRecentListBtn(!recentFilesList.isEmpty());
 }
 
-void MainWindow2::openPegAlignDialog()
+void MainWindow2::openSemiModalDialog(SemiModalDialog* dialog)
 {
-    if (mPegAlign != nullptr)
+    if (mSemiModalDialog->isNull())
     {
-        QMessageBox::information(this, nullptr,
-                                 tr("Dialog is already open!"),
-                                 QMessageBox::Ok);
-        return;
+        mSemiModalDialog = dialog;
+        mEditor->modal()->setCurrentDialog(mSemiModalDialog);
+        if (!dialog->isNull())
+        {
+            connect(mSemiModalDialog, &QDialog::finished, [this]() { resetSemiModalDialog(); });
+            dialog->show();
+        }
     }
-
-    mPegAlign = new PegBarAlignmentDialog(mEditor, this);
-    connect(mPegAlign, &PegBarAlignmentDialog::closedialog, this, &MainWindow2::closePegAlignDialog);
-    mPegAlign->updatePegRegLayers();
-    mPegAlign->setRefLayer(mEditor->layers()->currentLayer()->name());
-    mPegAlign->setRefKey(mEditor->currentFrame());
-    mPegAlign->setLabRefKey();
-    mPegAlign->setWindowFlag(Qt::WindowStaysOnTopHint);
-    mPegAlign->show();
 }
 
-void MainWindow2::closePegAlignDialog()
+// Assumes that mSemiModalDialog has already been closed and deleted
+void MainWindow2::resetSemiModalDialog()
 {
-    disconnect(mPegAlign, &PegBarAlignmentDialog::closedialog, this, &MainWindow2::closePegAlignDialog);
-    mPegAlign = nullptr;
+    mSemiModalDialog = new NullDialog();
+    mEditor->modal()->setCurrentDialog(mSemiModalDialog);
+}
+
+void MainWindow2::openPegAlignDialog()
+{
+    PegBarAlignmentDialog* pegAlign = new PegBarAlignmentDialog(mEditor, this);
+    pegAlign->updatePegRegLayers();
+    pegAlign->setRefLayer(mEditor->layers()->currentLayer()->name());
+    pegAlign->setRefKey(mEditor->currentFrame());
+    openSemiModalDialog(pegAlign);
 }
 
 void MainWindow2::closeEvent(QCloseEvent* event)
@@ -1085,6 +1110,12 @@ void MainWindow2::resetAndDockAllSubWidgets()
     }
 }
 
+void MainWindow2::changeTool()
+{
+    QAction* fromAction = static_cast<QAction*>(sender());
+    mEditor->tools()->setCurrentTool(static_cast<ToolType>(fromAction->data().toInt()));
+}
+
 void MainWindow2::readSettings()
 {
     QSettings settings(PENCIL2D, PENCIL2D);
@@ -1364,6 +1395,11 @@ void MainWindow2::makeConnections(Editor*, DisplayOptionWidget*)
 void MainWindow2::makeConnections(Editor* editor, ToolOptionWidget* toolOptions)
 {
     toolOptions->makeConnectionToEditor(editor);
+}
+
+void MainWindow2::makeConnections(Editor* editor, ToolBoxWidget* toolBox)
+{
+    connect(editor->tools(), &ToolManager::toolChanged, toolBox, &ToolBoxWidget::setSelectedTool);
 }
 
 void MainWindow2::makeConnections(Editor* pEditor, ColorPaletteWidget* pColorPalette)

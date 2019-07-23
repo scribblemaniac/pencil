@@ -31,6 +31,7 @@ class KeyFrame;
 class LayerCamera;
 class MainWindow2;
 class BaseManager;
+class ModalManager;
 class ColorManager;
 class ToolManager;
 class LayerManager;
@@ -69,6 +70,7 @@ public:
     /************************************************************************/
     /* Managers                                                             */
     /************************************************************************/
+    ModalManager*      modal() const { return mModalManager; }
     ColorManager*      color() const { return mColorManager; }
     ToolManager*       tools() const { return mToolManager; }
     LayerManager*      layers() const { return mLayerManager; }
@@ -187,6 +189,7 @@ private:
 
     ScribbleArea* mScribbleArea = nullptr;
 
+    ModalManager*      mModalManager = nullptr;
     ColorManager*      mColorManager = nullptr;
     ToolManager*       mToolManager = nullptr;
     LayerManager*      mLayerManager = nullptr;
@@ -194,7 +197,7 @@ private:
     ViewManager*       mViewManager = nullptr;
     PreferenceManager* mPreferenceManager = nullptr;
     SoundManager*      mSoundManager = nullptr;
-    SelectionManager* mSelectionManager = nullptr;
+    SelectionManager*  mSelectionManager = nullptr;
 
     std::vector< BaseManager* > mAllManagers;
 

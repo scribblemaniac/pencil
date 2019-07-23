@@ -8,11 +8,10 @@
 #include "selectionmanager.h"
 
 PegBarAlignmentDialog::PegBarAlignmentDialog(Editor *editor, QWidget *parent) :
-    QDialog(parent),
+    SemiModalDialog(editor, parent),
     ui(new Ui::PegBarAlignmentDialog)
 {
     ui->setupUi(this);
-    mEditor = editor;
     connect(ui->btnAlign, &QPushButton::clicked, this, &PegBarAlignmentDialog::alignPegs);
     connect(ui->btnCancel, &QPushButton::clicked, this, &PegBarAlignmentDialog::closeClicked);
     connect(ui->lwLayers, &QListWidget::clicked, this, &PegBarAlignmentDialog::updatePegRegDialog);
@@ -146,7 +145,7 @@ void PegBarAlignmentDialog::alignPegs()
                                      QMessageBox::Ok);
             return;
         }
-        emit closedialog();
+        accept();
     }
 }
 
@@ -172,6 +171,5 @@ void PegBarAlignmentDialog::setRefKey(int i)
 
 void PegBarAlignmentDialog::closeClicked()
 {
-    emit closedialog();
-    close();
+    reject();
 }

@@ -29,6 +29,8 @@ GNU General Public License for more details.
 #include "selecttool.h"
 #include "smudgetool.h"
 #include "editor.h"
+#include "modalmanager.h"
+#include "semimodaldialog.h"
 
 
 ToolManager::ToolManager(Editor* editor) : BaseManager(editor)
@@ -88,6 +90,9 @@ void ToolManager::setDefaultTool()
 
 void ToolManager::setCurrentTool(ToolType eToolType)
 {
+    SemiModalDialog* dialog = editor()->modal()->getCurrentDialog(); // TODO Temporary
+    if (dialog->blockToolSwitch(eToolType)) { return; }
+
     if (mCurrentTool != nullptr)
     {
        leavingThisTool();
