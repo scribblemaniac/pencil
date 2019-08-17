@@ -39,6 +39,8 @@ GNU General Public License for more details.
 #include "colorbox.h"
 #include "scribblearea.h"
 #include "colormanager.h"
+#include "layermanager.h"
+#include "layerbitmap.h"
 
 
 ColorPaletteWidget::ColorPaletteWidget(QWidget* parent) :
@@ -104,6 +106,11 @@ void ColorPaletteWidget::showContextMenu(const QPoint &pos)
     menu->addAction(tr("Add"), this, &ColorPaletteWidget::addItem, 0);
     menu->addAction(tr("Replace"),  this, &ColorPaletteWidget::replaceItem, 0);
     menu->addAction(tr("Remove"), this, &ColorPaletteWidget::removeItem, 0);
+    if (editor()->layers()->currentLayer()->type() == Layer::BITMAP)
+    {
+        menu->addSeparator();
+        menu->addAction(tr("Replace linecolor"), this, &ColorPaletteWidget::replaceLineColor, 0);
+    }
 
     menu->exec(globalPos);
 }
@@ -498,7 +505,28 @@ bool ColorPaletteWidget::showPaletteWarning()
 void ColorPaletteWidget::showPaletteReminder()
 {
     QMessageBox::warning(nullptr, tr("Palette Restriction"),
-                                  tr("The palette requires at least one swatch to remain functional"));
+                         tr("The palette requires at least one swatch to remain functional"));
+}
+
+void ColorPaletteWidget::replaceLineColor()
+{
+    if (mMultipleSelected) { return; }
+
+    const ColourRef colourRef = editor()->object()->getColour(ui->colorListWidget->currentRow());
+    QRgb newlinecolor = colourRef.colour.rgb();
+
+    LayerBitmap *layerbitmap = static_cast<LayerBitmap*>(editor()->layers()->currentLayer());
+    BitmapImage *bitmapimage;
+    for (int i = 1; i <= layerbitmap->getMaxKeyFramePosition(); i++)
+    {
+        if (layerbitmap->keyExists(i))
+        {
+            editor()->scrubTo(i);
+            bitmapimage = layerbitmap->getBitmapImageAtFrame(i);
+            layerbitmap->getBitmapImageAtFrame(i)->replaceLineColor(bitmapimage, newlinecolor);
+            editor()->updateFrame(i);
+        }
+    }
 }
 
 void ColorPaletteWidget::updateItemColor(int itemIndex, QColor newColor)

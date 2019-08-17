@@ -80,6 +80,7 @@ private slots:
     void replaceItem();
     void removeItem();
     void showPaletteReminder();
+    void replaceLineColor();
 
     bool showPaletteWarning();
 

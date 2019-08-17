@@ -95,6 +95,7 @@ public:
     Status::StatusInt findLeft(QRectF rect, int grayValue);
     Status::StatusInt findTop(QRectF rect, int grayValue);
 
+    void replaceLineColor(BitmapImage *img, QRgb color);
 
     QRect& bounds() { autoCrop(); return mBounds; }
 

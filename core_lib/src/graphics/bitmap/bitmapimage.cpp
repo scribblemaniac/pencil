@@ -700,6 +700,30 @@ Status::StatusInt BitmapImage::findTop(QRectF rect, int grayValue)
     return retValues;
 }
 
+void BitmapImage::replaceLineColor(BitmapImage* img, QRgb color)
+{
+    if (bounds().size().width() < 1 || bounds().size().height() < 1) { return; }
+
+    QRgb rgb;
+    BitmapImage* bitmapimage = img;
+
+    for (int x = bounds().left(); x <= bounds().right(); x++)
+    {
+        for (int y = bounds().top(); y <= bounds().bottom(); y++)
+        {
+            rgb = pixel(x, y);
+            if (qAlpha(rgb) > 0)
+            {
+                int alpha = qAlpha(rgb);
+                rgb = qRgba(qRed(color), qGreen(color), qBlue(color), alpha);
+                bitmapimage->setPixel(x, y, rgb);
+//                bitmapimage->setPixel(x, y, qRgba(qRed(color), qGreen(color), qBlue(color), qAlpha(rgb)));
+            }
+        }
+    }
+    bitmapimage->modification();
+}
+
 Status BitmapImage::writeFile(const QString& filename)
 {
     if (mImage && !mImage->isNull())
