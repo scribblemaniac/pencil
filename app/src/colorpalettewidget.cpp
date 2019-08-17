@@ -516,17 +516,15 @@ void ColorPaletteWidget::replaceLineColor()
     QRgb newlinecolor = colourRef.colour.rgb();
 
     LayerBitmap *layerbitmap = static_cast<LayerBitmap*>(editor()->layers()->currentLayer());
-    BitmapImage *bitmapimage;
     for (int i = 1; i <= layerbitmap->getMaxKeyFramePosition(); i++)
     {
         if (layerbitmap->keyExists(i))
         {
             editor()->scrubTo(i);
-            bitmapimage = layerbitmap->getBitmapImageAtFrame(i);
-            layerbitmap->getBitmapImageAtFrame(i)->replaceLineColor(bitmapimage, newlinecolor);
-            editor()->updateFrame(i);
+            layerbitmap->getBitmapImageAtFrame(i)->replaceLineColor(newlinecolor);
         }
     }
+    editor()->getScribbleArea()->updateAllFrames();
 }
 
 void ColorPaletteWidget::updateItemColor(int itemIndex, QColor newColor)
