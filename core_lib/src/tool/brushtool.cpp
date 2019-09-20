@@ -250,7 +250,7 @@ void BrushTool::drawStroke()
         mCurrentWidth = brushWidth;
 
         qreal brushStep = (0.5 * brushWidth);
-        brushStep = qMax(1.0, brushStep);
+        brushStep = 1.1;//qMax(1.0, brushStep);
 
         BlitRect rect;
 

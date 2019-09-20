@@ -204,6 +204,7 @@ public:
     void handleDrawingOnEmptyFrame();
 
     BitmapImage* mBufferImg = nullptr; // used to pre-draw vector modifications
+    BitmapImage* mBufferMask = nullptr;
 
     QPixmap mCursorImg;
     QPixmap mTransCursImg;

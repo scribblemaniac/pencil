@@ -238,6 +238,9 @@ void PenTool::drawStroke()
 
         int rad = qRound((brushWidth / 2 + 2) * mEditor->view()->scaling());
 
+        /*QRadialGradient radialGrad(0.5 * brushWidth, 0.5 * brushWidth, 0.5 * brushWidth, 0.5 * brushWidth, 0.5 * brushWidth);
+        radialGrad.setColorAt(0, QColor::fromRgbF(0, 1, 0, 1));
+        radialGrad.setColorAt(1, QColor::fromRgbF(0, 0, 0, 0));*/
         QPen pen(mEditor->color()->frontColor(),
                  brushWidth * mEditor->view()->scaling(),
                  Qt::SolidLine,

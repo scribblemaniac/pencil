@@ -1225,13 +1225,14 @@ void ScribbleArea::setGaussianGradient(QGradient &gradient, QColor colour, qreal
     qreal a = colour.alphaF();
 
     int mainColorAlpha = qRound(a * 255 * opacity);
+    QColor mainColor = QColor(r, g, b, mainColorAlpha);
 
     // the more feather (offset), the more softness (opacity)
     int alphaAdded = qRound((mainColorAlpha * offset) / 100);
 
-    gradient.setColorAt(0.0, QColor(r, g, b, mainColorAlpha - alphaAdded));
+    gradient.setColorAt(0.0, colour);
     gradient.setColorAt(1.0, QColor(r, g, b, 0));
-    gradient.setColorAt(1.0 - (offset / 100.0), QColor(r, g, b, mainColorAlpha - alphaAdded));
+    gradient.setColorAt(1.0 - (offset / 100.0), colour);
 }
 
 void ScribbleArea::drawPen(QPointF thePoint, qreal brushWidth, QColor fillColour, bool useAA)
@@ -1256,8 +1257,10 @@ void ScribbleArea::drawBrush(QPointF thePoint, qreal brushWidth, qreal mOffset, 
         QRadialGradient radialGrad(thePoint, 0.5 * brushWidth);
         setGaussianGradient(radialGrad, fillColour, opacity, mOffset);
 
-        mBufferImg->drawEllipse(rectangle, Qt::NoPen, radialGrad,
-                                QPainter::CompositionMode_SourceOver, false);
+        BitmapImage tempImage(rectangle.toAlignedRect(), Qt::white);
+        tempImage.drawEllipse(rectangle, Qt::NoPen, radialGrad,
+                              QPainter::CompositionMode_SourceOver, false);
+        mBufferImg->paste(&tempImage, QPainter::CompositionMode_Darken);
     }
     else
     {
