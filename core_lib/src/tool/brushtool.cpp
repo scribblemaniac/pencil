@@ -270,11 +270,14 @@ void BrushTool::drawStroke()
         {
             QPointF point = mLastBrushPoint + (i + 1) * brushStep * (getCurrentPoint() - mLastBrushPoint) / distance;
 
+            QColor startColor = mEditor->color()->frontColor();
+            mEditor->color()->setColor(QColor::fromHsv((startColor.hue()+2) % 360, startColor.saturation(), startColor.value()));
+
             rect.extend(point.toPoint());
             mScribbleArea->drawBrush(point,
                                      brushWidth,
                                      properties.feather,
-                                     mEditor->color()->frontColor(),
+                                     startColor,
                                      opacity,
                                      properties.useFeather,
                                      properties.useAA);
