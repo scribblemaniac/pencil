@@ -972,13 +972,10 @@ void MainWindow2::lockWidgets(bool shouldLock)
 {
     QDockWidget::DockWidgetFeature feat = shouldLock ? QDockWidget::DockWidgetClosable : QDockWidget::AllDockWidgetFeatures;
 
-    mColorBox->setFeatures(feat);
-    mColorInspector->setFeatures(feat);
-    mColorPalette->setFeatures(feat);
-    mDisplayOptionWidget->setFeatures(feat);
-    mToolOptions->setFeatures(feat);
-    mToolBox->setFeatures(feat);
-    mTimeLine->setFeatures(feat);
+    for (BaseDockWidget* dock : mDockWidgets)
+    {
+        dock->setFeatures(feat);
+    }
 }
 
 void MainWindow2::preferences()
@@ -1011,7 +1008,7 @@ void MainWindow2::resetAndDockAllSubWidgets()
     for (BaseDockWidget* dock : mDockWidgets)
     {
         dock->setFloating(false);
-        dock->show();
+        dock->enableDefaultVisibility();
     }
 }
 

@@ -27,6 +27,8 @@ public:
     void applyComments();
     void fillComments();
 
+    void enableDefaultVisibility() override { hide(); }
+
 private:
     Ui::FrameComment *ui;
 

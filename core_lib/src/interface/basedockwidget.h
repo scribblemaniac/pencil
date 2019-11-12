@@ -34,6 +34,8 @@ public:
     virtual void initUI() = 0;
     virtual void updateUI() = 0;
 
+    virtual void enableDefaultVisibility() { show(); }
+
     Editor* editor() const { return mEditor; }
     void setEditor( Editor* e ) { mEditor = e; }
 
