@@ -130,7 +130,7 @@ FORMS += \
     ui/filespage.ui \
     ui/toolspage.ui \
     ui/toolboxwidget.ui \
-    ui/framecommentwidget.ui
+    ui/framecomment.ui
 
 
 

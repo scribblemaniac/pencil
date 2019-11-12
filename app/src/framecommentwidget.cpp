@@ -1,5 +1,5 @@
 #include "framecommentwidget.h"
-#include "ui_framecommentwidget.h"
+#include "ui_framecomment.h"
 
 #include "editor.h"
 #include "keyframe.h"
