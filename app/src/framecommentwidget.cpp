@@ -42,19 +42,19 @@ void FrameCommentWidget::setCore(Editor *editor)
 void FrameCommentWidget::dialogueTextChanged()
 {
     int len = ui->textEditDialogue->toPlainText().length();
-    ui->labelDialogueCounter->setText(tr("%1 chars").arg(QString::number(len)));
+    ui->labelDialogueCounter->setText(tr("%n char(s)", "Character count for frame comment widget", len));
 }
 
 void FrameCommentWidget::actionTextChanged()
 {
     int len = ui->textEditAction->toPlainText().length();
-    ui->labelActionCounter->setText(tr("%1 chars").arg(QString::number(len)));
+    ui->labelActionCounter->setText(tr("%n char(s)", "Character count for frame comment widget", len));
 }
 
 void FrameCommentWidget::slugTextChanged()
 {
     int len = ui->textEditSlug->toPlainText().length();
-    ui->labelSlugCounter->setText(tr("%1 chars").arg(QString::number(len)));
+    ui->labelSlugCounter->setText(tr("%n char(s)", "Character count for frame comment widget", len));
 }
 
 void FrameCommentWidget::enableCommentFields()
