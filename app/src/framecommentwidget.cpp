@@ -27,6 +27,7 @@ void FrameCommentWidget::initUI()
 {
     connect(this, &FrameCommentWidget::visibilityChanged, this, &FrameCommentWidget::updateConnections);
     updateConnections();
+    fillComments();
 }
 
 void FrameCommentWidget::updateUI()
@@ -129,6 +130,7 @@ void FrameCommentWidget::fillComments()
     KeyFrame* keyframe = getKeyFrame();
     if (keyframe == nullptr) { return; }
 
+    // Make sure not to call applyComments before all of the fields have been updated
     QSignalBlocker b(ui->textEditDialogue);
     QSignalBlocker b2(ui->textEditAction);
     QSignalBlocker b3(ui->textEditSlug);
@@ -136,6 +138,10 @@ void FrameCommentWidget::fillComments()
     ui->textEditDialogue->setPlainText(keyframe->getDialogueComment());
     ui->textEditAction->setPlainText(keyframe->getActionComment());
     ui->textEditSlug->setPlainText(keyframe->getSlugComment());
+
+    dialogueTextChanged();
+    actionTextChanged();
+    slugTextChanged();
 }
 
 void FrameCommentWidget::applyComments()
