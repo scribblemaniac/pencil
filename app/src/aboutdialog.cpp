@@ -20,6 +20,9 @@ GNU General Public License for more details.
 #include <QPushButton>
 #include <QSysInfo>
 #include <QClipboard>
+#include <QDir>
+#include <QUrl>
+#include <QDesktopServices>
 
 #include "pencildef.h"
 
@@ -61,10 +64,18 @@ void AboutDialog::init()
     }
     ui->devInfoText->setText(devText.join("<br>"));
 
+    connect(ui->openTempDir, &QPushButton::clicked, this, &AboutDialog::openTemporaryDirectory);
+
 	QPushButton* copyToClipboardButton = new QPushButton(tr("Copy to clipboard", "Copy system info from About Dialog"));
 	connect(copyToClipboardButton, &QPushButton::clicked, this, [devText] 
 	{
 		QApplication::clipboard()->setText(devText.join("\n"));
 	});
     ui->buttonBox->addButton(copyToClipboardButton, QDialogButtonBox::ActionRole);
+}
+
+void AboutDialog::openTemporaryDirectory()
+{
+    QDesktopServices::openUrl(QUrl::fromLocalFile(QDir::tempPath().append("/Pencil2D/")));
+
 }

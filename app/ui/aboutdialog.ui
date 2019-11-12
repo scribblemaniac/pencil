@@ -76,6 +76,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QPushButton" name="openTempDir">
+     <property name="text">
+      <string>Open Temporary Directory</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::Ok</set>

@@ -34,6 +34,8 @@ public:
 
 private:
     Ui::AboutDialog* ui = nullptr;
+
+    void openTemporaryDirectory();
 };
 
 #endif // ABOUTDIALOG_H
