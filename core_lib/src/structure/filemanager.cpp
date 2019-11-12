@@ -64,6 +64,7 @@ Object* FileManager::load(QString sFileName)
     Object* obj = new Object;
     obj->setFilePath(sFileName);
     obj->createWorkingDir();
+    mstrLastTempFolder = obj->workingDir();
 
     QString strMainXMLFile;
     QString strDataFolder;
@@ -601,8 +602,6 @@ void FileManager::unzip(const QString& strZipFile, const QString& strUnzipTarget
 
     Status s = MiniZ::uncompressFolder(strZipFile, strUnzipTarget);
     Q_ASSERT(s.ok());
-
-    mstrLastTempFolder = strUnzipTarget;
 }
 
 QList<ColourRef> FileManager::loadPaletteFile(QString strFilename)
