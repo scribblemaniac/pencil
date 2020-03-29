@@ -304,6 +304,25 @@ void MainWindow2::createMenus()
     connect(ui->actionZoom25, &QAction::triggered, mEditor->view(), &ViewManager::scale25);
     connect(ui->actionHorizontal_Flip, &QAction::triggered, mCommands, &ActionCommands::toggleMirror);
     connect(ui->actionVertical_Flip, &QAction::triggered, mCommands, &ActionCommands::toggleMirrorV);
+    connect(ui->actionGetGeometry, &QAction::triggered, [this]() {
+        qDebug() << "----------";
+        for (BaseDockWidget* pWidget : mDockWidgets)
+        {
+            qDebug() << pWidget->windowTitle() << "Geometry:" << pWidget->geometry();
+        }
+        qDebug() << "----------";
+    });
+    connect(ui->actionSetGeometry, &QAction::triggered, [this]() {
+        mTimeLine->setFloating(true);
+        mColorBox->setFloating(true);
+        mColorInspector->setFloating(true);
+        mColorPalette->setFloating(true);
+
+        mTimeLine->move(QPoint());
+        mColorBox->setGeometry(QRect());
+        mColorInspector->setGeometry(-100, -100, 100, 100);
+        mColorPalette->move(10000, 0);
+    });
 
     //# connect(previewAct, SIGNAL(triggered()), editor, SLOT(getCameraLayer()));//TODO: Preview view
 
@@ -1163,6 +1182,8 @@ void MainWindow2::setupKeyboardShortcuts()
     ui->actionGrid->setShortcut(cmdKeySeq(CMD_GRID));
     ui->actionOnionPrev->setShortcut(cmdKeySeq(CMD_ONIONSKIN_PREV));
     ui->actionOnionNext->setShortcut(cmdKeySeq(CMD_ONIONSKIN_NEXT));
+    ui->actionGetGeometry->setShortcut(cmdKeySeq("CmdGetGeometry"));
+    ui->actionSetGeometry->setShortcut(cmdKeySeq("CmdSetGeometry"));
 
     ui->actionPlay->setShortcut(cmdKeySeq(CMD_PLAY));
     ui->actionLoop->setShortcut(cmdKeySeq(CMD_LOOP));

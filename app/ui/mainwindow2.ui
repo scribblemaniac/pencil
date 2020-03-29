@@ -49,7 +49,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>19</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -176,6 +176,8 @@
     <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionPreview"/>
+    <addaction name="actionGetGeometry"/>
+    <addaction name="actionSetGeometry"/>
    </widget>
    <widget class="QMenu" name="menuAnimation">
     <property name="title">
@@ -1069,6 +1071,16 @@
    </property>
    <property name="toolTip">
     <string>Onion Skins</string>
+   </property>
+  </action>
+  <action name="actionGetGeometry">
+   <property name="text">
+    <string>Get Geometry</string>
+   </property>
+  </action>
+  <action name="actionSetGeometry">
+   <property name="text">
+    <string>Set Geometry</string>
    </property>
   </action>
  </widget>
