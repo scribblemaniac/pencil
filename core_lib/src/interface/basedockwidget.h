@@ -30,6 +30,8 @@ protected:
     explicit BaseDockWidget(QWidget* pParent);
     virtual  ~BaseDockWidget();
 
+    void moveEvent(QMoveEvent *event);
+
 public:
     virtual void initUI() = 0;
     virtual void updateUI() = 0;

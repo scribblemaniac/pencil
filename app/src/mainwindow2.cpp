@@ -318,7 +318,7 @@ void MainWindow2::createMenus()
         mColorInspector->setFloating(true);
         mColorPalette->setFloating(true);
 
-        mTimeLine->move(QPoint());
+        mTimeLine->move(QPoint(0,0));
         mColorBox->setGeometry(QRect());
         mColorInspector->setGeometry(-100, -100, 100, 100);
         mColorPalette->move(10000, 0);

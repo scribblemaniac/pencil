@@ -15,6 +15,11 @@ GNU General Public License for more details.
 
 */
 
+#include <QMoveEvent>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QStyle>
+#include <QDebug>
 
 #include "basedockwidget.h"
 #include "platformhandler.h"
@@ -37,4 +42,17 @@ BaseDockWidget::BaseDockWidget(QWidget* pParent)
 
 BaseDockWidget::~BaseDockWidget()
 {
+}
+
+void BaseDockWidget::moveEvent(QMoveEvent *event) {
+    QDockWidget::moveEvent(event);
+    if(!isFloating()) return;
+    QRect screenGeometry = QGuiApplication::primaryScreen()->geometry();
+    int x = qMax(qMin(screenGeometry.right() - geometry().width(), event->pos().x()), screenGeometry.left());
+    int y = qMax(qMin(screenGeometry.bottom() - geometry().height(), event->pos().y()), screenGeometry.top() + (titleBarWidget() != nullptr ? titleBarWidget()->height() : style()->pixelMetric(QStyle::PM_TitleBarHeight)));
+
+    if (x != event->pos().x() || y != event->pos().y())
+    {
+        setGeometry(QRect(x, y, geometry().width(), geometry().height()));
+    }
 }
