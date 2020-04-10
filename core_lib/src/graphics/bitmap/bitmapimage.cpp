@@ -776,6 +776,15 @@ void BitmapImage::clear(QRect rectangle)
     modification();
 }
 
+qreal BitmapImage::colorDiff(QRgb color1, QRgb color2) {
+    qreal diffRed = qAbs(qRed(color1) - qRed(color2));
+    qreal diffGreen = qAbs(qGreen(color1) - qGreen(color2));
+    qreal diffBlue = qAbs(qBlue(color1) - qBlue(color2));
+    qreal diffAlpha = qAbs(qAlpha(color1) - qAlpha(color2));
+
+    return (diffRed + diffGreen + diffBlue + diffAlpha) / 4.0 / 255;
+}
+
 /** Compare colors for the purposes of flood filling
  *
  *  Calculates the Eulcidian difference of the RGB channels
@@ -790,30 +799,20 @@ void BitmapImage::clear(QRect rectangle)
  *  @return Returns true if the colors have a similarity below the tolerance level
  *          (i.e. if Eulcidian distance squared is <= tolerance)
  */
-bool BitmapImage::compareColor(QRgb newColor, QRgb oldColor, int tolerance, QHash<QRgb, bool> *cache)
+bool BitmapImage::compareColor(QRgb newColor, QRgb prevColor, QRgb origColor)
 {
     // Handle trivial case
-    if (newColor == oldColor) return true;
+    if (newColor == origColor) return true;
 
-    if(cache && cache->contains(newColor)) return cache->value(newColor);
+    //if(cache && cache->contains(newColor)) return cache->value(newColor);
 
-    // Get Eulcidian distance between colors
-    // Not an accurate representation of human perception,
-    // but it's the best any image editing program ever does
-    int diffRed = static_cast<int>(qPow(qRed(oldColor) - qRed(newColor), 2));
-    int diffGreen = static_cast<int>(qPow(qGreen(oldColor) - qGreen(newColor), 2));
-    int diffBlue = static_cast<int>(qPow(qBlue(oldColor) - qBlue(newColor), 2));
-    // This may not be the best way to handle alpha since the other channels become less relevant as
-    // the alpha is reduces (ex. QColor(0,0,0,0) is the same as QColor(255,255,255,0))
-    int diffAlpha = static_cast<int>(qPow(qAlpha(oldColor) - qAlpha(newColor), 2));
+    bool isSimilar = colorDiff(origColor, newColor) > colorDiff(origColor, prevColor);
 
-    bool isSimilar = (diffRed + diffGreen + diffBlue + diffAlpha) <= tolerance;
-
-    if(cache)
+    /*if(cache)
     {
         Q_ASSERT(cache->contains(isSimilar) ? isSimilar == (*cache)[newColor] : true);
         (*cache)[newColor] = isSimilar;
-    }
+    }*/
 
     return isSimilar;
 }
@@ -839,74 +838,186 @@ void BitmapImage::floodFill(BitmapImage* targetImage,
     oldColor = qRgba(qRed(oldColor), qGreen(oldColor), qBlue(oldColor), qAlpha(oldColor));
 
     // Preparations
-    QList<QPoint> queue; // queue all the pixels of the filled area (as they are found)
+    QList<QPair<QPoint, QRgb> > queue; // queue all the pixels of the filled area (as they are found)
 
-    BitmapImage* replaceImage = nullptr;
-    QPoint tempPoint;
-    QRgb newPlacedColor = 0;
+    BitmapImage* replaceImage1 = nullptr, *replaceImage2 = nullptr;
+    BitmapImage* maskImage = nullptr;
+    QPoint curPoint;
+    QRgb prevColor, curColor, finalColor, maskColor;
     QScopedPointer< QHash<QRgb, bool> > cache(new QHash<QRgb, bool>());
-
-    int xTemp = 0;
-    bool spanLeft = false;
-    bool spanRight = false;
 
     // Extend to size of Camera
     targetImage->extend(cameraRect);
-    replaceImage = new BitmapImage(targetImage->mBounds, Qt::transparent);
+    replaceImage1 = new BitmapImage(targetImage->mBounds, Qt::transparent);
+    replaceImage2 = new BitmapImage(targetImage->mBounds, Qt::transparent);
+    maskImage = new BitmapImage(targetImage->mBounds, QColor(0, 0, 0, 0));
 
-    queue.append(point);
+    queue.append({QPoint(point.x(), point.y()), oldColor});
     // Preparations END
 
     while (!queue.empty())
     {
-        tempPoint = queue.takeFirst();
+        auto temp = queue.takeFirst();
+        curPoint = temp.first;
+        prevColor = temp.second;
 
-        point.setX(tempPoint.x());
-        point.setY(tempPoint.y());
+        if(!targetImage->mBounds.contains(curPoint)) {
+            continue;
+        }
 
-        xTemp = point.x();
+        maskColor = maskImage->constScanLine(curPoint.x(), curPoint.y());
 
-        newPlacedColor = replaceImage->constScanLine(xTemp, point.y());
-        while (xTemp >= targetImage->mBounds.left() &&
-               compareColor(targetImage->constScanLine(xTemp, point.y()), oldColor, tolerance, cache.data())) xTemp--;
-        xTemp++;
+        if(qGray(maskColor) == 255) {
+            continue;
+        }
 
-        spanLeft = spanRight = false;
-        while (xTemp <= targetImage->mBounds.right() &&
-               compareColor(targetImage->constScanLine(xTemp, point.y()), oldColor, tolerance, cache.data()) &&
-               newPlacedColor != newColor)
-        {
+        curColor = targetImage->constScanLine(curPoint.x(), curPoint.y());
 
-            // Set pixel color
-            replaceImage->scanLine(xTemp, point.y(), newColor);
-
-            if (!spanLeft && (point.y() > targetImage->mBounds.top()) &&
-                compareColor(targetImage->constScanLine(xTemp, point.y() - 1), oldColor, tolerance, cache.data())) {
-                queue.append(QPoint(xTemp, point.y() - 1));
-                spanLeft = true;
+        if(compareColor(curColor, prevColor, oldColor)) {
+            qreal k1 = colorDiff(oldColor, curColor);
+            //qDebug() << "Color diff" << k1;
+            //int a = qFloor((qAlpha(oldColor) - (1-k1) * qAlpha(newColor)) / k1);
+            double a = qMax(qMax(qAbs(qRed(oldColor) - qRed(curColor))/static_cast<double>(qRed(curColor) > qRed(oldColor) ? 255-qRed(oldColor) : qRed(oldColor)),
+                              qAbs(qGreen(oldColor) - qGreen(curColor))/static_cast<double>(qGreen(curColor) > qGreen(oldColor) ? 255-qGreen(oldColor) : qGreen(oldColor))),
+                              qAbs(qBlue(oldColor) - qBlue(curColor))/static_cast<double>(qBlue(curColor) > qBlue(oldColor) ? 255-qBlue(oldColor) : qBlue(oldColor)));
+            if (a > 0) {
+                // curColor = a * finalColor + (1-a) * oldColor
+                finalColor = qPremultiply(qRgba((qRed(curColor) - qRed(oldColor)) / a + qRed(oldColor),
+                                   (qGreen(curColor) - qGreen(oldColor)) / a + qGreen(oldColor),
+                                   (qBlue(curColor) - qBlue(oldColor)) / a + qBlue(oldColor),
+                                   a * qAlpha(curColor)));
+            } else {
+                finalColor = qRgba(0, 0, 0, 0);
             }
-            else if (spanLeft && (point.y() > targetImage->mBounds.top()) &&
-                     !compareColor(targetImage->constScanLine(xTemp, point.y() - 1), oldColor, tolerance, cache.data())) {
-                spanLeft = false;
-            }
+            //finalColor = qRgba(qRed(oldColor), qGreen(oldColor), qBlue(oldColor), a);
+            replaceImage1->scanLine(curPoint.x(), curPoint.y(), newColor);
+            replaceImage2->scanLine(curPoint.x(), curPoint.y(), finalColor);
+            maskImage->scanLine(curPoint.x(), curPoint.y(), qRgba(255, 255, 255, 255));
 
-            if (!spanRight && point.y() < targetImage->mBounds.bottom() &&
-                compareColor(targetImage->constScanLine(xTemp, point.y() + 1), oldColor, tolerance, cache.data())) {
-                queue.append(QPoint(xTemp, point.y() + 1));
-                spanRight = true;
-
-            }
-            else if (spanRight && point.y() < targetImage->mBounds.bottom() &&
-                     !compareColor(targetImage->constScanLine(xTemp, point.y() + 1), oldColor, tolerance, cache.data())) {
-                spanRight = false;
-            }
-
-            Q_ASSERT(queue.count() < (targetImage->mBounds.width() * targetImage->mBounds.height()));
-            xTemp++;
+            queue.append({QPoint(curPoint.x()-1, curPoint.y()-1), curColor});
+            queue.append({QPoint(curPoint.x(), curPoint.y()-1), curColor});
+            queue.append({QPoint(curPoint.x()+1, curPoint.y()-1), curColor});
+            queue.append({QPoint(curPoint.x()-1, curPoint.y()), curColor});
+            queue.append({QPoint(curPoint.x()+1, curPoint.y()), curColor});
+            queue.append({QPoint(curPoint.x()-1, curPoint.y()+1), curColor});
+            queue.append({QPoint(curPoint.x(), curPoint.y()+1), curColor});
+            queue.append({QPoint(curPoint.x()+1, curPoint.y()+1), curColor});
         }
     }
 
-    targetImage->paste(replaceImage);
+    //maskImage->extend(maskImage->mBounds.adjusted(-1,-1,1,1));
+    BitmapImage *maskImage2 = maskImage;
+    BitmapImage *maskImage3 = nullptr;
+
+    const int fillAmount = 3;
+
+    for(int i = 0; i < fillAmount; i++) {
+        maskImage3 = maskImage2->clone();
+        for(int x = maskImage2->left(); x < maskImage2->right(); x++) {
+            for(int y = maskImage2->top(); y < maskImage2->bottom(); y++) {
+                if(qGray(maskImage3->constScanLine(x, y)) == 255) continue;
+                if((x > maskImage2->left() && qGray(maskImage2->constScanLine(x-1, y)) == 255) ||
+                   (x < maskImage2->right()-1 && qGray(maskImage2->constScanLine(x+1, y)) == 255) ||
+                   (y > maskImage2->top() && qGray(maskImage2->constScanLine(x, y-1)) == 255) ||
+                   (y < maskImage2->bottom()-1 && qGray(maskImage2->constScanLine(x, y+1)) == 255)) {
+                    maskImage3->scanLine(x, y, qRgba(255, 255, 255, 255));
+                }
+            }
+        }
+        maskImage2 = maskImage3;
+    }
+
+    for(int i = 0; i < fillAmount; i++) {
+        maskImage3 = maskImage2->clone();
+        for(int x = maskImage2->left(); x < maskImage2->right(); x++) {
+            for(int y = maskImage2->top(); y < maskImage2->bottom(); y++) {
+                if(qGray(maskImage3->constScanLine(x, y)) != 255) continue;
+                if((x > maskImage2->left() && qGray(maskImage2->constScanLine(x-1, y)) != 255) ||
+                   (x < maskImage2->right()-1 && qGray(maskImage2->constScanLine(x+1, y)) != 255) ||
+                   (y > maskImage2->top() && qGray(maskImage2->constScanLine(x, y-1)) != 255) ||
+                   (y < maskImage2->bottom()-1 && qGray(maskImage2->constScanLine(x, y+1)) != 255)) {
+                    maskImage3->scanLine(x, y, qRgba(0, 0, 0, 0));
+                }
+            }
+        }
+        maskImage2 = maskImage3;
+    }
+
+    for(int x = maskImage2->left(); x < maskImage2->right(); x++) {
+        for(int y = maskImage2->top(); y < maskImage2->bottom(); y++) {
+            if(qGray(maskImage2->constScanLine(x, y)) == 255 && qGray(maskImage->constScanLine(x, y)) != 255) {
+                curPoint = QPoint(x, y);
+                curColor = targetImage->constScanLine(curPoint.x(), curPoint.y());
+                double a = qMax(qMax(qAbs(qRed(oldColor) - qRed(curColor))/static_cast<double>(qRed(curColor) > qRed(oldColor) ? 255-qRed(oldColor) : qRed(oldColor)),
+                                  qAbs(qGreen(oldColor) - qGreen(curColor))/static_cast<double>(qGreen(curColor) > qGreen(oldColor) ? 255-qGreen(oldColor) : qGreen(oldColor))),
+                                  qAbs(qBlue(oldColor) - qBlue(curColor))/static_cast<double>(qBlue(curColor) > qBlue(oldColor) ? 255-qBlue(oldColor) : qBlue(oldColor)));
+                if (a > 0) {
+                    // curColor = a * finalColor + (1-a) * oldColor
+                    finalColor = qPremultiply(qRgba((qRed(curColor) - qRed(oldColor)) / a + qRed(oldColor),
+                                       (qGreen(curColor) - qGreen(oldColor)) / a + qGreen(oldColor),
+                                       (qBlue(curColor) - qBlue(oldColor)) / a + qBlue(oldColor),
+                                       a * qAlpha(curColor)));
+                } else {
+                    finalColor = qRgba(0, 0, 0, 0);
+                }
+                replaceImage1->scanLine(curPoint.x(), curPoint.y(), newColor);
+                replaceImage2->scanLine(curPoint.x(), curPoint.y(), finalColor);
+                maskImage->scanLine(curPoint.x(), curPoint.y(), qRgba(255, 255, 255, 255));
+            }
+        }
+    }
+
+    /*QList<QPoint> queue2;
+    queue2.append(maskImage->mBounds.topLeft());
+
+    while (!queue2.empty()) {
+        curPoint = queue2.takeFirst();
+
+        if(!maskImage2->mBounds.contains(curPoint)) {
+            continue;
+        }
+
+        if(qGray(maskImage2->constScanLine(curPoint.x(), curPoint.y())) != 255) {
+            maskImage2->scanLine(curPoint.x(), curPoint.y(), qRgba(255, 255, 255, 255));
+
+            queue2.append(QPoint(curPoint.x()-1, curPoint.y()-1));
+            queue2.append(QPoint(curPoint.x(), curPoint.y()-1));
+            queue2.append(QPoint(curPoint.x()+1, curPoint.y()-1));
+            queue2.append(QPoint(curPoint.x()-1, curPoint.y()));
+            queue2.append(QPoint(curPoint.x()+1, curPoint.y()));
+            queue2.append(QPoint(curPoint.x()-1, curPoint.y()+1));
+            queue2.append(QPoint(curPoint.x(), curPoint.y()+1));
+            queue2.append(QPoint(curPoint.x()+1, curPoint.y()+1));
+        }
+    }
+    for(int x = replaceImage1->left(); x < replaceImage1->right(); x++) {
+        for(int y = replaceImage1->top(); y < replaceImage1->bottom(); y++) {
+            if(qGray(maskImage2->constScanLine(x, y)) != 255) {
+                curPoint = QPoint(x, y);
+                curColor = targetImage->constScanLine(curPoint.x(), curPoint.y());
+                double a = qMax(qMax(qAbs(qRed(oldColor) - qRed(curColor))/static_cast<double>(qRed(curColor) > qRed(oldColor) ? 255-qRed(oldColor) : qRed(oldColor)),
+                                  qAbs(qGreen(oldColor) - qGreen(curColor))/static_cast<double>(qGreen(curColor) > qGreen(oldColor) ? 255-qGreen(oldColor) : qGreen(oldColor))),
+                                  qAbs(qBlue(oldColor) - qBlue(curColor))/static_cast<double>(qBlue(curColor) > qBlue(oldColor) ? 255-qBlue(oldColor) : qBlue(oldColor)));
+                if (a > 0) {
+                    // curColor = a * finalColor + (1-a) * oldColor
+                    finalColor = qPremultiply(qRgba((qRed(curColor) - qRed(oldColor)) / a + qRed(oldColor),
+                                       (qGreen(curColor) - qGreen(oldColor)) / a + qGreen(oldColor),
+                                       (qBlue(curColor) - qBlue(oldColor)) / a + qBlue(oldColor),
+                                       a * qAlpha(curColor)));
+                } else {
+                    finalColor = qRgba(0, 0, 0, 0);
+                }
+                replaceImage1->scanLine(curPoint.x(), curPoint.y(), newColor);
+                replaceImage2->scanLine(curPoint.x(), curPoint.y(), finalColor);
+                maskImage->scanLine(curPoint.x(), curPoint.y(), qRgba(255, 255, 255, 255));
+            }
+        }
+    }*/
+
+    targetImage->paste(maskImage, QPainter::CompositionMode_DestinationOut);
+    targetImage->paste(replaceImage1);//, QPainter::CompositionMode_DestinationOver);
+    targetImage->paste(replaceImage2);
+    //targetImage->paste(maskImage3, QPainter::CompositionMode_Source);
     targetImage->modification();
-    delete replaceImage;
+    //delete replaceImage;
 }
