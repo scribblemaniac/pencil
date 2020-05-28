@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include <QFileInfo>
 #include <QFileDialog>
 #include <QDebug>
+#include <QApplication>
 
 #include "fileformat.h"
 #include "pencildef.h"
@@ -40,16 +41,21 @@ QString FileDialog::openFile(FileType fileType)
     QString strInitialFilePath = getLastOpenPath( fileType );
     QString strFilter = openFileFilters( fileType );
 
-    QString filePath = QFileDialog::getOpenFileName( mRoot,
+    QFileDialog openDialog( mRoot,
                                                      strTitle,
                                                      strInitialFilePath,
                                                      strFilter );
-    if ( !filePath.isEmpty() )
+
+    openDialog.open();
+
+    QApplication::setActiveWindow(openDialog.window());
+    /*if ( !filePath.isEmpty() )
     {
         setLastOpenPath(fileType, filePath);
     }
 
-    return filePath;
+    return filePath;*/
+    return QString();
 }
 
 QStringList FileDialog::openFiles(FileType fileType)
