@@ -556,7 +556,11 @@ void Editor::copy()
     if (layer->type() == Layer::VECTOR)
     {
         clipboardVectorOk = true;
-        g_clipboardVectorImage = *((static_cast<LayerVector*>(layer))->getLastVectorImageAtFrame(currentFrame(), 0));  // copy the image
+        VectorImage *vectorImage = static_cast<LayerVector*>(layer)->getLastVectorImageAtFrame(currentFrame(), 0);
+        if (vectorImage != nullptr)
+        {
+            g_clipboardVectorImage = *vectorImage;  // copy the image
+        }
     }
 }
 
