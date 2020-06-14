@@ -153,6 +153,7 @@ void BucketTool::paintBitmap(Layer* layer)
     int layerNumber = editor()->layers()->currentLayerIndex(); // by default
 
     BitmapImage* targetImage = ((LayerBitmap*)targetLayer)->getLastBitmapImageAtFrame(editor()->currentFrame(), 0);
+    if (targetImage == nullptr) { return; } // Can happen if the first frame is deleted while drawing
 
     QPoint point = QPoint(qFloor(getLastPoint().x()), qFloor(getLastPoint().y()));
     QRect cameraRect = mScribbleArea->getCameraRect().toRect();

@@ -465,6 +465,7 @@ void CanvasPainter::paintTransformedSelection(QPainter& painter)
     {
         // Get the transformed image
         BitmapImage* bitmapImage = dynamic_cast<LayerBitmap*>(layer)->getLastBitmapImageAtFrame(mFrameNumber, 0);
+        if (bitmapImage == nullptr) { return; };
         BitmapImage transformedImage = bitmapImage->transformed(mSelection, mSelectionTransform, mOptions.bAntiAlias);
 
         // Paint the transformation output
