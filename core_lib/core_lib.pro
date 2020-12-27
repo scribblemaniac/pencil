@@ -26,12 +26,19 @@ INCLUDEPATH += src \
     src/tool \
     src/util \
     src/managers \
-    src/external
+    src/external \
+    src/external/backends \
+    src/external/backends/import \
+    src/external/backends/export
 
 PRECOMPILED_HEADER = src/corelib-pch.h
 
 HEADERS +=  \
     src/corelib-pch.h \
+    src/external/platformhandler.h \
+    src/external/backends/backend.h \
+    src/external/backends/export/exportbackend.h \
+    src/external/backends/import/importbackend.h \
     src/graphics/bitmap/bitmapimage.h \
     src/graphics/vector/bezierarea.h \
     src/graphics/vector/beziercurve.h \
@@ -103,11 +110,13 @@ HEADERS +=  \
     src/miniz.h \
     src/qminiz.h \
     src/activeframepool.h \
-    src/external/platformhandler.h \
     src/selectionpainter.h
 
 
-SOURCES +=  src/graphics/bitmap/bitmapimage.cpp \
+SOURCES +=  \
+    src/external/backends/export/exportbackend.cpp \
+    src/external/backends/import/importbackend.cpp \
+    src/graphics/bitmap/bitmapimage.cpp \
     src/graphics/vector/bezierarea.cpp \
     src/graphics/vector/beziercurve.cpp \
     src/graphics/vector/colorref.cpp \
