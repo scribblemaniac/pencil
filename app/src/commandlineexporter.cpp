@@ -23,7 +23,7 @@ GNU General Public License for more details.
 #include "layercamera.h"
 #include "layermanager.h"
 #include "mainwindow2.h"
-#include "movieexporter.h"
+#include "exportmoviedesc.h"
 #include "object.h"
 #include "playbackmanager.h"
 
@@ -144,9 +144,10 @@ void CommandLineExporter::exportMovie(const QString &outputPath,
     desc.exportSize = exportSize;
     desc.strCameraName = cameraLayer->name();
 
-    MovieExporter ex;
+    // TODO implement, temporarily disabled
+    /*MovieExporter ex;
     ex.run(mMainWindow->mEditor->object(), desc, [](float, float){}, [](float){}, [](const QString &){});
-    mOut << tr("Done.", "Command line task done") << endl;
+    mOut << tr("Done.", "Command line task done") << endl;*/
 }
 
 void CommandLineExporter::exportImageSequence(const QString &outputPath,

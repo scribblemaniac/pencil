@@ -73,27 +73,6 @@ QString ffprobeLocation()
 #endif
 }
 
-QString ffmpegLocation()
-{
-#ifdef _WIN32
-    return QApplication::applicationDirPath() + "/plugins/ffmpeg.exe";
-#elif __APPLE__
-    return QApplication::applicationDirPath() + "/plugins/ffmpeg";
-#else
-    QString ffmpegPath = QStandardPaths::findExecutable(
-        "ffmpeg",
-        QStringList()
-        << QApplication::applicationDirPath() + "/plugins"
-        << QApplication::applicationDirPath() + "/../plugins" // linuxdeployqt in FHS-like mode
-    );
-    if (!ffmpegPath.isEmpty())
-    {
-        return ffmpegPath;
-    }
-    return QStandardPaths::findExecutable("ffmpeg"); // ffmpeg is a standalone project.
-#endif
-}
-
 quint64 imageSize(const QImage& img)
 {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)

@@ -19,7 +19,7 @@ public:
       *
       * @return true if the backend is available in any capacity, false otherwise.
       */
-    virtual bool isAvailable();
+    virtual bool isAvailable() const = 0;
 
     /** Retrieves information about the backend (version number, path, current status, etc).
       *
@@ -30,7 +30,7 @@ public:
       *
       * @return DebugDetails about this backend.
       */
-    virtual DebugDetails getDebugInfo();
+    virtual DebugDetails getDebugInfo() const = 0;
 };
 
 #endif // BACKEND_H

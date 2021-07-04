@@ -42,6 +42,7 @@ GNU General Public License for more details.
 #include "preferencemanager.h"
 #include "soundmanager.h"
 #include "selectionmanager.h"
+#include "exportmanager.h"
 
 #include "scribblearea.h"
 #include "timeline.h"
@@ -78,6 +79,7 @@ bool Editor::init()
     mPreferenceManager = new PreferenceManager(this);
     mSoundManager = new SoundManager(this);
     mSelectionManager = new SelectionManager(this);
+    mExportManager = new ExportManager(this);
 
     mAllManagers =
     {
@@ -88,7 +90,8 @@ bool Editor::init()
         mViewManager,
         mPreferenceManager,
         mSoundManager,
-        mSelectionManager
+        mSelectionManager,
+        mExportManager
     };
 
     for (BaseManager* pManager : mAllManagers)

@@ -22,7 +22,6 @@ GNU General Public License for more details.
 #include <QtMath>
 #include <QTime>
 
-#include "movieexporter.h"
 #include "layermanager.h"
 #include "viewmanager.h"
 #include "soundmanager.h"
@@ -56,7 +55,7 @@ Status MovieImporter::estimateFrames(const QString &filePath, int fps, int *fram
 
     // --------- Import all the temporary frames ----------
     STATUS_CHECK(verifyFFmpegExists());
-    QString ffmpegPath = ffmpegLocation();
+    QString ffmpegPath = ""; //ffmpegLocation(); // TODO fix
     dd << "ffmpeg path:" << ffmpegPath;
 
     // Get frame estimate
@@ -248,9 +247,10 @@ Status MovieImporter::importMovieVideo(const QString &filePath, int fps, int fra
     args << "-r" << QString::number(fps);
     args << QDir(mTempDir->path()).filePath("%05d.png");
 
-    status = MovieExporter::executeFFmpeg(ffmpegLocation(), args, [&progress, frameEstimate, this] (int frame) {
+    status = Status::FAIL; /*MovieExporter::executeFFmpeg(ffmpegLocation(), args, [&progress, frameEstimate, this] (int frame) {
         progress(qFloor(qMin(frame / static_cast<double>(frameEstimate), 1.0) * 50)); return !mCanceled; }
-    );
+    );*/
+    // TODO fix
 
     if (!status.ok() && status != Status::CANCELED) { return status; }
 
@@ -343,10 +343,11 @@ Status MovieImporter::importMovieAudio(const QString& filePath, std::function<bo
 
     QStringList args = {"-i", filePath, audioPath};
 
-    status = MovieExporter::executeFFmpeg(ffmpegLocation(), args, [&progress, this] (int frame) {
+    status = Status::FAIL; /*MovieExporter::executeFFmpeg(ffmpegLocation(), args, [&progress, this] (int frame) {
         Q_UNUSED(frame)
         progress(50); return !mCanceled;
-    });
+    });*/
+    // TODO fix
 
     if(mCanceled) return Status::CANCELED;
     progress(90);
@@ -372,7 +373,7 @@ Status MovieImporter::importMovieAudio(const QString& filePath, std::function<bo
 
 Status MovieImporter::verifyFFmpegExists()
 {
-    QString ffmpegPath = ffmpegLocation();
+    QString ffmpegPath = ""; // ffmpegLocation(); // TODO fix
     if (!QFile::exists(ffmpegPath))
     {
         Status status = Status::ERROR_FFMPEG_NOT_FOUND;

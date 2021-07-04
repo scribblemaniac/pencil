@@ -34,7 +34,10 @@ INCLUDEPATH += \
     ../core_lib/src/util \
     ../core_lib/ui \
     ../core_lib/src/managers \
-    ../core_lib/src/external
+    ../core_lib/src/external \
+    ../core_lib/src/external/backends \
+    ../core_lib/src/external/backends/exporter \
+    ../core_lib/src/external/backends/importer
 
 PRECOMPILED_HEADER = src/app-pch.h
 

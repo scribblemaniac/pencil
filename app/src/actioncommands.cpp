@@ -35,6 +35,7 @@ GNU General Public License for more details.
 #include "colormanager.h"
 #include "preferencemanager.h"
 #include "selectionmanager.h"
+#include "exportmanager.h"
 #include "util.h"
 #include "app_util.h"
 
@@ -48,7 +49,8 @@ GNU General Public License for more details.
 #include "camera.h"
 
 #include "movieimporter.h"
-#include "movieexporter.h"
+#include "exportprocess.h"
+#include "exportmoviedesc.h"
 #include "filedialog.h"
 #include "exportmoviedialog.h"
 #include "exportimagedialog.h"
@@ -287,46 +289,39 @@ Status ActionCommands::exportMovie(bool isGif)
     desc.loop = dialog->getLoop();
     desc.alpha = dialog->getTransparency();
 
-    DoubleProgressDialog progressDlg;
-    progressDlg.setWindowModality(Qt::WindowModal);
-    progressDlg.setWindowTitle(tr("Exporting movie"));
+    mExportProgressDlg = new DoubleProgressDialog;
+    mExportProgressDlg->setWindowModality(Qt::WindowModal);
+    mExportProgressDlg->setWindowTitle(tr("Exporting movie"));
     Qt::WindowFlags eFlags = Qt::Dialog | Qt::WindowTitleHint;
-    progressDlg.setWindowFlags(eFlags);
-    progressDlg.show();
+    mExportProgressDlg->setWindowFlags(eFlags);
 
-    MovieExporter ex;
-
-    connect(&progressDlg, &DoubleProgressDialog::canceled, [&ex]
+    mExporter = mEditor->exporter()->createExportProcess(mEditor->object(), desc);
+    if (mExporter == nullptr)
     {
-        ex.cancel();
+        Status st = Status::INVALID_ARGUMENT;
+        st.setTitle(tr("Something went wrong"));
+        st.setDescription(tr("There was an internal error and the video backend could not be started."));
+        return st;
+    }
+
+    connect(mExporter, &ExportProcess::majorProgressUpdate, mExportProgressDlg, &DoubleProgressDialog::setMajorProgress);
+    connect(mExporter, &ExportProcess::minorProgressUpdate, mExportProgressDlg, &DoubleProgressDialog::setMinorProgress);
+    connect(mExporter, &ExportProcess::progressMessageUpdate, mExportProgressDlg, &DoubleProgressDialog::setStatus);
+    connect(mExportProgressDlg, &DoubleProgressDialog::canceled, mExporter, &ExportProcess::cancel);
+    connect(mExporter, &ExportProcess::finished, [isGif, strMoviePath, this] ()
+    {
+        onMovieExportFinished(isGif, strMoviePath);
     });
 
-    // The start points and length for the current minor operation segment on the major progress bar
-    float minorStart, minorLength;
+    mExporter->start();
+    mExportProgressDlg->show();
 
-    Status st = ex.run(mEditor->object(), desc,
-        [&progressDlg, &minorStart, &minorLength](float f, float final)
-        {
-            progressDlg.major->setValue(f);
+    return mExporter->getStatus();
+}
 
-            minorStart = f;
-            minorLength = qMax(0.f, final - minorStart);
-
-            QApplication::processEvents();
-        },
-        [&progressDlg, &minorStart, &minorLength](float f) {
-            progressDlg.minor->setValue(f);
-
-            progressDlg.major->setValue(minorStart + f * minorLength);
-
-            QApplication::processEvents();
-        },
-        [&progressDlg](QString s) {
-            progressDlg.setStatus(s);
-            QApplication::processEvents();
-        }
-    );
-
+void ActionCommands::onMovieExportFinished(bool isGif, QString strMoviePath)
+{
+    Status st = mExporter->getStatus();
     if (st.ok())
     {
         if (QFile::exists(strMoviePath))
@@ -337,16 +332,14 @@ Status ActionCommands::exportMovie(bool isGif)
 
                 if (btn == QMessageBox::Yes)
                 {
-                    QString path = dialog->getAbsolutePath();
-                    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
+                    QDesktopServices::openUrl(QUrl::fromLocalFile(strMoviePath)); // TODO check that these work
                 }
-                return Status::OK;
             }
             auto btn = QMessageBox::question(mParent, "Pencil2D",
                                              tr("Finished. Open movie now?", "When movie export done."));
             if (btn == QMessageBox::Yes)
             {
-                QDesktopServices::openUrl(QUrl::fromLocalFile(strMoviePath));
+                QDesktopServices::openUrl(QUrl::fromLocalFile(strMoviePath)); // TODO check that these work
             }
         }
         else
@@ -361,7 +354,9 @@ Status ActionCommands::exportMovie(bool isGif)
         errorDialog.exec();
     }
 
-    return st;
+    mExportProgressDlg->close();
+    mExportProgressDlg->deleteLater();
+    mExporter->deleteLater();
 }
 
 Status ActionCommands::exportImageSequence()

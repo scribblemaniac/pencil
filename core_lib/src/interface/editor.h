@@ -40,6 +40,7 @@ class ViewManager;
 class PreferenceManager;
 class SelectionManager;
 class SoundManager;
+class ExportManager;
 class ScribbleArea;
 class TimeLine;
 class BackupElement;
@@ -78,6 +79,7 @@ public:
     PreferenceManager* preference() const { return mPreferenceManager; }
     SoundManager*      sound() const { return mSoundManager; }
     SelectionManager*  select() const { return mSelectionManager; }
+    ExportManager*     exporter() const { return mExportManager; }
 
     Object* object() const { return mObject.get(); }
     Status setObject(Object* object);
@@ -215,7 +217,8 @@ private:
     ViewManager*       mViewManager = nullptr;
     PreferenceManager* mPreferenceManager = nullptr;
     SoundManager*      mSoundManager = nullptr;
-    SelectionManager* mSelectionManager = nullptr;
+    SelectionManager*  mSelectionManager = nullptr;
+    ExportManager*     mExportManager = nullptr;
 
     std::vector< BaseManager* > mAllManagers;
 

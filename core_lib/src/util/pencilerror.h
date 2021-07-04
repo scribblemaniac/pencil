@@ -43,6 +43,7 @@ public:
     {
         OK = 0,
         SAFE,
+        PENDING, // For asynchronous operations
         FAIL,
 		CANCELED,
         FILE_NOT_FOUND,

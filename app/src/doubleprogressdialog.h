@@ -36,6 +36,9 @@ public:
     QString getStatus();
     void setStatus(QString msg);
 
+    void setMajorProgress(float f) { major->setValue(f); }
+    void setMinorProgress(float f) { minor->setValue(f); }
+
     class ProgressBarControl {
         public:
             ProgressBarControl(QProgressBar *b);

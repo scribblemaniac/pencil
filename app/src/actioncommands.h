@@ -23,7 +23,8 @@ GNU General Public License for more details.
 
 class Editor;
 class QWidget;
-class ExportMovieDialog;
+class DoubleProgressDialog;
+class ExportProcess;
 
 
 class ActionCommands : public QObject
@@ -91,11 +92,16 @@ public:
     void about();
 
 private:
-
     Status convertSoundToWav(const QString& filePath);
+
+    void onMovieExportFinished(bool isGif, QString strMoviePath);
 
     Editor* mEditor = nullptr;
     QWidget* mParent = nullptr;
+
+    ExportProcess *mExporter;
+    DoubleProgressDialog *mExportProgressDlg;
+
 };
 
 #endif // COMMANDCENTER_H
