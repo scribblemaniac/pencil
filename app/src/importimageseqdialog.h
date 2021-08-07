@@ -33,6 +33,7 @@ struct PredefinedKeySetParams
 {
     int dot = 0;
     int digits = 0;
+    QList<QPair<QString, int> > stuff;
     QStringList filenames;
     QStringList absolutePaths;
     QString folderPath;
@@ -69,7 +70,7 @@ private slots:
     void setSpace(int number);
     void updatePreviewList(const QStringList& list);
 
-    const PredefinedKeySetParams predefinedKeySetParams() const;
+    const QList<QPair<QString, int> > predefinedKeySetParams() const;
 
 private:
     int keyFramePosFromFilePath(const QString& path);

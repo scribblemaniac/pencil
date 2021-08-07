@@ -122,20 +122,19 @@ void ImportImageSeqDialog::updatePreviewList(const QStringList& list)
 const PredefinedKeySet ImportImageSeqDialog::generatePredefinedKeySet() const
 {
     PredefinedKeySet keySet;
-    const PredefinedKeySetParams& setParams = predefinedKeySetParams();
+    const QList<QPair<QString, int> > fileSet = predefinedKeySetParams();
 
-    const QStringList& filenames = setParams.filenames;
-    const int& digits = setParams.digits;
-    const QString& folderPath = setParams.folderPath;
-
-    for (int i = 0; i < filenames.size(); i++)
+    for (int i = 0; i < fileSet.size(); i++)
     {
-        const int& frameIndex = filenames[i].mid(setParams.dot - digits, digits).toInt();
-        const QString& absolutePath = folderPath + filenames[i];
-
-        keySet.insert(frameIndex, absolutePath);
+        keySet.insert(fileSet[i].second, fileSet[i].first);
     }
-    keySet.setLayerName(setParams.prefix);
+
+    if (!fileSet.empty())
+    {
+        QString prefix = QRegularExpression("^(.*?)(\\d+)([^\\d\\.]*\\.[^\\.]+)$").match(QFileInfo(fileSet[0].first).baseName()).captured(1);
+        keySet.setLayerName(prefix);
+    }
+
     return keySet;
 }
 
@@ -231,20 +230,25 @@ void ImportImageSeqDialog::importArbitrarySequence()
     progress.close();
 }
 
-const PredefinedKeySetParams ImportImageSeqDialog::predefinedKeySetParams() const
+const QList<QPair<QString, int> > ImportImageSeqDialog::predefinedKeySetParams() const
 {
     QString strFilePath = getFilePath();
-    PredefinedKeySetParams setParams;
+    QList<QPair<QString, int> > fileSet;
+
+    QRegularExpression pattern("^(.*?)(\\d+)([^\\d\\.]*\\.[^\\.]+)$");
+    QString basename = QFileInfo(strFilePath).fileName();
+    QRegularExpressionMatch match = pattern.match(basename);
+    if (!match.hasMatch()) { return fileSet; }
 
     // local vars for testing file validity
-    int dot = strFilePath.lastIndexOf(".");
+    /*int dot = strFilePath.lastIndexOf(".");
     int slash = strFilePath.lastIndexOf("/");
     QString fName = strFilePath.mid(slash + 1);
     QString path = strFilePath.left(slash + 1);
-    QString digit = strFilePath.mid(slash + 1, dot - slash - 1);
+    QString digit = strFilePath.mid(slash + 1, dot - slash - 1);*/
 
     // Find number of digits (min: 1, max: digit.length - 1)
-    int digits = 0;
+    /*int digits = 0;
     for (int i = digit.length() - 1; i > 0; i--)
     {
         if (digit.at(i).isDigit())
@@ -264,26 +268,30 @@ const PredefinedKeySetParams ImportImageSeqDialog::predefinedKeySetParams() cons
 
     digit = strFilePath.mid(dot - digits, digits);
     QString prefix = strFilePath.mid(slash + 1, dot - slash - digits - 1);
-    QString suffix = strFilePath.mid(dot, strFilePath.length() - 1);
+    QString suffix = strFilePath.mid(dot, strFilePath.length() - 1);*/
+
+    QString prefix = match.captured(1);
+    QString suffix = match.captured(3);
 
     QDir dir = strFilePath.left(strFilePath.lastIndexOf("/"));
     QStringList sList = dir.entryList(QDir::Files, QDir::Name);
-    if (sList.isEmpty()) { return setParams; }
+    if (sList.isEmpty()) { return fileSet; }
 
     // List of files is not empty. Let's go find the relevant files
     QStringList finalList;
-    int validLength = prefix.length() + digit.length() + suffix.length();
     for (int i = 0; i < sList.size(); i++)
     {
-        if (sList[i].startsWith(prefix) &&
-                sList[i].length() == validLength &&
-                sList[i].mid(sList[i].lastIndexOf(".") - digits, digits).toInt() > 0 &&
-                sList[i].endsWith(suffix))
+        QRegularExpressionMatch newMatch = pattern.match(sList[i]);
+        if (newMatch.hasMatch() &&
+            newMatch.captured(1) == prefix &&
+            newMatch.captured(3) == suffix)
         {
-            finalList.append(sList[i]);
+            fileSet.append(QPair<QString,int>(dir.filePath(sList[i]), newMatch.captured(2).toInt()));
         }
     }
-    if (finalList.isEmpty()) { return setParams; }
+    return fileSet;
+    /*
+    if (finalList.isEmpty()) { return fileSet; }
 
     // List of relevant files is not empty. Let's validate them
     dot = finalList[0].lastIndexOf(".");
@@ -299,7 +307,7 @@ const PredefinedKeySetParams ImportImageSeqDialog::predefinedKeySetParams() cons
     setParams.folderPath = path;
     setParams.absolutePaths = absolutePaths;
     setParams.prefix = prefix;
-    return setParams;
+    return setParams;*/
 }
 
 void ImportImageSeqDialog::importPredefinedSet()
