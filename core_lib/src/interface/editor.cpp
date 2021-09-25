@@ -181,11 +181,11 @@ void Editor::retime(int newFps, qreal speed)
         }
         else
         {
-            for (auto iter = frameRemap.keys().crbegin(); iter != frameRemap.keys().crend(); iter++)
+            for (auto iter = frameRemap.constEnd(); iter != frameRemap.constBegin(); --iter)
             {
-                if (frameRemap.value(*iter) != *iter)
+                if (iter.value() != iter.key())
                 {
-                    layer->swapKeyFrames(frameRemap.value(*iter), *iter);
+                    layer->swapKeyFrames(iter.value(), iter.key());
                 }
             }
         }
