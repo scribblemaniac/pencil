@@ -146,6 +146,8 @@ public:
 
     void keyEvent(QKeyEvent* event);
     void keyEventForSelection(QKeyEvent* event);
+    void keyPressEvent(QKeyEvent*) override;
+    void keyReleaseEvent(QKeyEvent*) override;
 
 signals:
     void multiLayerOnionSkinChanged(bool);
@@ -174,8 +176,6 @@ protected:
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void mouseDoubleClickEvent(QMouseEvent*) override;
-    void keyPressEvent(QKeyEvent*) override;
-    void keyReleaseEvent(QKeyEvent*) override;
     void paintEvent(QPaintEvent*) override;
     void resizeEvent(QResizeEvent*) override;
 

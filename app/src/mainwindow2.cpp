@@ -1512,6 +1512,16 @@ bool MainWindow2::event(QEvent* event)
     return QMainWindow::event(event);
 }
 
+void MainWindow2::keyPressEvent(QKeyEvent *event)
+{
+    ui->scribbleArea->keyPressEvent(event);
+}
+
+void MainWindow2::keyReleaseEvent(QKeyEvent *event)
+{
+    ui->scribbleArea->keyReleaseEvent(event);
+}
+
 void MainWindow2::displayMessageBox(const QString& title, const QString& body)
 {
     QMessageBox::information(this, tr(qPrintable(title)), tr(qPrintable(body)), QMessageBox::Ok);

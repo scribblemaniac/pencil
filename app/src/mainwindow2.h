@@ -111,6 +111,9 @@ protected:
     void showEvent(QShowEvent*) override;
     bool event(QEvent*) override;
 
+    void keyPressEvent(QKeyEvent*) override;
+    void keyReleaseEvent(QKeyEvent*) override;
+
 private slots:
     void updateCopyCutPasteEnabled();
 private:
