@@ -118,6 +118,7 @@ BENCHMARK_F(BitmapImage1080pFixture, ExpandFill, 10, 5)
     properties.bucketFillReferenceMode = 0;
     properties.bucketFillToLayerMode = 0;
     properties.bucketFillExpandEnabled = true;
+    properties.bucketFillExpand = 25;
     properties.fillMode = 0;
 
     QPoint fillPoint = img->bounds().center();
@@ -133,6 +134,7 @@ BENCHMARK_F(BitmapImageEmptyFixture, ExpandFillTo1080p, 10, 5)
     properties.bucketFillReferenceMode = 0;
     properties.bucketFillToLayerMode = 0;
     properties.bucketFillExpandEnabled = true;
+    properties.bucketFillExpand = 25;
     properties.fillMode = 0;
 
     QRect cameraRect(0, 0, 1920, 1080);
