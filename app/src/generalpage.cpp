@@ -19,6 +19,7 @@ GNU General Public License for more details.
 
 #include <QMessageBox>
 #include <QSettings>
+#include <QTranslator>
 
 #include "pencildef.h"
 #include "preferencemanager.h"
@@ -188,9 +189,21 @@ void GeneralPage::languageChanged(int i)
     QString strLocale = ui->languageCombo->itemData(i).toString();
     mManager->set(SETTING::LANGUAGE, strLocale);
 
-    QMessageBox::warning(this,
-                         tr("Restart Required"),
-                         tr("The language change will take effect after a restart of Pencil2D"));
+    std::unique_ptr<QTranslator> pencil2DTranslator(new QTranslator(this));
+    QLocale locale = strLocale.isEmpty() ? QLocale::system() : QLocale(strLocale);
+    QString title, description;
+    if (pencil2DTranslator->load(locale, "pencil", "_", ":/i18n/"))
+    {
+        title = pencil2DTranslator->translate(this->metaObject()->className(), "Restart Required");
+        description = pencil2DTranslator->translate(this->metaObject()->className(), "The language change will take effect after a restart of Pencil2D");
+    }
+    else
+    {
+        title = tr("Restart Required");
+        description = tr("The language change will take effect after a restart of Pencil2D");
+    }
+
+    QMessageBox::warning(this, title, description);
 }
 
 void GeneralPage::backgroundChanged(int value)
