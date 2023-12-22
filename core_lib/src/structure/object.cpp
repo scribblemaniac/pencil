@@ -297,17 +297,22 @@ Layer* Object::takeLayer(int layerId)
     return layer;
 }
 
-bool Object::swapLayers(int i, int j)
+bool Object::moveLayers(const int fromIndex, const int toIndex)
 {
-    bool canSwap = canSwapLayers(i, j);
-    if (!canSwap) { return false; }
+    if (fromIndex == toIndex) { return false; }
 
-    if (i != j)
+    int offset = toIndex < fromIndex ? -1 : 1;
+    for (int i = fromIndex; i != toIndex; i += offset)
+    {
+        if (!canSwapLayers(i, i+offset)) { return false; }
+    }
+
+    for (int i = fromIndex; i != toIndex; i += offset)
     {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 13, 0)
-        mLayers.swapItemsAt(i, j);
+        mLayers.swapItemsAt(i, i+offset);
 #else
-        mLayers.swap(i, j);
+        mLayers.swap(i, i+offset);
 #endif
     }
     return true;

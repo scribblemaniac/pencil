@@ -186,7 +186,7 @@ public: //slots
     void removeKey();
 
     void switchVisibilityOfLayer(int layerNumber);
-    void swapLayers(int i, int j);
+    void moveLayers(const int fromIndex, const int toIndex);
     bool canSwapLayers(int layerIndexLeft, int layerIndexRight) const;
 
     void backup(const QString& undoText);

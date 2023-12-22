@@ -1082,20 +1082,8 @@ void TimeLineCells::mouseReleaseEvent(QMouseEvent* event)
     if (mType == TIMELINE_CELL_TYPE::Layers && layerNumber != mStartLayerNumber && mStartLayerNumber != -1 && layerNumber != -1)
     {
         mToLayer = getInbetweenLayerNumber(event->pos().y());
-        if (mToLayer != mFromLayer && mToLayer > -1 && mToLayer < mEditor->layers()->count())
-        {
-            // Bubble the from layer up or down to the to layer
-            if (mToLayer < mFromLayer) // bubble up
-            {
-                for (int i = mFromLayer - 1; i >= mToLayer; i--)
-                    mEditor->swapLayers(i, i + 1);
-            }
-            else // bubble down
-            {
-                for (int i = mFromLayer + 1; i <= mToLayer; i++)
-                    mEditor->swapLayers(i, i - 1);
-            }
-        }
+        mEditor->moveLayers(mFromLayer, mToLayer);
+        mEditor->layers()->setCurrentLayer(mToLayer);
     }
 
     if (mType == TIMELINE_CELL_TYPE::Layers && event->button() == Qt::LeftButton)

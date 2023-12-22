@@ -112,3 +112,27 @@ void FlipViewElement::applyRedo()
         Q_UNREACHABLE();
     }
 }
+
+MoveLayerElement::MoveLayerElement(const int backupOldLayerIndex,
+                                   const int backupNewLayerIndex,
+                                   Editor* editor,
+                                   QUndoCommand* parent) : BackupElement(editor, parent)
+{
+    oldLayerIndex = backupOldLayerIndex;
+    newLayerIndex = backupNewLayerIndex;
+
+    setText(QObject::tr("Move layer"));
+}
+
+void MoveLayerElement::applyUndo()
+{
+    editor()->moveLayers(newLayerIndex, oldLayerIndex);
+    editor()->layers()->setCurrentLayer(oldLayerIndex);
+}
+
+void MoveLayerElement::applyRedo()
+{
+    editor()->moveLayers(oldLayerIndex, newLayerIndex);
+    editor()->layers()->setCurrentLayer(newLayerIndex);
+
+}

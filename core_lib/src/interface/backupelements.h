@@ -79,4 +79,20 @@ public:
     void applyRedo() override;
 };
 
+class MoveLayerElement : public BackupElement
+{
+
+public:
+    MoveLayerElement(const int backupOldLayerIndex,
+                     const int backupNewLayerIndex,
+                     Editor* editor,
+                     QUndoCommand* parent = nullptr);
+
+    int oldLayerIndex = 0;
+    int newLayerIndex = 0;
+
+    void applyUndo() override;
+    void applyRedo() override;
+};
+
 #endif // BACKUPELEMENT_H

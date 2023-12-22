@@ -20,6 +20,7 @@ GNU General Public License for more details.
 #include "object.h"
 #include "scribblearea.h"
 #include "viewmanager.h"
+#include "layermanager.h"
 #include "layerbitmap.h"
 
 TEST_CASE("FlipViewElement")
@@ -145,5 +146,87 @@ TEST_CASE("FlipViewElement")
 
             REQUIRE(editor->view()->isFlipVertical() == false);
         }
+    }
+}
+
+TEST_CASE("MoveLayerElement")
+{
+    const int LAYER_COUNT = 3;
+    std::unique_ptr<Editor> editor(new Editor);
+    ScribbleArea scribbleArea(nullptr);
+    editor->setScribbleArea(&scribbleArea);
+    editor->setObject(new Object);
+    std::array<Layer*, LAYER_COUNT> movableLayers;
+    for (int i = 0; i < LAYER_COUNT; i++) {
+        movableLayers[i] = static_cast<Layer*>(editor->object()->addNewBitmapLayer());
+    }
+    editor->object()->addNewCameraLayer();
+    editor->init();
+    scribbleArea.setEditor(editor.get());
+
+    SECTION("Init")
+    {
+        MoveLayerElement elem(0, 1, editor.get());
+
+        REQUIRE(!elem.text().isEmpty());
+    }
+
+    struct MoveLayerTestArgs
+    {
+        MoveLayerTestArgs(const int oi, const int ni, std::array<int, LAYER_COUNT> conf) :
+            oldLayerIndex(oi), newLayerIndex(ni), finalConfiguration(conf) {}
+
+        int oldLayerIndex, newLayerIndex;
+        std::array<int, LAYER_COUNT> finalConfiguration;
+    };
+
+    for (int i = 0; i < LAYER_COUNT; i++) {
+        REQUIRE(editor->layers()->getLayer(i) == movableLayers[i]);
+    }
+
+    SECTION("Undo")
+    {
+        MoveLayerTestArgs args = GENERATE(values<MoveLayerTestArgs>({
+            {0, 1, {1,0,2}},
+            {0, 2, {2,0,1}},
+            {1, 0, {1,0,2}},
+            {1, 2, {0,2,1}},
+            {2, 0, {1,2,0}},
+            {2, 1, {0,2,1}}
+        }));
+        int selectedIndex = GENERATE(0,1,2);
+        editor->setCurrentLayerIndex(selectedIndex);
+        REQUIRE(editor->currentLayerIndex() == selectedIndex);
+
+        MoveLayerElement elem(args.oldLayerIndex, args.newLayerIndex, editor.get());
+        elem.applyUndo();
+
+        for (int i = 0; i < LAYER_COUNT; i++) {
+            REQUIRE(editor->layers()->getLayer(i) == movableLayers[args.finalConfiguration[i]]);
+        }
+        REQUIRE(editor->currentLayerIndex() == args.oldLayerIndex);
+    }
+
+    SECTION("Redo")
+    {
+        MoveLayerTestArgs args = GENERATE(values<MoveLayerTestArgs>({
+            {0, 1, {1,0,2}},
+            {0, 2, {1,2,0}},
+            {1, 0, {1,0,2}},
+            {1, 2, {0,2,1}},
+            {2, 0, {2,0,1}},
+            {2, 1, {0,2,1}}
+        }));
+        int selectedIndex = GENERATE(0,1,2);
+        editor->setCurrentLayerIndex(selectedIndex);
+        REQUIRE(editor->currentLayerIndex() == selectedIndex);
+
+        MoveLayerElement elem(args.oldLayerIndex, args.newLayerIndex, editor.get());
+        elem.applyRedo();
+
+        for (int i = 0; i < LAYER_COUNT; i++) {
+            REQUIRE(editor->layers()->getLayer(i) == movableLayers[args.finalConfiguration[i]]);
+        }
+        REQUIRE(editor->currentLayerIndex() == args.newLayerIndex);
     }
 }

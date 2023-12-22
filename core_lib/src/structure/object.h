@@ -110,7 +110,7 @@ public:
     Layer* findLayerById(int layerId) const;
     Layer* takeLayer(int layerId); // Note: transfer ownership of the layer
 
-    bool swapLayers(int i, int j);
+    bool moveLayers(const int fromIndex, const int toIndex);
 
     /** Allows you to check whether two layers can be swappped, before doing the actual operation
      *

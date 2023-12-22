@@ -1300,19 +1300,26 @@ void Editor::switchVisibilityOfLayer(int layerNumber)
     emit updateTimeLine();
 }
 
-void Editor::swapLayers(int i, int j)
+void Editor::moveLayers(const int fromIndex, const int toIndex)
 {
-    bool didSwapLayer = mObject->swapLayers(i, j);
+    bool didSwapLayer = mObject->moveLayers(fromIndex, toIndex);
     if (!didSwapLayer) { return; }
 
-    if (j < i)
+    // Maintain the same selected layer by updating the selected layer index if necessary
+    int selectedIndex = layers()->currentLayerIndex();
+    if (fromIndex == selectedIndex)
     {
-        layers()->setCurrentLayer(j + 1);
+        layers()->setCurrentLayer(toIndex);
     }
-    else
+    else if (fromIndex > selectedIndex && toIndex <= selectedIndex)
     {
-        layers()->setCurrentLayer(j - 1);
+        layers()->setCurrentLayer(selectedIndex+1);
     }
+    else if (fromIndex < selectedIndex && toIndex >= selectedIndex)
+    {
+        layers()->setCurrentLayer(selectedIndex-1);
+    }
+
     emit updateTimeLine();
     mScribbleArea->onLayerChanged();
 }
