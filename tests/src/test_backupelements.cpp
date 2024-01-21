@@ -56,6 +56,7 @@ TEST_CASE("FlipViewElement")
         }
     }
 
+    // Setup editor
     std::unique_ptr<Editor> editor(new Editor);
     ScribbleArea scribbleArea(nullptr);
     editor->setScribbleArea(&scribbleArea);
@@ -152,17 +153,21 @@ TEST_CASE("FlipViewElement")
 TEST_CASE("MoveLayerElement")
 {
     const int LAYER_COUNT = 3;
+
+    // Setup editor
     std::unique_ptr<Editor> editor(new Editor);
     ScribbleArea scribbleArea(nullptr);
     editor->setScribbleArea(&scribbleArea);
     editor->setObject(new Object);
+    editor->init();
+    scribbleArea.setEditor(editor.get());
+
+    // Add layers
     std::array<Layer*, LAYER_COUNT> movableLayers;
     for (int i = 0; i < LAYER_COUNT; i++) {
         movableLayers[i] = static_cast<Layer*>(editor->object()->addNewBitmapLayer());
     }
     editor->object()->addNewCameraLayer();
-    editor->init();
-    scribbleArea.setEditor(editor.get());
 
     SECTION("Init")
     {
@@ -228,5 +233,180 @@ TEST_CASE("MoveLayerElement")
             REQUIRE(editor->layers()->getLayer(i) == movableLayers[args.finalConfiguration[i]]);
         }
         REQUIRE(editor->currentLayerIndex() == args.newLayerIndex);
+    }
+}
+
+void checkFramesMoved(const QList<int> expectedPositions, const Layer* layer, const QList<KeyFrame*> keyframes)
+{
+    REQUIRE(layer->keyFrameCount() == expectedPositions.size());
+    for (int i = 0; i < expectedPositions.size(); i++)
+    {
+        REQUIRE(layer->getKeyFrameAt(expectedPositions[i]) == keyframes[i]);
+    }
+}
+
+TEST_CASE("MoveFramesElement")
+{
+    // Setup editor
+    std::unique_ptr<Editor> editor(new Editor);
+    ScribbleArea scribbleArea(nullptr);
+    editor->setScribbleArea(&scribbleArea);
+    editor->setObject(new Object);
+    editor->init();
+    scribbleArea.setEditor(editor.get());
+
+    // Add layer 0 with keyframes at positions 1,3,4,6
+    LayerBitmap* layer = editor->object()->addNewBitmapLayer();
+    int layerId = layer->id();
+    QList<KeyFrame*> keyframes;
+    QList<int> expectedPositions{1,3,4,6};
+    for (int pos : expectedPositions)
+    {
+        layer->addNewKeyFrameAt(pos);
+        KeyFrame* key = layer->getKeyFrameAt(pos);
+        REQUIRE(key != nullptr);
+        keyframes.append(key);
+    }
+    layer->deselectAll();
+    layer->setFramesSelected({3,4}, true);
+    editor->init();
+
+    SECTION("Init")
+    {
+        SECTION("Move single frame forward")
+        {
+            MoveFramesElement elem(layerId, 1, 2, editor.get());
+
+            REQUIRE(!elem.text().isEmpty());
+        }
+
+        SECTION("Move single frame backwards")
+        {
+            MoveFramesElement elem(layerId, -1, 2, editor.get());
+
+            REQUIRE(!elem.text().isEmpty());
+        }
+
+        SECTION("Move multiple frames forward")
+        {
+            MoveFramesElement elem(layerId, 1, {2, 4}, editor.get());
+
+            REQUIRE(!elem.text().isEmpty());
+        }
+
+        SECTION("Move multiple frames backwards")
+        {
+            MoveFramesElement elem(layerId, -1, {2, 4}, editor.get());
+
+            REQUIRE(!elem.text().isEmpty());
+        }
+    }
+
+    SECTION("Undo")
+    {
+        SECTION("Move single frame")
+        {
+            auto args = GENERATE(table<int, int, QList<int>>({
+                {1, 2, {1,2,4,6}}, // Move forward 1, dst does not exist
+                {1, 3, {1,4,3,6}}, // Move forward 1, dst exists
+                {2, 2, {1,3,2,6}}, // Move forward >1, dst does not exist
+                {2, 1, {3,1,4,6}}, // Move forward >1, dst exists
+                {-1, 5, {1,3,5,6}}, // Move backwards 1, dst does not exist
+                {-1, 4, {1,4,3,6}}, // Move backwards 1, dst exists
+                {-2, 5, {1,5,4,6}}, // Move backwards >1, dst does not exist
+                {-2, 6, {1,3,6,4}}  // Move backwards >1, dst exists
+            }));
+            int offset = std::get<0>(args);
+            int oldPos = std::get<1>(args);
+            expectedPositions = std::get<2>(args);
+            MoveFramesElement elem(layerId, offset, oldPos, editor.get());
+            elem.applyUndo();
+
+            checkFramesMoved(expectedPositions, layer, keyframes);
+            REQUIRE(editor->currentFrame() == oldPos);
+            // TODO check frame selection
+        }
+
+        SECTION("Move multiple frames")
+        {
+            auto args = GENERATE(table<int, QList<int>, QList<int>>({
+                {1, {2,5}, {1,2,4,5}}, // Move forward 1, no overlap
+                {1, {2,3}, {1,2,3,6}}, // Move forward 1, overlap
+                                       // Move forward >1, no overlap not possible with starting keyframe configuration
+                {2, {2,4}, {1,3,2,4}}, // Move forward >1, overlap
+                {-1, {2,5}, {2,3,5,6}}, // Move backwards 1, no overlap
+                {-1, {4,5}, {1,4,5,6}}, // Move backwards 1, overlap
+                {-2, {5,8}, {1,5,4,8}}, // Move backwards >1, no overlap
+                {-2, {3,5}, {3,5,4,6}}  // Move backwards >1, overlap
+            }));
+
+            int offset = std::get<0>(args);
+            QList<int> oldPositions = std::get<1>(args);
+            expectedPositions = std::get<2>(args);
+            MoveFramesElement elem(layerId, offset, oldPositions, editor.get());
+            elem.applyUndo();
+
+            checkFramesMoved(expectedPositions, layer, keyframes);
+            REQUIRE(layer->selectedKeyFramesPositions() == oldPositions);
+            for (KeyFrame* key : keyframes) {
+                REQUIRE(key->isSelected() == oldPositions.contains(key->pos()));
+            }
+        }
+    }
+
+    SECTION("Redo")
+    {
+        SECTION("Move single frame")
+        {
+            auto args = GENERATE(table<int, int, QList<int>>({
+                {1, 4, {1,3,5,6}}, // Move forward 1, dst does not exist
+                {1, 3, {1,4,3,6}}, // Move forward 1, dst exists
+                {2, 3, {1,5,4,6}}, // Move forward >1, dst does not exist
+                {2, 1, {3,1,4,6}}, // Move forward >1, dst exists
+                {-1, 3, {1,2,4,6}}, // Move backwards 1, dst does not exist
+                {-1, 4, {1,4,3,6}}, // Move backwards 1, dst exists
+                {-2, 4, {1,3,2,6}}, // Move backwards >1, dst does not exist
+                {-2, 6, {1,3,6,4}}  // Move backwards >1, dst exists
+            }));
+            int offset = std::get<0>(args);
+            int oldPos = std::get<1>(args);
+            expectedPositions = std::get<2>(args);
+            MoveFramesElement elem(layerId, offset, oldPos, editor.get());
+            elem.applyRedo();
+
+            checkFramesMoved(expectedPositions, layer, keyframes);
+            REQUIRE(editor->currentFrame() == oldPos+offset);
+            // TOOD check frame selection
+        }
+
+        SECTION("Move multiple frames")
+        {
+            auto args = GENERATE(table<int, QList<int>, QList<int>>({
+                {1, {4,6}, {1,3,5,7}}, // Move forward 1, no overlap
+                {1, {3,4}, {1,4,5,6}}, // Move forward 1, overlap
+                {2, {3,6}, {1,5,4,8}}, // Move forward >1, no overlap
+                {2, {4,6}, {1,3,6,8}}, // Move forward >1, overlap
+                {-1, {3,6}, {1,2,4,5}}, // Move backwards 1, no overlap
+                {-1, {3,4}, {1,2,3,6}}, // Move backwards 1, overlap
+                                        // Move backwards >1, no overlap not possible with starting keyframe configuration
+                {-2, {4,6}, {1,3,2,4}}  // Move backwards >1, overlap
+            }));
+
+            int offset = std::get<0>(args);
+            QList<int> oldPositions = std::get<1>(args);
+            expectedPositions = std::get<2>(args);
+            MoveFramesElement elem(layerId, offset, oldPositions, editor.get());
+            elem.applyRedo();
+
+            checkFramesMoved(expectedPositions, layer, keyframes);
+            QList<int> newPositions;
+            for (int oldPos : oldPositions) {
+                newPositions.push_back(oldPos+offset);
+            }
+            REQUIRE(layer->selectedKeyFramesPositions() == newPositions);
+            for (KeyFrame* key : keyframes) {
+                REQUIRE(key->isSelected() == newPositions.contains(key->pos()));
+            }
+        }
     }
 }

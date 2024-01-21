@@ -43,6 +43,7 @@ public:
     Layer* currentLayer(int offset);
     Layer* getLayer(int index);
     LayerCamera* getCameraLayerBelow(int layerIndex) const;
+    Layer* findLayerById(int layerId);
     Layer* findLayerByName(QString sName, Layer::LAYER_TYPE type = Layer::UNDEFINED);
     Layer* getLastCameraLayer();
     int    currentLayerIndex();

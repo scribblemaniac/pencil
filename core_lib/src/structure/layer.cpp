@@ -409,6 +409,14 @@ void Layer::setFrameSelected(int position, bool isSelected)
     }
 }
 
+void Layer::setFramesSelected(const QList<int> framePositions, const bool selected)
+{
+    for (const int frame : framePositions)
+    {
+        setFrameSelected(frame, selected);
+    }
+}
+
 void Layer::toggleFrameSelected(int position, bool allowMultiple)
 {
     bool wasSelected = isFrameSelected(position);

@@ -95,4 +95,33 @@ public:
     void applyRedo() override;
 };
 
+class MoveFramesElement : public BackupElement
+{
+public:
+    // Constructor for single frame moves
+    MoveFramesElement(const int backupLayerId,
+                      const int backupOffset,
+                      const int oldFrameIndex,
+                      Editor* editor,
+                      QUndoCommand* parent = nullptr);
+
+    // Constructor for multi-frame moves
+    MoveFramesElement(const int backupLayerId,
+                      const int backupOffset,
+                      const QList<int> oldFrameIndexes,
+                      Editor* editor,
+                      QUndoCommand* parent = nullptr);
+
+    int layerId = 0;
+    const int offset;
+    QList<int> oldFrameIndexes;
+
+    void applyUndo() override;
+    void applyRedo() override;
+
+private:
+    void moveSingle(const int oldFrameIndex, const int offset, Layer *layer);
+    void moveMultiple(const QList<int> oldFrameIndexes, const int offset, Layer *layer);
+};
+
 #endif // BACKUPELEMENT_H

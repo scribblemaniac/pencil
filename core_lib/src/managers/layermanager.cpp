@@ -59,6 +59,11 @@ LayerCamera* LayerManager::getCameraLayerBelow(int layerIndex) const
     return static_cast<LayerCamera*>(object()->getLayerBelow(layerIndex, Layer::CAMERA));
 }
 
+Layer* LayerManager::findLayerById(int layerId)
+{
+    return object()->findLayerById(layerId);
+}
+
 Layer* LayerManager::getLastCameraLayer()
 {
     Layer* layer = object()->getLayer(mLastCameraLayerIdx);
@@ -109,6 +114,8 @@ void LayerManager::setCurrentLayer(int layerIndex)
 {
     Q_ASSERT(layerIndex >= 0);
     Q_ASSERT(layerIndex < object()->getLayerCount());
+
+    if (editor()->currentLayerIndex() == layerIndex) return;
 
     // Deselect frames of previous layer.
     Layer* previousLayer = currentLayer();

@@ -37,8 +37,8 @@ GNU General Public License for more details.
 #include "soundclip.h"
 #include "camera.h"
 
-BackupElement::BackupElement(Editor* editor, QUndoCommand* parent) :
-    QUndoCommand(parent), mEditor(editor)
+BackupElement::BackupElement(Editor* editor, QUndoCommand* parent) : QUndoCommand(parent),
+    mEditor(editor)
 {
 }
 
@@ -65,11 +65,10 @@ void BackupElement::redo()
 FlipViewElement::FlipViewElement(const bool backupFlipState,
                                  const FlipDirection backupFlipDirection,
                                  Editor *editor,
-                                 QUndoCommand *parent) : BackupElement(editor, parent)
+                                 QUndoCommand *parent) : BackupElement(editor, parent),
+    isFlipped(backupFlipState),
+    direction(backupFlipDirection)
 {
-    isFlipped = backupFlipState;
-    direction = backupFlipDirection;
-
     switch (direction)
     {
     case FlipDirection::HORIZONTAL:
@@ -116,11 +115,10 @@ void FlipViewElement::applyRedo()
 MoveLayerElement::MoveLayerElement(const int backupOldLayerIndex,
                                    const int backupNewLayerIndex,
                                    Editor* editor,
-                                   QUndoCommand* parent) : BackupElement(editor, parent)
+                                   QUndoCommand* parent) : BackupElement(editor, parent),
+    oldLayerIndex(backupOldLayerIndex),
+    newLayerIndex(backupNewLayerIndex)
 {
-    oldLayerIndex = backupOldLayerIndex;
-    newLayerIndex = backupNewLayerIndex;
-
     setText(QObject::tr("Move layer"));
 }
 
@@ -134,5 +132,79 @@ void MoveLayerElement::applyRedo()
 {
     editor()->moveLayers(oldLayerIndex, newLayerIndex);
     editor()->layers()->setCurrentLayer(newLayerIndex);
+}
 
+MoveFramesElement::MoveFramesElement(const int backupLayerId, const int backupOffset, const int oldFrameIndex, Editor *editor, QUndoCommand *parent)
+    : MoveFramesElement(backupLayerId, backupOffset, QList<int>{oldFrameIndex}, editor, parent)
+{
+}
+
+MoveFramesElement::MoveFramesElement(const int backupLayerId,
+                                     const int backupOffset,
+                                     const QList<int> oldFrameIndexes,
+                                     Editor* editor,
+                                     QUndoCommand* parent) : BackupElement(editor, parent),
+    layerId(backupLayerId),
+    offset(backupOffset),
+    oldFrameIndexes(oldFrameIndexes)
+{
+    if (backupOffset < 0) {
+        setText(QObject::tr("Move %n frame(s) backward", "Undo/redo", oldFrameIndexes.size()));
+    } else {
+        setText(QObject::tr("Move %n frame(s) forward", "Undo/redo", oldFrameIndexes.size()));
+    }
+}
+
+void MoveFramesElement::applyUndo()
+{
+    QList<int> newFrameIndexes;
+    for (const int frameIndex : oldFrameIndexes)
+    {
+        newFrameIndexes.append(frameIndex+offset);
+    }
+    Layer* layer = editor()->layers()->findLayerById(layerId);
+
+    if (oldFrameIndexes.size() == 1)
+    {
+        moveSingle(newFrameIndexes.first(), -offset, layer);
+    }
+    else
+    {
+        moveMultiple(newFrameIndexes, -offset, layer);
+    }
+    editor()->layers()->setCurrentLayer(layer);
+
+    editor()->layers()->notifyAnimationLengthChanged();
+    emit editor()->framesModified();
+}
+
+void MoveFramesElement::applyRedo()
+{
+    Layer* layer = editor()->layers()->findLayerById(layerId);
+
+    if (oldFrameIndexes.size() == 1)
+    {
+        moveSingle(oldFrameIndexes.first(), offset, layer);
+    }
+    else
+    {
+        moveMultiple(oldFrameIndexes, offset, layer);
+    }
+    editor()->layers()->setCurrentLayer(layer);
+
+    editor()->layers()->notifyAnimationLengthChanged();
+    emit editor()->framesModified();
+}
+
+void MoveFramesElement::moveSingle(const int oldFrameIndex, const int offset, Layer* layer)
+{
+    layer->moveKeyFrame(oldFrameIndex, offset);
+    editor()->scrubTo(oldFrameIndex+offset);
+}
+
+void MoveFramesElement::moveMultiple(const QList<int> oldFrameIndexes, const int offset, Layer *layer)
+{
+    layer->deselectAll();
+    layer->setFramesSelected(oldFrameIndexes);
+    layer->moveSelectedFrames(offset);
 }

@@ -112,6 +112,7 @@ public:
     // Handle selection
     bool isFrameSelected(int position) const;
     void setFrameSelected(int position, bool isSelected);
+    void setFramesSelected(const QList<int> framePositions, const bool selected = true);
     void toggleFrameSelected(int position, bool allowMultiple = false);
     void extendSelectionTo(int position);
     void selectAllFramesAfter(int position);
