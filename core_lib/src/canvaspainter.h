@@ -29,6 +29,7 @@ GNU General Public License for more details.
 
 #include "onionskinpainteroptions.h"
 #include "onionskinsubpainter.h"
+#include "baseframepainter.h"
 
 
 class TiledBuffer;
@@ -47,6 +48,7 @@ struct CanvasPainterOptions
     float scaling = 1.0f;
     QPainter::CompositionMode cmBufferBlendMode = QPainter::CompositionMode_SourceOver;
     OnionSkinPainterOptions mOnionSkinOptions;
+    BaseFramePainter* framePainter = nullptr;
 };
 
 class CanvasPainter
@@ -61,8 +63,6 @@ public:
 
     void setOnionSkinOptions(const OnionSkinPainterOptions& onionSkinOptions) { mOnionSkinPainterOptions = onionSkinOptions;}
     void setOptions(const CanvasPainterOptions& p) { mOptions = p; }
-    void setTransformedSelection(QRect selection, QTransform transform);
-    void ignoreTransformedSelection();
 
     void setPaintSettings(const Object* object, int currentLayer, int frame, TiledBuffer* tilledBuffer);
     void paint(const QRect& blitRect);
@@ -87,8 +87,6 @@ private:
 
     void paintCurrentFrame(QPainter& painter, const QRect& blitRect, int startLayer, int endLayer);
 
-    void paintTransformedSelection(QPainter& painter, BitmapImage* bitmapImage, const QRect& selection) const;
-
     void paintBitmapOnionSkinFrame(QPainter& painter, const QRect& blitRect, Layer* layer, int nFrame, bool colorize);
     void paintVectorOnionSkinFrame(QPainter& painter, const QRect& blitRect, Layer* layer, int nFrame, bool colorize);
     void paintOnionSkinFrame(QPainter& painter, QPainter& onionSkinPainter, int nFrame, bool colorize, qreal frameOpacity);
@@ -108,11 +106,6 @@ private:
     TiledBuffer* mTiledBuffer = nullptr;
 
     QImage mScaledBitmap;
-
-    // Handle selection transformation
-    bool mRenderTransform = false;
-    QRect mSelection;
-    QTransform mSelectionTransform;
 
     // Caches specifically for when drawing on the canvas
     QPixmap mPostLayersPixmap;

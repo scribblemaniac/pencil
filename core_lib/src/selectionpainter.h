@@ -21,28 +21,36 @@ GNU General Public License for more details.
 #include <QPolygonF>
 #include <QTransform>
 
+#include "baseframepainter.h"
+
 class QPainter;
 class Object;
 class BaseTool;
 
-struct TransformParameters
+struct SelectionPainterOptions
 {
-    QRectF originalSelectionRectF;
-
     QTransform viewTransform;
     QTransform selectionTransform;
+    QRectF selectionRect;
 };
 
-class SelectionPainter
+class SelectionPainter: public BaseFramePainter
 {
 public:
     SelectionPainter();
 
-    void paint(QPainter& painter, const Object* object, int layerIndex, BaseTool* tool, TransformParameters& transformParameters);
+    void paint(QPainter& painter, const Object* object, int layerIndex, BaseTool* tool);
+    void paintBitmapFrame(QPainter& painter, const QRect& blitRect, BitmapImage* bitmapImage) override;
+    void paintVectorFrame(QPainter& painter, const QRect& blitRect, VectorImage* vectorImage) override;
+    bool isBitmapModifierActive(bool isCurrentLayer) const override;
+    bool isVectorModifierActive(bool isCurrentLayer) const override;
+
+    void setPainterOptions(const SelectionPainterOptions& options) { mOptions = options; }
 
 private:
     void paintSelectionInfo(QPainter& painter, const QTransform& mergedTransform, const QTransform& viewTransform, const QRectF& selectionRect, const QPolygonF& projectedPolygonF);
 
+    SelectionPainterOptions mOptions;
     const static int HANDLE_WIDTH = 6;
 };
 

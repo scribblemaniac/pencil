@@ -213,6 +213,8 @@ private:
     /** invalidate onion skin cache around frame */
     void invalidateOnionSkinsCacheAround(int frame);
 
+    BaseFramePainter* framePainter();
+
     void prepOverlays(int frame);
     void prepCameraPainter(int frame);
     void prepCanvas(int frame);
@@ -266,10 +268,10 @@ private:
     QPixmap mCanvas;
     CanvasPainter mCanvasPainter;
     OverlayPainter mOverlayPainter;
-    SelectionPainter mSelectionPainter;
     CameraPainter mCameraPainter;
 
-    QPolygonF mOriginalPolygonF = QPolygonF();
+    SelectionPainter* mSelectionPainter = nullptr;
+    BaseFramePainter* mFramePainter = nullptr;
 
     // Pixmap Cache keys
     QMap<unsigned int, QPixmapCache::Key> mPixmapCacheKeys;

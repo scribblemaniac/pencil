@@ -93,6 +93,8 @@ bool ScribbleArea::init()
     mLayerVisibility = static_cast<LayerVisibility>(mPrefs->getInt(SETTING::LAYER_VISIBILITY));
 
     mDeltaFactor = mEditor->preference()->isOn(SETTING::INVERT_SCROLL_ZOOM_DIRECTION) ? -1 : 1;
+    mSelectionPainter = new SelectionPainter();
+    mFramePainter = new BaseFramePainter();
 
     updateCanvasCursor();
 
@@ -983,6 +985,15 @@ void ScribbleArea::handleDrawingOnEmptyFrame()
     }
 }
 
+BaseFramePainter* ScribbleArea::framePainter()
+{
+    if (mEditor->select()->somethingSelected()) {
+        return mSelectionPainter;
+    } else {
+        return mFramePainter;
+    }
+}
+
 void ScribbleArea::paintEvent(QPaintEvent* event)
 {
     int currentFrame = mEditor->currentFrame();
@@ -1127,11 +1138,7 @@ void ScribbleArea::paintEvent(QPaintEvent* event)
 
         mOverlayPainter.paint(painter, rect());
 
-        // paints the selection outline
-        if (mEditor->select()->somethingSelected())
-        {
-            paintSelectionVisuals(painter);
-        }
+        paintSelectionVisuals(painter);
     }
 
     // outlines the frame of the viewport
@@ -1148,16 +1155,9 @@ void ScribbleArea::paintEvent(QPaintEvent* event)
 void ScribbleArea::paintSelectionVisuals(QPainter &painter)
 {
     Object* object = mEditor->object();
-
     auto selectMan = mEditor->select();
 
-    QRectF currentSelectionRect = selectMan->mySelectionRect();
-
-    if (currentSelectionRect.isEmpty()) { return; }
-
-    TransformParameters params = { currentSelectionRect, editor()->view()->getView(), selectMan->selectionTransform() };
-    mSelectionPainter.paint(painter, object, mEditor->currentLayerIndex(), currentTool(), params);
-    emit selectionUpdated();
+    mSelectionPainter->paint(painter, object, mEditor->currentLayerIndex(), currentTool());
 }
 
 BitmapImage* ScribbleArea::currentBitmapImage(Layer* layer) const
@@ -1215,6 +1215,15 @@ void ScribbleArea::prepCanvas(int frame)
     o.fLayerVisibilityThreshold = mPrefs->getFloat(SETTING::LAYER_VISIBILITY_THRESHOLD);
     o.scaling = mEditor->view()->scaling();
     o.cmBufferBlendMode = mEditor->tools()->currentTool()->type() == ToolType::ERASER ? QPainter::CompositionMode_DestinationOut : QPainter::CompositionMode_SourceOver;
+    o.framePainter = framePainter();
+
+    SelectionManager* sm = mEditor->select();
+    SelectionPainterOptions selectionPainterOptions;
+    selectionPainterOptions.selectionRect = sm->mySelectionRect();
+    selectionPainterOptions.selectionTransform = sm->selectionTransform();
+    selectionPainterOptions.viewTransform = mEditor->view()->getView();
+
+    mSelectionPainter->setPainterOptions(selectionPainterOptions);
 
     OnionSkinPainterOptions onionSkinOptions;
     onionSkinOptions.enabledWhilePlaying = mPrefs->getInt(SETTING::ONION_WHILE_PLAYBACK);
@@ -1233,9 +1242,7 @@ void ScribbleArea::prepCanvas(int frame)
     mCanvasPainter.setOptions(o);
 
     ViewManager* vm = mEditor->view();
-    SelectionManager* sm = mEditor->select();
     mCanvasPainter.setViewTransform(vm->getView(), vm->getViewInverse());
-    mCanvasPainter.setTransformedSelection(sm->mySelectionRect().toRect(), sm->selectionTransform());
 
     mCanvasPainter.setPaintSettings(object, mEditor->layers()->currentLayerIndex(), frame, &mTiledBuffer);
 }
@@ -1450,71 +1457,71 @@ QPointF ScribbleArea::getCentralPoint()
 
 void ScribbleArea::applyTransformedSelection()
 {
-    mCanvasPainter.ignoreTransformedSelection();
+    // mCanvasPainter.ignoreTransformedSelection();
 
-    Layer* layer = mEditor->layers()->currentLayer();
-    if (layer == nullptr) { return; }
+    // Layer* layer = mEditor->layers()->currentLayer();
+    // if (layer == nullptr) { return; }
 
-    auto selectMan = mEditor->select();
-    if (selectMan->somethingSelected())
-    {
-        if (selectMan->mySelectionRect().isEmpty() || selectMan->selectionTransform().isIdentity()) { return; }
+    // auto selectMan = mEditor->select();
+    // if (selectMan->somethingSelected())
+    // {
+    //     if (selectMan->mySelectionRect().isEmpty() || selectMan->selectionTransform().isIdentity()) { return; }
 
-        if (layer->type() == Layer::BITMAP)
-        {
-            handleDrawingOnEmptyFrame();
-            BitmapImage* bitmapImage = currentBitmapImage(layer);
-            if (bitmapImage == nullptr) { return; }
-            BitmapImage transformedImage = bitmapImage->transformed(selectMan->mySelectionRect().toRect(), selectMan->selectionTransform(), true);
+    //     if (layer->type() == Layer::BITMAP)
+    //     {
+    //         handleDrawingOnEmptyFrame();
+    //         BitmapImage* bitmapImage = currentBitmapImage(layer);
+    //         if (bitmapImage == nullptr) { return; }
+    //         BitmapImage transformedImage = bitmapImage->transformed(selectMan->mySelectionRect().toRect(), selectMan->selectionTransform(), true);
 
 
-            bitmapImage->clear(selectMan->mySelectionRect());
-            bitmapImage->paste(&transformedImage, QPainter::CompositionMode_SourceOver);
-        }
-        else if (layer->type() == Layer::VECTOR)
-        {
-            // Unfortunately this doesn't work right currently so vector transforms
-            // will always be applied on the previous keyframe when on an empty frame
-            //handleDrawingOnEmptyFrame();
-            VectorImage* vectorImage = currentVectorImage(layer);
-            if (vectorImage == nullptr) { return; }
+    //         bitmapImage->clear(selectMan->mySelectionRect());
+    //         bitmapImage->paste(&transformedImage, QPainter::CompositionMode_SourceOver);
+    //     }
+    //     else if (layer->type() == Layer::VECTOR)
+    //     {
+    //         // Unfortunately this doesn't work right currently so vector transforms
+    //         // will always be applied on the previous keyframe when on an empty frame
+    //         //handleDrawingOnEmptyFrame();
+    //         VectorImage* vectorImage = currentVectorImage(layer);
+    //         if (vectorImage == nullptr) { return; }
 
-            vectorImage->applySelectionTransformation();
-        }
+    //         vectorImage->applySelectionTransformation();
+    //     }
 
-        mEditor->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
-    }
+    //     mEditor->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
+    // }
 
-    updateFrame();
+    // updateFrame();
 }
 
 void ScribbleArea::cancelTransformedSelection()
 {
-    mCanvasPainter.ignoreTransformedSelection();
+//     mCanvasPainter.ignoreTransformedSelection();
 
-    auto selectMan = mEditor->select();
-    if (selectMan->somethingSelected())
-    {
-        Layer* layer = mEditor->layers()->currentLayer();
-        if (layer == nullptr) { return; }
+//     auto selectMan = mEditor->select();
+//     if (selectMan->somethingSelected())
+//     {
+//         Layer* layer = mEditor->layers()->currentLayer();
+//         if (layer == nullptr) { return; }
 
-        if (layer->type() == Layer::VECTOR)
-        {
-            VectorImage* vectorImage = currentVectorImage(layer);
-            if (vectorImage != nullptr)
-            {
-                vectorImage->setSelectionTransformation(QTransform());
-            }
-        }
+//         if (layer->type() == Layer::VECTOR)
+//         {
+//             VectorImage* vectorImage = currentVectorImage(layer);
+//             if (vectorImage != nullptr)
+//             {
+//                 vectorImage->setSelectionTransformation(QTransform());
+//             }
+//         }
 
-        mEditor->select()->setSelection(selectMan->mySelectionRect(), false);
+//         mEditor->select()->setSelection(selectMan->mySelectionRect(), false);
 
-        selectMan->resetSelectionProperties();
-        mOriginalPolygonF = QPolygonF();
+//         selectMan->resetSelectionProperties();
+//         mOriginalPolygonF = QPolygonF();
 
-        mEditor->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
-        updateFrame();
-    }
+//         mEditor->setModified(mEditor->layers()->currentLayerIndex(), mEditor->currentFrame());
+//         updateFrame();
+//     }
 }
 
 void ScribbleArea::toggleThinLines()

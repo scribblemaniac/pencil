@@ -26,6 +26,7 @@ INCLUDEPATH += src \
 PRECOMPILED_HEADER = src/corelib-pch.h
 
 HEADERS +=  \
+    src/baseframepainter.h \
     src/corelib-pch.h \
     src/graphics/bitmap/bitmapbucket.h \
     src/graphics/bitmap/bitmapimage.h \

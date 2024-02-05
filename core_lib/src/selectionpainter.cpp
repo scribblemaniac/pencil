@@ -17,8 +17,12 @@ GNU General Public License for more details.
 #include "selectionpainter.h"
 
 #include "object.h"
-#include "qpainter.h"
 #include "basetool.h"
+#include "bitmapimage.h"
+#include "vectorimage.h"
+
+#include <QDebug>
+#include <QPainter>
 
 SelectionPainter::SelectionPainter()
 {
@@ -27,15 +31,20 @@ SelectionPainter::SelectionPainter()
 void SelectionPainter::paint(QPainter& painter,
                              const Object* object,
                              int layerIndex,
-                             BaseTool* tool,
-                             TransformParameters& tParams)
+                             BaseTool* tool)
 {
     Layer* layer = object->getLayer(layerIndex);
 
     if (layer == nullptr) { return; }
 
-    QTransform transform = tParams.selectionTransform * tParams.viewTransform;
-    QPolygonF projectedSelectionPolygon = transform.map(tParams.originalSelectionRectF);
+    const QRectF& selectionRect = mOptions.selectionRect;
+    const QTransform& viewTransform = mOptions.viewTransform;
+    const QTransform& selectionTransform = mOptions.selectionTransform;
+
+    if (selectionRect.isEmpty()) { return; }
+
+    QTransform transform = selectionTransform * viewTransform;
+    QPolygonF projectedSelectionPolygon = transform.map(selectionRect);
 
     if (layer->type() == Layer::BITMAP)
     {
@@ -81,7 +90,71 @@ void SelectionPainter::paint(QPainter& painter,
     }
 
     if (tool->properties.showSelectionInfo) {
-        paintSelectionInfo(painter, transform, tParams.viewTransform, tParams.originalSelectionRectF, projectedSelectionPolygon);
+        paintSelectionInfo(painter, transform, viewTransform, selectionRect, projectedSelectionPolygon);
+    }
+}
+
+bool SelectionPainter::isBitmapModifierActive(bool isCurrentLayer) const
+{
+    return isCurrentLayer && !mOptions.selectionTransform.isIdentity();
+}
+
+bool SelectionPainter::isVectorModifierActive(bool isCurrentLayer) const
+{
+    return isCurrentLayer && !mOptions.selectionTransform.isIdentity();
+}
+
+void SelectionPainter::paintBitmapFrame(QPainter &painter, const QRect& blitRect, BitmapImage* bitmapImage)
+{
+    Q_UNUSED(blitRect)
+    // Make sure there is something selected
+    const QRect& selectionRect = mOptions.selectionRect.toAlignedRect();
+    const QTransform& viewTransform = mOptions.viewTransform;
+    const QTransform& selectionTransform = mOptions.selectionTransform;
+
+    if (selectionRect.width() == 0 && selectionRect.height() == 0)
+        return;
+
+    if (bitmapImage->temporaryImage().isNull()) {
+
+        painter.save();
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+        painter.setTransform(viewTransform);
+
+        // Clear the painted area to make it look like the content has been erased
+        painter.save();
+        painter.setCompositionMode(QPainter::CompositionMode_Clear);
+        painter.fillRect(selectionRect, QColor(255,255,255,255));
+        painter.restore();
+
+        // Multiply the selection and view matrix to get proper rotation and scale values
+        // Now the image origin will be topleft
+        painter.setTransform(selectionTransform*viewTransform);
+
+        // Draw the selection image separately and on top
+        painter.save();
+        painter.setClipRect(selectionRect);
+        painter.drawImage(bitmapImage->topLeft(), *bitmapImage->image());
+        painter.restore();
+        painter.restore();
+    } else {
+        painter.save();
+        painter.setTransform(selectionTransform*viewTransform);
+        painter.drawImage(selectionRect, bitmapImage->temporaryImage());
+        painter.restore();
+    }
+}
+
+void SelectionPainter::paintVectorFrame(QPainter& painter, const QRect& blitRect, VectorImage* vectorImage)
+{
+    Q_UNUSED(painter)
+    Q_UNUSED(blitRect)
+    // Note(MrStevns): Currently the Vector keyframe handles the painting logic... this is not a good idea because it modifies the keyframe directly...
+    // in the future we should move the painter out of VectorImage, so we get more control of when to modify the keyframe itself.
+    vectorImage->setSelectionTransformation(mOptions.selectionTransform);
+    VectorImage* floatingImage = vectorImage->temporaryImage();
+    if (floatingImage) {
+        floatingImage->setSelectionTransformation(mOptions.selectionTransform);
     }
 }
 
