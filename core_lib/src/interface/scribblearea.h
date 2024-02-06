@@ -130,7 +130,6 @@ public:
     bool isPointerInUse() const { return mMouseInUse || mTabletInUse; }
 
     void keyEvent(QKeyEvent* event);
-    void keyEventForSelection(QKeyEvent* event);
 
 signals:
     void multiLayerOnionSkinChanged(bool);

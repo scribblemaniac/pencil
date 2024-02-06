@@ -96,12 +96,12 @@ void SelectionPainter::paint(QPainter& painter,
 
 bool SelectionPainter::isBitmapModifierActive(bool isCurrentLayer) const
 {
-    return isCurrentLayer && !mOptions.selectionTransform.isIdentity();
+    return isCurrentLayer;
 }
 
 bool SelectionPainter::isVectorModifierActive(bool isCurrentLayer) const
 {
-    return isCurrentLayer && !mOptions.selectionTransform.isIdentity();
+    return isCurrentLayer;
 }
 
 void SelectionPainter::paintBitmapFrame(QPainter &painter, const QRect& blitRect, BitmapImage* bitmapImage)
@@ -115,8 +115,13 @@ void SelectionPainter::paintBitmapFrame(QPainter &painter, const QRect& blitRect
     if (selectionRect.width() == 0 && selectionRect.height() == 0)
         return;
 
-    if (bitmapImage->temporaryImage().isNull()) {
+    if (!bitmapImage->temporaryImage().isNull()) {
+        painter.save();
+        painter.setTransform(selectionTransform*viewTransform);
+        painter.drawImage(selectionRect, bitmapImage->temporaryImage());
+        painter.restore();
 
+    } else if (!selectionTransform.isIdentity()) {
         painter.save();
         painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
         painter.setTransform(viewTransform);
@@ -136,11 +141,6 @@ void SelectionPainter::paintBitmapFrame(QPainter &painter, const QRect& blitRect
         painter.setClipRect(selectionRect);
         painter.drawImage(bitmapImage->topLeft(), *bitmapImage->image());
         painter.restore();
-        painter.restore();
-    } else {
-        painter.save();
-        painter.setTransform(selectionTransform*viewTransform);
-        painter.drawImage(selectionRect, bitmapImage->temporaryImage());
         painter.restore();
     }
 }

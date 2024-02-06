@@ -421,66 +421,7 @@ void ScribbleArea::keyPressEvent(QKeyEvent *event)
     }
 
     // ---- fixed normal keys ----
-
-    auto selectMan = mEditor->select();
-    bool isSomethingSelected = selectMan->somethingSelected();
-    if (isSomethingSelected)
-    {
-        keyEventForSelection(event);
-    }
-    else
-    {
-        keyEvent(event);
-    }
-}
-
-void ScribbleArea::keyEventForSelection(QKeyEvent* event)
-{
-    auto selectMan = mEditor->select();
-    switch (event->key())
-    {
-    case Qt::Key_Right:
-        selectMan->translate(QPointF(1, 0));
-        selectMan->calculateSelectionTransformation();
-        mEditor->frameModified(mEditor->currentFrame());
-        return;
-    case Qt::Key_Left:
-        selectMan->translate(QPointF(-1, 0));
-        selectMan->calculateSelectionTransformation();
-        mEditor->frameModified(mEditor->currentFrame());
-        return;
-    case Qt::Key_Up:
-        selectMan->translate(QPointF(0, -1));
-        selectMan->calculateSelectionTransformation();
-        mEditor->frameModified(mEditor->currentFrame());
-        return;
-    case Qt::Key_Down:
-        selectMan->translate(QPointF(0, 1));
-        selectMan->calculateSelectionTransformation();
-        mEditor->frameModified(mEditor->currentFrame());
-        return;
-    case Qt::Key_Return:
-        applyTransformedSelection();
-        mEditor->deselectAll();
-        return;
-    case Qt::Key_Escape:
-        cancelTransformedSelection();
-        mEditor->deselectAll();
-        return;
-    case Qt::Key_Backspace:
-        deleteSelection();
-        mEditor->deselectAll();
-        return;
-    case Qt::Key_Space:
-        if (editor()->tools()->setTemporaryTool(HAND, Qt::Key_Space, Qt::NoModifier))
-        {
-            return;
-        }
-        break;
-    default:
-        break;
-    }
-    event->ignore();
+    keyEvent(event);
 }
 
 void ScribbleArea::keyEvent(QKeyEvent* event)
@@ -1155,8 +1096,6 @@ void ScribbleArea::paintEvent(QPaintEvent* event)
 void ScribbleArea::paintSelectionVisuals(QPainter &painter)
 {
     Object* object = mEditor->object();
-    auto selectMan = mEditor->select();
-
     mSelectionPainter->paint(painter, object, mEditor->currentLayerIndex(), currentTool());
 }
 

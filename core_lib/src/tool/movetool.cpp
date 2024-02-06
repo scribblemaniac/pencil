@@ -108,12 +108,49 @@ void MoveTool::updateSettings(const SETTING setting)
 
 bool MoveTool::keyPressEvent(QKeyEvent* keyEvent)
 {
+    auto selectMan = mEditor->select();
+    if (!selectMan->somethingSelected()) { return false; }
+
     switch (keyEvent->key())
     {
-        case Qt::Key_Escape: {
-            cancelTransformation();
-        }
+    case Qt::Key_Right:
+        selectMan->translate(QPointF(1, 0));
+        selectMan->calculateSelectionTransformation();
+        emit mEditor->frameModified(mEditor->currentFrame());
+        return true;
+    case Qt::Key_Left:
+        selectMan->translate(QPointF(-1, 0));
+        selectMan->calculateSelectionTransformation();
+        emit mEditor->frameModified(mEditor->currentFrame());
+        return true;
+    case Qt::Key_Up:
+        selectMan->translate(QPointF(0, -1));
+        selectMan->calculateSelectionTransformation();
+        emit mEditor->frameModified(mEditor->currentFrame());
+        return true;
+    case Qt::Key_Down:
+        selectMan->translate(QPointF(0, 1));
+        selectMan->calculateSelectionTransformation();
+        emit mEditor->frameModified(mEditor->currentFrame());
+        return true;
+    case Qt::Key_Return:
+        applyTransformation();
+        mEditor->deselectAll();
+        return true;
+    case Qt::Key_Escape:
+        cancelTransformation();
+        mEditor->deselectAll();
+        return true;
+    case Qt::Key_Backspace:
+        mScribbleArea->deleteSelection();
+        discardChanges();
+        mEditor->deselectAll();
+        return true;
+    default:
+        break;
     }
+
+    keyEvent->ignore();
 
     return keyEvent->isAccepted();
 }
@@ -360,7 +397,7 @@ void MoveTool::setFloatingImage(BitmapImage& bitmapImage)
     int currentFrameNumber = mEditor->currentFrame();
     Q_ASSERT(layer->type() == Layer::BITMAP);
 
-    mEditor->select()->setSelection(bitmapImage.bounds());
+    mEditor->select()->setSelection(bitmapImage.bounds(), true);
     BitmapImage* currentKeyFrame = static_cast<LayerBitmap*>(layer)->getLastBitmapImageAtFrame(currentFrameNumber);
     currentKeyFrame->setTemporaryImage(*bitmapImage.image());
 
