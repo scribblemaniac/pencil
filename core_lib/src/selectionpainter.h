@@ -26,6 +26,7 @@ GNU General Public License for more details.
 class QPainter;
 class Object;
 class BaseTool;
+class SelectionManager;
 
 struct SelectionPainterOptions
 {
@@ -37,7 +38,7 @@ struct SelectionPainterOptions
 class SelectionPainter: public BaseFramePainter
 {
 public:
-    SelectionPainter();
+    SelectionPainter(SelectionManager* manager);
 
     void paint(QPainter& painter, const Object* object, int layerIndex, BaseTool* tool);
     void paintBitmapFrame(QPainter& painter, const QRect& blitRect, BitmapImage* bitmapImage) override;
@@ -52,6 +53,8 @@ private:
 
     SelectionPainterOptions mOptions;
     const static int HANDLE_WIDTH = 6;
+
+    SelectionManager* mManager = nullptr;
 };
 
 #endif // SelectionPainter_H

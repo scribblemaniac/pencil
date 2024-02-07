@@ -21,6 +21,7 @@ GNU General Public License for more details.
 #include "movemode.h"
 #include "vertexref.h"
 #include "vectorselection.h"
+#include "keyframe.h"
 
 #include <QPointF>
 #include <QRectF>
@@ -40,6 +41,10 @@ public:
     Status load(Object*) override;
     Status save(Object*) override;
     void workingLayerChanged(Layer*) override;
+
+    void setActiveSelectionFrame(KeyFrame* f) { mActiveSelectionFrame = f; }
+    bool isSelectionActive();
+    KeyFrame* getActiveFrame() { return mActiveSelectionFrame; }
 
     void flipSelection(bool flipVertical);
 
@@ -88,14 +93,14 @@ public:
     void setTransformAnchor(const QPointF& point);
 
     const QRectF& mySelectionRect() const { return mOriginalRect; }
-    const qreal& myRotation() const { return mRotatedAngle; }
-    const qreal& myScaleX() const { return mScaleX; }
-    const qreal& myScaleY() const { return mScaleY; }
-    const QPointF& myTranslation() const { return mTranslation; }
+    const qreal& myRotation() const { return mActiveSelectionFrame->mRotatedAngle; }
+    const qreal& myScaleX() const { return mActiveSelectionFrame->mScaleX; }
+    const qreal& myScaleY() const { return mActiveSelectionFrame->mScaleY; }
+    const QPointF& myTranslation() const { return mActiveSelectionFrame->mTranslation; }
 
-    void setRotation(const qreal& rotation) { mRotatedAngle = rotation; }
-    void setScale(const qreal scaleX, const qreal scaleY) { mScaleX = scaleX; mScaleY = scaleY; }
-    void setTranslation(const QPointF& translation) { mTranslation = translation; }
+    void setRotation(const qreal& rotation) { mActiveSelectionFrame->mRotatedAngle = rotation; }
+    void setScale(const qreal scaleX, const qreal scaleY) { mActiveSelectionFrame->mScaleX = scaleX; mActiveSelectionFrame->mScaleY = scaleY; }
+    void setTranslation(const QPointF& translation) { mActiveSelectionFrame->mTranslation = translation; }
     void setSelectionRect(const QRectF& selectionRect) { mOriginalRect = selectionRect; }
 
     qreal angleFromPoint(const QPointF& point, const QPointF& anchorPoint) const;
@@ -143,11 +148,6 @@ private:
     QPolygonF mSelectionPolygon;
     QRectF mOriginalRect;
 
-    qreal mScaleX;
-    qreal mScaleY;
-    QPointF mTranslation;
-    qreal mRotatedAngle = 0.0;
-
     QList<int> mClosestCurves;
     QList<VertexRef> mClosestVertices;
 
@@ -158,6 +158,8 @@ private:
     const qreal mSelectionTolerance = 10.0;
 
     QPointF mAnchorPoint;
+
+    KeyFrame* mActiveSelectionFrame = nullptr;
 };
 
 #endif // SELECTIONMANAGER_H

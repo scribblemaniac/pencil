@@ -20,11 +20,12 @@ GNU General Public License for more details.
 #include "basetool.h"
 #include "bitmapimage.h"
 #include "vectorimage.h"
+#include "managers/selectionmanager.h"
 
 #include <QDebug>
 #include <QPainter>
 
-SelectionPainter::SelectionPainter()
+SelectionPainter::SelectionPainter(SelectionManager* manager) : mManager(manager)
 {
 }
 
@@ -36,6 +37,8 @@ void SelectionPainter::paint(QPainter& painter,
     Layer* layer = object->getLayer(layerIndex);
 
     if (layer == nullptr) { return; }
+
+    if (!mManager->isSelectionActive()) { return; }
 
     const QRectF& selectionRect = mOptions.selectionRect;
     const QTransform& viewTransform = mOptions.viewTransform;
@@ -114,6 +117,8 @@ void SelectionPainter::paintBitmapFrame(QPainter &painter, const QRect& blitRect
 
     if (selectionRect.width() == 0 && selectionRect.height() == 0)
         return;
+
+    if (!mManager->isSelectionActive()) { return; }
 
     if (!bitmapImage->temporaryImage().isNull()) {
         painter.save();

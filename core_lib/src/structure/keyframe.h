@@ -22,6 +22,7 @@ GNU General Public License for more details.
 #include <vector>
 #include <memory>
 #include <QString>
+#include <QPointF>
 #include "pencilerror.h"
 class KeyFrameEventListener;
 
@@ -61,6 +62,10 @@ public:
 
     virtual quint64 memoryUsage() { return 0; }
 
+    qreal mScaleX;
+    qreal mScaleY;
+    QPointF mTranslation;
+    qreal mRotatedAngle = 0.0;
 private:
     int mFrame = -1;
     int mLength = 1;

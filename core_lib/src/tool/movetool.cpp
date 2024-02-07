@@ -261,6 +261,9 @@ void MoveTool::transformSelection(Qt::KeyboardModifiers keyMod)
 void MoveTool::beginInteraction(Qt::KeyboardModifiers keyMod, Layer* layer)
 {
     auto selectMan = mEditor->select();
+
+    if (!selectMan->isSelectionActive()) return;
+
     QRectF selectionRect = selectMan->mySelectionRect();
     if (!selectionRect.isNull())
     {
@@ -454,7 +457,7 @@ void MoveTool::commitChanges()
         {
             // TODO: re-implement: handleDrawingOnEmptyFrame();
             const QRect& alignedSelectionRect = selectionRect.toAlignedRect();
-            BitmapImage* currentKeyFrame = static_cast<LayerBitmap*>(layer)->getLastBitmapImageAtFrame(currentFrameNumber);
+            BitmapImage* currentKeyFrame = static_cast<BitmapImage*>(selectMan->getActiveFrame());
             if (currentKeyFrame == nullptr) { return; }
 
             const QImage& floatingImage = currentKeyFrame->temporaryImage();

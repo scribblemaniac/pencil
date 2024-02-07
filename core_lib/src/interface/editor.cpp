@@ -249,13 +249,14 @@ bool Editor::backup(int backupLayer, int backupFrame, const QString& undoText)
                 element->layer = backupLayer;
                 element->frame = bitmapImage->pos();
                 element->undoText = undoText;
-                element->somethingSelected = select()->somethingSelected();
+                // Don't back up selection stuff for this quick test
+                /*element->somethingSelected = select()->somethingSelected();
                 element->mySelection = select()->mySelectionRect();
                 element->rotationAngle = select()->myRotation();
                 element->scaleX = select()->myScaleX();
                 element->scaleY = select()->myScaleY();
                 element->translation = select()->myTranslation();
-                element->selectionAnchor = select()->currentTransformAnchor();
+                element->selectionAnchor = select()->currentTransformAnchor();*/
 
                 mBackupList.append(element);
                 mBackupIndex++;

@@ -18,6 +18,7 @@ GNU General Public License for more details.
 #include "editor.h"
 
 #include "vectorimage.h"
+#include "layermanager.h"
 
 #include "mathutils.h"
 
@@ -39,7 +40,7 @@ bool SelectionManager::init()
 
 Status SelectionManager::load(Object*)
 {
-    resetSelectionProperties();
+    //resetSelectionProperties();
     return Status::OK;
 }
 
@@ -52,12 +53,18 @@ void SelectionManager::workingLayerChanged(Layer *)
 {
 }
 
+bool SelectionManager::isSelectionActive()
+{
+    KeyFrame* currentFrame = editor()->layers()->currentLayer()->getLastKeyFrameAtPosition(editor()->currentFrame());
+    return mActiveSelectionFrame != nullptr && mActiveSelectionFrame == currentFrame;
+}
+
 void SelectionManager::resetSelectionTransformProperties()
 {
-    mRotatedAngle = 0;
-    mTranslation = QPointF(0, 0);
-    mScaleX = 1;
-    mScaleY = 1;
+    mActiveSelectionFrame->mRotatedAngle = 0;
+    mActiveSelectionFrame->mTranslation = QPointF(0, 0);
+    mActiveSelectionFrame->mScaleX = 1;
+    mActiveSelectionFrame->mScaleY = 1;
     mAnchorPoint = QPoint();
     mSelectionTransform.reset();
 }
@@ -155,9 +162,9 @@ void SelectionManager::adjustSelection(const QPointF& currentPoint, const QPoint
         QPointF newOffset = currentPoint - mDragOrigin;
 
         if (mLockAxis) {
-            mTranslation = offset + alignPositionToAxis(newOffset);
+            mActiveSelectionFrame->mTranslation = offset + alignPositionToAxis(newOffset);
         } else {
-            mTranslation = offset + newOffset;
+            mActiveSelectionFrame->mTranslation = offset + newOffset;
         }
         break;
     }
@@ -222,15 +229,15 @@ void SelectionManager::adjustSelection(const QPointF& currentPoint, const QPoint
 
 void SelectionManager::translate(QPointF newPos)
 {
-    mTranslation += newPos;
+    mActiveSelectionFrame->mTranslation += newPos;
 }
 
 void SelectionManager::rotate(qreal angle, qreal lockedAngle)
 {
     if (lockedAngle > 0) {
-        mRotatedAngle = constrainRotationToAngle(angle, lockedAngle);
+        mActiveSelectionFrame->mRotatedAngle = constrainRotationToAngle(angle, lockedAngle);
     } else {
-        mRotatedAngle = angle;
+        mActiveSelectionFrame->mRotatedAngle = angle;
     }
 }
 
@@ -238,7 +245,7 @@ void SelectionManager::scale(qreal sX, qreal sY)
 {
     // Enforce negative scaling when
     // deliberately trying to transform in negative space
-    if (mScaleX < 0) {
+    if (mActiveSelectionFrame->mScaleX < 0) {
         sX = -sX;
     }
     if (qFuzzyIsNull(sX)) {
@@ -248,7 +255,7 @@ void SelectionManager::scale(qreal sX, qreal sY)
 
     // Enforce negative scaling when
     // deliberately trying to transform in negative space
-    if (mScaleY < 0) {
+    if (mActiveSelectionFrame->mScaleY < 0) {
         sY = -sY;
     }
     if (qFuzzyIsNull(sY)) {
@@ -256,8 +263,8 @@ void SelectionManager::scale(qreal sX, qreal sY)
         sY = 0.0001;
     }
 
-    mScaleX = sX;
-    mScaleY = sY;
+    mActiveSelectionFrame->mScaleX = sX;
+    mActiveSelectionFrame->mScaleY = sY;
 }
 
 int SelectionManager::constrainRotationToAngle(const qreal rotatedAngle, const int rotationIncrement) const
@@ -279,9 +286,9 @@ void SelectionManager::setSelection(QRectF rect, bool roundPixels)
     }
     mSelectionPolygon = rect;
     mOriginalRect = rect;
-    mScaleX = 1;
-    mScaleY = 1;
-    mRotatedAngle = 0;
+    mActiveSelectionFrame->mScaleX = 1;
+    mActiveSelectionFrame->mScaleY = 1;
+    mActiveSelectionFrame->mRotatedAngle = 0;
 
     emit selectionChanged();
 }
@@ -292,7 +299,7 @@ void SelectionManager::setTransformAnchor(const QPointF& point)
     QPointF oldPos = mapToSelection(mAnchorPoint);
 
     // Adjust translation based on anchor point to avoid moving the selection
-    mTranslation = mTranslation - oldPos + newPos;
+    mActiveSelectionFrame->mTranslation = mActiveSelectionFrame->mTranslation - oldPos + newPos;
     mAnchorPoint = point;
 }
 
@@ -301,12 +308,12 @@ void SelectionManager::calculateSelectionTransformation()
     QTransform t;
     t.translate(-mAnchorPoint.x(), -mAnchorPoint.y());
     QTransform t2;
-    t2.translate(mTranslation.x(), mTranslation.y());
+    t2.translate(mActiveSelectionFrame->mTranslation.x(), mActiveSelectionFrame->mTranslation.y());
 
     QTransform r;
-    r.rotate(mRotatedAngle);
+    r.rotate(mActiveSelectionFrame->mRotatedAngle);
     QTransform s;
-    s.scale(mScaleX, mScaleY);
+    s.scale(mActiveSelectionFrame->mScaleX, mActiveSelectionFrame->mScaleY);
     mSelectionTransform = t * s * r * t2;
 }
 
@@ -329,11 +336,11 @@ void SelectionManager::flipSelection(bool flipVertical)
 {
     if (flipVertical)
     {
-        mScaleY = -mScaleY;
+        mActiveSelectionFrame->mScaleY *= -1;
     }
     else
     {
-        mScaleX = -mScaleX;
+        mActiveSelectionFrame->mScaleX *= -1;
     }
     setTransformAnchor(mOriginalRect.center());
     calculateSelectionTransformation();
