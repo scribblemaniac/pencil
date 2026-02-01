@@ -30,6 +30,8 @@ namespace PlatformHandler
 
     bool isDarkMode() { return false; }
 
+    QString toolBarStyleSheet(const QPalette& palette) { return QString(); }
+
     void initialise()
     {
         /* If running as an AppImage, sets GStreamer environment variables to ensure

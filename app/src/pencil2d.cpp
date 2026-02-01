@@ -38,6 +38,7 @@ GNU General Public License for more details.
 #include "pencildef.h"
 #include "platformhandler.h"
 #include "theming.h"
+#include "preferencemanager.h"
 
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
@@ -59,6 +60,8 @@ Pencil2D::Pencil2D(int& argc, char** argv) :
 
     // Set application icon
     setWindowIcon(QIcon(":/icons/icon.png"));
+
+    mDefaultStylesheet = styleSheet();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     // Associate the application with our desktop entry
@@ -155,10 +158,15 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
     if (palette.isValid())
     {
         setPalette(palette.palette());
+        QString toolbarStylesheet = PlatformHandler::toolBarStyleSheet(palette.palette());
+        if (!toolbarStylesheet.isEmpty() && palette.isValid()) {
+            setStyleSheet(toolbarStylesheet);
+        }
     }
     else
     {
         setPalette(newStyle->standardPalette());
+        setStyleSheet(mDefaultStylesheet);
     }
 
     mainWindow->update();

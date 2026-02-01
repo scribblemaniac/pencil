@@ -29,6 +29,8 @@ namespace PlatformHandler
 {
     void configurePlatformSpecificSettings() {}
     bool isDarkMode() { return false; }
+    QString toolBarStyleSheet(const QPalette& palette) { return QString(); }
+
     void initialise()
     {
 #if _WIN32_WINNT >= _WIN32_WINNT_WIN7

@@ -94,7 +94,11 @@ private:
      */
     void prepareGuiStartup(const QString &inputPath);
 
+    QString generateMacOSToolBarStyleSheet(const QPalette &palette);
+
     const QString DEFAULT_STYLE;
+
+    QString mDefaultStylesheet;
 
     std::unique_ptr<MainWindow2> mainWindow;
 

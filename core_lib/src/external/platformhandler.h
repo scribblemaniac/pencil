@@ -17,11 +17,15 @@ GNU General Public License for more details.
 #ifndef PLATFORMHANDLER_H
 #define PLATFORMHANDLER_H
 
+#include <QString>
+#include <QPalette>
+
 namespace PlatformHandler
 {
 
 void configurePlatformSpecificSettings();
 bool isDarkMode();
+QString toolBarStyleSheet(const QPalette& palette);
 void initialise();
 
 }
