@@ -82,6 +82,7 @@ GNU General Public License for more details.
 #include "app_util.h"
 #include "presetdialog.h"
 #include "pegbaralignmentdialog.h"
+#include "titlebarwidget.h"
 
 
 #ifdef GIT_TIMESTAMP
@@ -193,6 +194,7 @@ void MainWindow2::createDockWidgets()
                              QDockWidget::DockWidgetFeature::DockWidgetFloatable);
         pWidget->setFocusPolicy(Qt::NoFocus);
 
+        pWidget->titlebar()->setupApperanceWatcher(mEditor->preference());
         pWidget->setEditor(mEditor);
         pWidget->initUI();
         qDebug() << "Init Dock widget: " << pWidget->objectName();

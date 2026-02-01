@@ -19,20 +19,29 @@ GNU General Public License for more details.
 #include <QAbstractButton>
 #include <QEvent>
 
+#include "theming.h"
 #include "platformhandler.h"
 
-ButtonAppearanceWatcher::ButtonAppearanceWatcher(IconResource normalIconResource,
-                                                 IconResource hoverIconResource,
-                                                 QObject* parent) :
+ButtonAppearanceWatcher::ButtonAppearanceWatcher(
+        PreferenceManager* preferenceManager,
+        IconResource normalIconResource,
+        IconResource hoverIconResource,
+        QObject* parent) :
     QObject(parent),
     mNormalIconResource(normalIconResource),
-    mHoverIconResource(hoverIconResource)
+    mHoverIconResource(hoverIconResource),
+    mPrefManager(preferenceManager)
 {}
 
 bool ButtonAppearanceWatcher::eventFilter(QObject* watched, QEvent* event)
 {
+
     QAbstractButton* button = qobject_cast<QAbstractButton*>(watched);
     if (!button) {
+        return false;
+    }
+
+    if (mPrefManager.isNull()) {
         return false;
     }
 
@@ -51,7 +60,10 @@ bool ButtonAppearanceWatcher::eventFilter(QObject* watched, QEvent* event)
         }
         mOldAppearanceType = apType;
 
-        bool isDarkmode = PlatformHandler::isDarkMode();
+        QString paletteId = mPrefManager->getString(SETTING::PALETTE_ID);
+        ThemeColorPalette palette(Theming::getPalette(paletteId));
+
+        bool isDarkmode = (palette.isValid() && palette.isDark()) || (!palette.isValid() && PlatformHandler::isDarkMode());
         button->setIcon(res.iconForMode(isDarkmode));
         return true;
     }
@@ -61,8 +73,12 @@ bool ButtonAppearanceWatcher::eventFilter(QObject* watched, QEvent* event)
 
 AppearanceEventType ButtonAppearanceWatcher::determineAppearanceEvent(QEvent *event) const
 {
-    if (event->type() == QEvent::ApplicationPaletteChange) {
-        bool isDarkmode = PlatformHandler::isDarkMode();
+    if (event->type() == QEvent::ApplicationPaletteChange ||
+        event->type() == QEvent::PaletteChange) {
+
+        QString paletteId = mPrefManager->getString(SETTING::PALETTE_ID);
+        ThemeColorPalette palette(Theming::getPalette(paletteId));
+        bool isDarkmode = (palette.isValid() && palette.isDark()) || (!palette.isValid() && PlatformHandler::isDarkMode());
         if (isDarkmode) {
             return AppearanceEventType::DARK_APPEARANCE;
         } else {

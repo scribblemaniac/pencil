@@ -26,8 +26,11 @@ GNU General Public License for more details.
 #include <QPainter>
 #include <QDebug>
 
+
+#include "theming.h"
 #include "platformhandler.h"
 #include "buttonappearancewatcher.h"
+#include "preferencemanager.h"
 
 TitleBarWidget::TitleBarWidget(QWidget* parent)
     : QWidget(parent)
@@ -61,42 +64,34 @@ QWidget* TitleBarWidget::createCustomTitleBarWidget(QWidget* parent)
     QSize iconSize = QSize(14,14);
     QSize padding = QSize(2,2);
 
-    IconResource closeButtonRes;
-    closeButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-close-button-normal.svg");
-    closeButtonRes.darkMode = QIcon("://icons/themes/playful/window/window-close-button-normal-darkm.svg");
+    mCloseButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-close-button-normal.svg");
+    mCloseButtonRes.darkMode = QIcon("://icons/themes/playful/window/window-close-button-normal-darkm.svg");
 
-    QIcon closeIcon = closeButtonRes.iconForMode(isDarkmode);
+    QIcon closeIcon = mCloseButtonRes.iconForMode(isDarkmode);
 
-    IconResource closeHoverButtonRes;
-    closeHoverButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-close-button-active.svg");
-    closeHoverButtonRes.darkMode = closeHoverButtonRes.lightMode;
+    mCloseHoverButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-close-button-active.svg");
+    mCloseHoverButtonRes.darkMode = mCloseHoverButtonRes.lightMode;
 
     mCloseButton->setIcon(closeIcon);
     mCloseButton->setIconSize(iconSize);
     mCloseButton->setFixedSize(iconSize + padding);
-    mCloseButton->installEventFilter(new ButtonAppearanceWatcher(closeButtonRes,
-                                                                 closeHoverButtonRes,
-                                                            this));
 
     connect(mCloseButton, &QToolButton::clicked, this, &TitleBarWidget::closeButtonPressed);
 
-    IconResource dockButtonRes;
-    dockButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-float-button-normal.svg");
-    dockButtonRes.darkMode = QIcon("://icons/themes/playful/window/window-float-button-normal-darkm.svg");
+    mDockButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-float-button-normal.svg");
+    mDockButtonRes.darkMode = QIcon("://icons/themes/playful/window/window-float-button-normal-darkm.svg");
 
-    IconResource dockHoverButtonRes;
-    dockHoverButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-float-button-active.svg");
-    dockHoverButtonRes.darkMode = dockHoverButtonRes.lightMode;
+    mDockHoverButtonRes.lightMode = QIcon("://icons/themes/playful/window/window-float-button-active.svg");
+    mDockHoverButtonRes.darkMode = mDockHoverButtonRes.lightMode;
 
     mDockButton = new QToolButton(parent);
 
-    QIcon dockIcon = dockButtonRes.iconForMode(isDarkmode);
+    QIcon dockIcon = mDockButtonRes.iconForMode(isDarkmode);
     mDockButton->setIcon(dockIcon);
     mDockButton->setStyleSheet(flatButtonStylesheet());
 
     mDockButton->setIconSize(iconSize);
     mDockButton->setFixedSize(iconSize + padding);
-    mDockButton->installEventFilter(new ButtonAppearanceWatcher(dockButtonRes, dockHoverButtonRes, this));
 
     connect(mDockButton, &QToolButton::clicked, this, &TitleBarWidget::undockButtonPressed);
 
@@ -121,6 +116,12 @@ QWidget* TitleBarWidget::createCustomTitleBarWidget(QWidget* parent)
     containerWidget->setMinimumSize(QSize(1,1));
 
     return containerWidget;
+}
+
+void TitleBarWidget::setupApperanceWatcher(PreferenceManager* preferenceManager)
+{
+    mDockButton->installEventFilter(new ButtonAppearanceWatcher(preferenceManager, mDockButtonRes, mDockHoverButtonRes, this));
+    mCloseButton->installEventFilter(new ButtonAppearanceWatcher(preferenceManager, mCloseButtonRes, mCloseHoverButtonRes, this));
 }
 
 QString TitleBarWidget::flatButtonStylesheet() const
@@ -165,24 +166,4 @@ void TitleBarWidget::showEvent(QShowEvent* event)
 
     mWidthOfFullLayout = layout()->sizeHint().width();
     hideButtonsIfNeeded(size().width());
-}
-
-void TitleBarWidget::paintEvent(QPaintEvent *)
-{
-    QPainter painter(this);
-
-    painter.save();
-    painter.setBrush(palette().color(QPalette::Midlight));
-    painter.setPen(Qt::NoPen);
-    painter.drawRect(this->rect());
-
-    QPen pen(palette().color(QPalette::Mid));
-    int penWidth = 1;
-    pen.setWidth(penWidth);
-    painter.setPen(pen);
-    painter.drawLine(QPoint(this->rect().x(),
-                            this->rect().height()-penWidth),
-                     QPoint(this->rect().width(),
-                            this->rect().height()-penWidth));
-    painter.restore();
 }
