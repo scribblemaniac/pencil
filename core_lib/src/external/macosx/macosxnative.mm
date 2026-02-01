@@ -42,4 +42,21 @@ namespace MacOSXNative
         }
         return false;
     }
+
+    void setAppearance(bool isDarkMode)
+    {
+        if (@available(macOS 10.14, *))
+        {
+            NSAppearance *appearance = [NSAppearance appearanceNamed: isDarkMode ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua];
+            [NSApp setAppearance: appearance];
+
+            // HACK: For some reason QSpinBoxes does not update set their appearance correctly..
+            // Through trial and error I figured out that setting the window appearance
+            // Fixes the problem.
+            for (NSWindow *window in [NSApplication sharedApplication].windows)
+            {
+                window.appearance = appearance;
+            }
+        }
+    }
 }

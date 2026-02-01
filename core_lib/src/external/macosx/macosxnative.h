@@ -5,6 +5,7 @@ namespace MacOSXNative
 {
     void removeUnwantedMenuItems();
 
+    void setAppearance(bool isDarkMode);
     bool isMouseCoalescingEnabled();
     void setMouseCoalescingEnabled(bool enabled);
     bool isDarkMode();

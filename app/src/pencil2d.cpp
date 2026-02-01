@@ -157,6 +157,7 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
     ThemeColorPalette palette(Theming::getPalette(paletteId));
     if (palette.isValid())
     {
+        PlatformHandler::setAppearanceIfPossible(palette.isDark());
         setPalette(palette.palette());
         QString toolbarStylesheet = PlatformHandler::toolBarStyleSheet(palette.palette());
         if (!toolbarStylesheet.isEmpty() && palette.isValid()) {

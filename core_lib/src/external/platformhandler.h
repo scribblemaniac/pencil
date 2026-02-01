@@ -26,6 +26,7 @@ namespace PlatformHandler
 void configurePlatformSpecificSettings();
 bool isDarkMode();
 QString toolBarStyleSheet(const QPalette& palette);
+void setAppearanceIfPossible(bool darkmode);
 void initialise();
 
 }

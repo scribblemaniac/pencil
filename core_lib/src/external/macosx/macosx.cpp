@@ -38,6 +38,11 @@ namespace PlatformHandler
         return MacOSXNative::isDarkMode();
     }
 
+    void setAppearanceIfPossible(bool isDarkMode)
+    {
+        MacOSXNative::setAppearance(isDarkMode);
+    }
+
     QColor darken(const QColor &color, int amount)
     {
         int h, s, l, a;
