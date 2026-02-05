@@ -4,6 +4,7 @@
 #include <AppKit/Appkit.h>
 #include <Availability.h>
 
+#include <QMainWindow>
 namespace MacOSXNative
 {
     #if !defined(MAC_OS_X_VERSION_10_14) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_14
@@ -50,7 +51,8 @@ namespace MacOSXNative
             NSAppearance *appearance = [NSAppearance appearanceNamed: isDarkMode ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua];
             [NSApp setAppearance: appearance];
 
-            // HACK: For some reason QSpinBoxes does not update set their appearance correctly..
+            // HACK: For some reason certain UI elements do not update their appearances according the palette
+            // QSpinBoxes is one of those examples.
             // Through trial and error I figured out that setting the window appearance
             // Fixes the problem.
             for (NSWindow *window in [NSApplication sharedApplication].windows)
@@ -58,5 +60,17 @@ namespace MacOSXNative
                 window.appearance = appearance;
             }
         }
+    }
+
+    /// Sets the background color of the macOS window titlebar to the same as the input color
+    void setWindowTitleBarAppearance(QMainWindow* window, const QColor& color)
+    {
+        NSView* view = (NSView *)window->winId();
+        NSWindow* nsWindow = view.window;
+        nsWindow.titlebarAppearsTransparent = YES;
+        nsWindow.backgroundColor = [NSColor colorWithRed:color.redF()
+                                                         green:color.greenF()
+                                                         blue:color.blueF()
+                                                         alpha:color.alphaF()];
     }
 }

@@ -27,6 +27,7 @@ void configurePlatformSpecificSettings();
 bool isDarkMode();
 QString toolBarStyleSheet(const QPalette& palette);
 void setAppearanceIfPossible(bool darkmode);
+void setWindowTitleBarAppearance(QMainWindow* window, const QColor& color);
 void initialise();
 
 }

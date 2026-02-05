@@ -43,6 +43,11 @@ namespace PlatformHandler
         MacOSXNative::setAppearance(isDarkMode);
     }
 
+    void setWindowTitleBarAppearance(QMainWindow* window, const QColor& color)
+    {
+        MacOSXNative::setWindowTitleBarAppearance(window, color);
+    }
+
     QColor darken(const QColor &color, int amount)
     {
         int h, s, l, a;

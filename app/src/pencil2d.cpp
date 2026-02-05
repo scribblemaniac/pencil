@@ -163,6 +163,8 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
         if (!toolbarStylesheet.isEmpty() && palette.isValid()) {
             setStyleSheet(toolbarStylesheet);
         }
+
+        PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
     }
     else
     {

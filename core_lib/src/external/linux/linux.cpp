@@ -32,6 +32,7 @@ namespace PlatformHandler
 
     QString toolBarStyleSheet(const QPalette& palette) { return QString(); }
     void setAppearanceIfPossible(bool isDarkMode) { }
+    void setWindowTitleBarAppearance(QMainWindow*) { }
 
     void initialise()
     {
