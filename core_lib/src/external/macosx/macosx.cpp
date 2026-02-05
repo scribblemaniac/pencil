@@ -64,75 +64,99 @@ namespace PlatformHandler
         return QColor::fromHsl(h, s, l, a);
     }
 
-    /// The QToolBar does natively not inherit from QPalette
-    /// As such we need to create our own stylesheet which overrides the system styling.
-    QString toolBarStyleSheet(const QPalette& palette)
+    QString customToolBarStylesheet(const QPalette& palette)
     {
-        QString windowColor     = palette.color(QPalette::Window).name();
-        QString windowTextColor = palette.color(QPalette::WindowText).name();
-        QString highlightColor  = palette.color(QPalette::Highlight).name();
-        QString midColor        = palette.color(QPalette::Mid).name();
-        QString disabledColor   = palette.color(QPalette::PlaceholderText).name();
-        QString baseColor       = palette.color(QPalette::Base).name();
+        QString stylesheet = QString(R"(
 
-        // Darken/lighten for hover/pressed states relative to window color
-        bool isDark = palette.color(QPalette::Window).lightness() < 128;
-
-        QColor hover  = isDark ? lighten(windowColor, 15) : darken(windowColor, 15);
-        QColor pressed = isDark ? lighten(windowColor, 30) : darken(windowColor, 30);
-
-        return QString(R"(
             QToolBar {
-                background-color: %1;
-                border-bottom: 1px solid %5;
+                background-color: palette(window);
+                border-bottom: 1px solid palette(placeholderText);
                 spacing: 2px;
                 padding: 2px;
             }
 
             QToolBar::separator {
-                background-color: %5;
+                background-color: palette(placeholderText);
                 width: 1px;
                 margin: 4px 2px;
             }
+        )");
 
-            QToolBar QToolButton {
-                color: %2;
+        return stylesheet;
+    }
+
+    /// Certain macOS native components such as QToolBar do not inherit from QPalette, to fix that
+    /// We define our own custom stylesheet.
+    QString customStyleSheet(const QPalette& palette)
+    {
+        QString buttonColor = palette.color(QPalette::Button).name();
+
+        // We determine based on the lightness of the window color whether we're in light or dark mode
+        bool isDark = palette.color(QPalette::Window).lightness() < 128;
+
+        QColor hover  = isDark ? lighten(buttonColor, 15) : darken(buttonColor, 15);
+        QColor pressed = isDark ? lighten(buttonColor, 30) : darken(buttonColor, 30);
+
+        QString toolbarStylesheet = customToolBarStylesheet(palette);
+
+        return toolbarStylesheet + QString(R"(
+
+            QToolButton {
+                color: palette(button);
                 background: transparent;
                 border: 1px solid transparent;
                 border-radius: 4px;
                 padding: 4px;
             }
 
-            QToolBar QToolButton:hover {
-                background-color: %6;
-                border-color: %5;
+            QToolButton:hover {
+                background-color: %1;
+                border-color: palette(mid);
             }
 
             QToolBar QToolButton:pressed {
-                background-color: %7;
+                background-color: %2;
             }
 
-            QToolBar QToolButton:checked {
-                background-color: %3;
-                color: %8;
+            QToolButton:pressed:hover {
+                background-color: %2;
             }
 
-            QToolBar QToolButton:disabled {
-                color: %4;
+
+            QToolButton:checked {
+                background-color: palette(mid);
+                color: palette(base);
             }
 
-            QToolBar QToolButton[popupMode="1"] ::menu-indicator {
+            QToolButton:disabled {
+                color: palette(placeholderText);
+                background-color: transparent;
+            }
+
+            QToolButton::menu-indicator {
                 image: none;
+            }
+
+            TitleBarWidget QToolButton {
+                color: palette(windowText);
+                background: transparent;
+                border: 0px;
+                border-radius: 0px;
+                padding: 0px;
+            }
+
+            TitleBarWidget QToolButton:hover {
+                background-color: transparent;
                 border: none;
             }
-        )").arg(windowColor)        // %1 - toolbar background
-          .arg(windowTextColor)     // %2 - button text
-          .arg(highlightColor)      // %3 - checked/active state
-          .arg(disabledColor)       // %4 - disabled text
-          .arg(midColor)            // %5 - borders/separators
-          .arg(hover.name())        // %6 - hover background
-          .arg(pressed.name())      // %7 - pressed background
-          .arg(baseColor);          // %8 - text on highlighted bg
+
+            TimeLine QToolButton {
+                padding: 0;
+            }
+
+        )")
+           .arg(hover.name())
+           .arg(pressed.name());
     }
 
     void initialise()

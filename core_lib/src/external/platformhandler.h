@@ -19,15 +19,16 @@ GNU General Public License for more details.
 
 #include <QString>
 #include <QPalette>
+#include <QMainWindow>
 
 namespace PlatformHandler
 {
 
 void configurePlatformSpecificSettings();
 bool isDarkMode();
-QString toolBarStyleSheet(const QPalette& palette);
 void setAppearanceIfPossible(bool darkmode);
 void setWindowTitleBarAppearance(QMainWindow* window, const QColor& color);
+QString customStyleSheet(const QPalette& palette);
 void initialise();
 
 }

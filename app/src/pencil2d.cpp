@@ -159,7 +159,8 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
     {
         PlatformHandler::setAppearanceIfPossible(palette.isDark());
         setPalette(palette.palette());
-        QString toolbarStylesheet = PlatformHandler::toolBarStyleSheet(palette.palette());
+        QString toolbarStylesheet = PlatformHandler::customStyleSheet(palette.palette());
+
         if (!toolbarStylesheet.isEmpty() && palette.isValid()) {
             setStyleSheet(toolbarStylesheet);
         }
@@ -169,7 +170,13 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
     else
     {
         setPalette(newStyle->standardPalette());
-        setStyleSheet(mDefaultStylesheet);
+
+        QString toolbarStylesheet = PlatformHandler::customStyleSheet(palette.palette());
+        if (toolbarStylesheet.isEmpty()) {
+            setStyleSheet(mDefaultStylesheet);
+        } else {
+            setStyleSheet(toolbarStylesheet);
+        }
     }
 
     mainWindow->update();

@@ -30,9 +30,10 @@ namespace PlatformHandler
 
     bool isDarkMode() { return false; }
 
-    QString toolBarStyleSheet(const QPalette& palette) { return QString(); }
     void setAppearanceIfPossible(bool isDarkMode) { }
     void setWindowTitleBarAppearance(QMainWindow*) { }
+
+    QString customStyleSheet(const QPalette& palette) { return QString(); }
 
     void initialise()
     {
