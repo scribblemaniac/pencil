@@ -146,7 +146,11 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
     QStyle* newStyle = Theming::getStyle(styleId);
     if (newStyle != nullptr)
     {
-        setStyle(newStyle);
+        if (styleId == "macOS" || styleId == "macOSX") {
+            setStyle(new MacOSStyleFixes(newStyle));
+        } else {
+            setStyle(newStyle);
+        }
     }
     else
     {
