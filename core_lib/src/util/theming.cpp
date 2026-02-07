@@ -199,8 +199,6 @@ QString ThemeColorPalette::id() const
 
 bool ThemeColorPalette::isDark() const
 {
-    if (!m_valid) return false;
-
     if (m_mode == Mode::Unknown)
     {
         // Guess the mode based on the lightness of the background color

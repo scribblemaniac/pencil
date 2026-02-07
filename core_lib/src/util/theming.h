@@ -56,7 +56,7 @@ private:
     QString m_filePath;
     QString m_displayName;
     QPalette m_palette;
-    Mode m_mode;
+    Mode m_mode = Unknown;
 };
 
 #endif // THEMING_H
