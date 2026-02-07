@@ -30,7 +30,7 @@ namespace PlatformHandler
 
     bool isDarkMode() { return false; }
 
-    void setAppearanceIfPossible(bool isDarkMode) { }
+    void setAppearanceIfPossible(AppearanceMode) { }
     void setWindowTitleBarAppearance(QMainWindow*) { }
 
     void initialise()

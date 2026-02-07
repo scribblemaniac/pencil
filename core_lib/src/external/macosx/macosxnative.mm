@@ -31,6 +31,9 @@ namespace MacOSXNative
         NSEvent.mouseCoalescingEnabled = enabled;
     }
 
+    /// Returns true or false depending on the on OS apperance
+    ///
+    /// Note: This does not return the actual appearance when used together with setAppearance
     bool isDarkMode()
     {
         if (@available(macOS 10.14, *))
@@ -39,16 +42,30 @@ namespace MacOSXNative
                 [[NSApp effectiveAppearance] bestMatchFromAppearancesWithNames:@[
                   NSAppearanceNameAqua, NSAppearanceNameDarkAqua
                 ]];
+
             return [appearance isEqual:NSAppearanceNameDarkAqua];
         }
         return false;
     }
 
-    void setAppearance(bool isDarkMode)
+    void setAppearance(AppearanceMode mode)
     {
         if (@available(macOS 10.14, *))
         {
-            NSAppearance *appearance = [NSAppearance appearanceNamed: isDarkMode ? NSAppearanceNameDarkAqua : NSAppearanceNameAqua];
+            NSAppearance *appearance = nil;
+
+            switch (mode) {
+            case AppearanceMode::LIGHT:
+                appearance = [NSAppearance appearanceNamed: NSAppearanceNameAqua];
+                break;
+            case AppearanceMode::DARK:
+                appearance = [NSAppearance appearanceNamed: NSAppearanceNameDarkAqua];
+                break;
+            case AppearanceMode::AUTO:
+                appearance = nil;
+                break;
+            }
+
             [NSApp setAppearance: appearance];
 
             // HACK: For some reason certain UI elements do not update their appearances according the palette

@@ -137,12 +137,21 @@ bool Pencil2D::event(QEvent* event)
         Q_ASSERT(fileOpenEvent);
         emit openFileRequested(fileOpenEvent->file());
         return true;
+    } else if (event->type() == QEvent::ThemeChange) {
+        if (!mUpdatingTheme) {
+            PreferenceManager* prefs = mainWindow->mEditor->preference();
+            if (prefs) {
+                setTheme(prefs->getString(SETTING::PALETTE_ID));
+            }
+            return true;
+        }
     }
     return QApplication::event(event);
 }
 
 void Pencil2D::setTheme(const QString paletteId)
 {
+    mUpdatingTheme = true;
     QStyle* newStyle = nullptr;
     if (DEFAULT_STYLE.contains("mac")) {
         newStyle = new MacOSPencilStyle(DEFAULT_STYLE);
@@ -156,26 +165,25 @@ void Pencil2D::setTheme(const QString paletteId)
     // Palette should be set after style is set
     ThemeColorPalette palette(Theming::getPalette(paletteId));
 
+    QString stylesheet;
     if (palette.isValid())
     {
         setPalette(palette.palette());
-
-        PlatformHandler::setAppearanceIfPossible(palette.isDark());
+        PlatformHandler::setAppearanceIfPossible(palette.isDark() ? AppearanceMode::DARK : AppearanceMode::LIGHT);
         PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
 
-        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(palette.palette(), newStyle->objectName());
-        setStyleSheet(toolbarStylesheet);
+        stylesheet = PlatformStylesheet::customStylesheet(palette.palette(), newStyle->objectName());
     }
     else
     {
         setPalette(style()->standardPalette());
-
-        PlatformHandler::setAppearanceIfPossible(palette.isDark());
+        PlatformHandler::setAppearanceIfPossible(AppearanceMode::AUTO);
         PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), style()->standardPalette().window().color());
 
-        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(style()->standardPalette(), DEFAULT_STYLE);
-        setStyleSheet(toolbarStylesheet);
+        stylesheet = PlatformStylesheet::customStylesheet(style()->standardPalette(), DEFAULT_STYLE);
     }
+    setStyleSheet(stylesheet);
+    mUpdatingTheme = false;
 
     mainWindow->update();
 }

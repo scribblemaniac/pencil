@@ -27,6 +27,12 @@ GNU General Public License for more details.
 #define S__GIT_TIMESTAMP TOSTRING(GIT_TIMESTAMP)
 #define S__GIT_COMMIT_HASH TOSTRING(GIT_CURRENT_SHA1)
 
+enum AppearanceMode {
+    LIGHT,
+    DARK,
+    AUTO
+};
+
 enum ToolType : int
 {
     INVALID_TOOL = -1,

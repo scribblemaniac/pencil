@@ -99,6 +99,7 @@ private:
     const QString DEFAULT_STYLE;
 
     std::unique_ptr<MainWindow2> mainWindow;
+    bool mUpdatingTheme = false;
 
     std::unique_ptr<QLockFile> mProcessLock;
 };

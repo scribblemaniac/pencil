@@ -21,6 +21,8 @@ GNU General Public License for more details.
 #include <QPalette>
 #include <QMainWindow>
 
+#include "pencildef.h"
+
 namespace PlatformHandler
 {
 
@@ -30,7 +32,7 @@ bool isDarkMode();
 /* Forces the OS to use a certain appearance. This is particularly handy when
  * you change from light to dark palettes.
 */
-void setAppearanceIfPossible(bool darkmode);
+void setAppearanceIfPossible(AppearanceMode mode);
 
 /* Changes the appearance of the respective OS title bar
  * Currently only used on macOS to change the background color of the title bar.
