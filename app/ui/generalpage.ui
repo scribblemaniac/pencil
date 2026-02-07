@@ -84,33 +84,6 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <widget class="QLabel" name="styleLabel">
-              <property name="text">
-               <string>Window style</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="styleCombo"/>
-            </item>
-            <item>
-             <spacer name="styleSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
              <widget class="QLabel" name="paletteLabel">
@@ -659,7 +632,6 @@
   <tabstop>scrollArea</tabstop>
   <tabstop>languageCombo</tabstop>
   <tabstop>windowOpacityLevel</tabstop>
-  <tabstop>styleCombo</tabstop>
   <tabstop>paletteCombo</tabstop>
   <tabstop>addPaletteButton</tabstop>
   <tabstop>removePaletteButton</tabstop>

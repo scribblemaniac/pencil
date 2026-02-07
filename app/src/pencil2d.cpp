@@ -63,8 +63,6 @@ Pencil2D::Pencil2D(int& argc, char** argv) :
     // Set application icon
     setWindowIcon(QIcon(":/icons/icon.png"));
 
-    mDefaultStylesheet = styleSheet();
-
 #if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
     // Associate the application with our desktop entry
     setDesktopFileName("org.pencil2d.Pencil2D");
@@ -143,18 +141,10 @@ bool Pencil2D::event(QEvent* event)
     return QApplication::event(event);
 }
 
-void Pencil2D::setTheme(const QString styleId, const QString paletteId)
+void Pencil2D::setTheme(const QString paletteId)
 {
-    QStyle* newStyle = Theming::getStyle(styleId);
-    if (newStyle != nullptr)
-    {
-        if (styleId.contains("mac")) {
-            setStyle(new MacOSPencilStyle(newStyle));
-        } else {
-            setStyle(newStyle);
-        }
-    }
-    else if (DEFAULT_STYLE.contains("mac")) {
+    QStyle* newStyle = nullptr;
+    if (DEFAULT_STYLE.contains("mac")) {
         newStyle = new MacOSPencilStyle(DEFAULT_STYLE);
         setStyle(newStyle);
     }
@@ -165,28 +155,27 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
 
     // Palette should be set after style is set
     ThemeColorPalette palette(Theming::getPalette(paletteId));
+
     if (palette.isValid())
     {
         setPalette(palette.palette());
-        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(palette.palette(), newStyle->objectName());
 
-        if (!toolbarStylesheet.isEmpty()) {
-            setStyleSheet(toolbarStylesheet);
-        }
+        PlatformHandler::setAppearanceIfPossible(palette.isDark());
+        PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
+
+        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(palette.palette(), newStyle->objectName());
+        setStyleSheet(toolbarStylesheet);
     }
     else
     {
         setPalette(style()->standardPalette());
 
-        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(palette.palette(), DEFAULT_STYLE);
-        if (toolbarStylesheet.isEmpty()) {
-            setStyleSheet(mDefaultStylesheet);
-        } else {
-            setStyleSheet(toolbarStylesheet);
-        }
+        PlatformHandler::setAppearanceIfPossible(palette.isDark());
+        PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), style()->standardPalette().window().color());
+
+        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(style()->standardPalette(), DEFAULT_STYLE);
+        setStyleSheet(toolbarStylesheet);
     }
-    PlatformHandler::setAppearanceIfPossible(palette.isDark());
-    PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
 
     mainWindow->update();
 }
@@ -229,15 +218,14 @@ void Pencil2D::prepareGuiStartup(const QString& inputPath)
 
     mainWindow.reset(new MainWindow2);
     PreferenceManager* prefs = mainWindow->mEditor->preference();
-    setTheme(prefs->getString(SETTING::STYLE_ID), prefs->getString(SETTING::PALETTE_ID));
+    setTheme(prefs->getString(SETTING::PALETTE_ID));
 
     connect(this, &Pencil2D::openFileRequested, mainWindow.get(), &MainWindow2::openFile);
     connect(prefs, &PreferenceManager::optionChanged, [=](SETTING setting) {
         switch (setting)
         {
-        case SETTING::STYLE_ID:
         case SETTING::PALETTE_ID:
-            setTheme(prefs->getString(SETTING::STYLE_ID), prefs->getString(SETTING::PALETTE_ID));
+            setTheme(prefs->getString(SETTING::PALETTE_ID));
             break;
         default:
             break;

@@ -72,7 +72,7 @@ public:
 
     bool event(QEvent* event) override;
 
-    void setTheme(const QString styleId, const QString paletteId);
+    void setTheme(const QString paletteId);
 signals:
     /**
      * Emitted when the operating system requests that a file should be opened.
@@ -97,8 +97,6 @@ private:
     QString generateMacOSToolBarStyleSheet(const QPalette &palette);
 
     const QString DEFAULT_STYLE;
-
-    QString mDefaultStylesheet;
 
     std::unique_ptr<MainWindow2> mainWindow;
 

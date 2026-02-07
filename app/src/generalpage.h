@@ -48,7 +48,6 @@ signals:
 
 private slots:
     void languageChanged(int i);
-    void styleChanged(int index);
     void paletteChanged(int index);
     void addPalette();
     void removePalette();
