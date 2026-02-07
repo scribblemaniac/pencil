@@ -33,8 +33,6 @@ namespace PlatformHandler
     void setAppearanceIfPossible(bool isDarkMode) { }
     void setWindowTitleBarAppearance(QMainWindow*) { }
 
-    QString customStyleSheet(const QPalette& palette) { return QString(); }
-
     void initialise()
     {
         /* If running as an AppImage, sets GStreamer environment variables to ensure

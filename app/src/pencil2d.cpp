@@ -37,8 +37,10 @@ GNU General Public License for more details.
 #include "mainwindow2.h"
 #include "pencildef.h"
 #include "platformhandler.h"
+#include "platformstylesheet.h"
 #include "theming.h"
 #include "preferencemanager.h"
+#include "macos/macospencilstyle.h"
 
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
@@ -146,11 +148,15 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
     QStyle* newStyle = Theming::getStyle(styleId);
     if (newStyle != nullptr)
     {
-        if (styleId == "macOS" || styleId == "macOSX") {
-            setStyle(new MacOSStyleFixes(newStyle));
+        if (styleId.contains("mac")) {
+            setStyle(new MacOSPencilStyle(newStyle));
         } else {
             setStyle(newStyle);
         }
+    }
+    else if (DEFAULT_STYLE.contains("mac")) {
+        newStyle = new MacOSPencilStyle(DEFAULT_STYLE);
+        setStyle(newStyle);
     }
     else
     {
@@ -161,29 +167,26 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
     ThemeColorPalette palette(Theming::getPalette(paletteId));
     if (palette.isValid())
     {
-        PlatformHandler::setAppearanceIfPossible(palette.isDark());
         setPalette(palette.palette());
-        QString toolbarStylesheet = PlatformHandler::customStyleSheet(palette.palette());
+        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(palette.palette(), newStyle->objectName());
 
-        if (!toolbarStylesheet.isEmpty() && palette.isValid()) {
+        if (!toolbarStylesheet.isEmpty()) {
             setStyleSheet(toolbarStylesheet);
         }
-
-        PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
     }
     else
     {
-        setPalette(newStyle->standardPalette());
+        setPalette(style()->standardPalette());
 
-        QString toolbarStylesheet = PlatformHandler::customStyleSheet(palette.palette());
+        QString toolbarStylesheet = PlatformStylesheet::customStylesheet(palette.palette(), DEFAULT_STYLE);
         if (toolbarStylesheet.isEmpty()) {
             setStyleSheet(mDefaultStylesheet);
         } else {
             setStyleSheet(toolbarStylesheet);
         }
-
-        PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
     }
+    PlatformHandler::setAppearanceIfPossible(palette.isDark());
+    PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
 
     mainWindow->update();
 }
