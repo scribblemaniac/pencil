@@ -167,3 +167,14 @@ void TitleBarWidget::showEvent(QShowEvent* event)
     mWidthOfFullLayout = layout()->sizeHint().width();
     hideButtonsIfNeeded(size().width());
 }
+
+void TitleBarWidget::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+
+    painter.save();
+    painter.setBrush(palette().color(QPalette::Window));
+    painter.setPen(Qt::NoPen);
+    painter.drawRect(this->rect());
+    painter.restore();
+}

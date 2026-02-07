@@ -35,6 +35,7 @@ public:
 
     void resizeEvent(QResizeEvent* resizeEvent) override;
     void setTitle(const QString& title);
+    void paintEvent(QPaintEvent *) override;
 
     void setIsFloating(bool floating) { mIsFloating = floating; }
 
