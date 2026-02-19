@@ -113,19 +113,20 @@ QString closestCanonicalPath(QString path);
 QString validateDataPath(QString filePath, QString dataDirPath);
 
 /**
- * Darkens a color.
- *
- * @param color Base color.
- * @param amount Amount to subtract from the lightness of the color (0-255)
- * @return A copy of the base color with the lightness adjusted by amount.
- */
-QColor darken(const QColor &color, unsigned int amount);
-/**
  * Lightens a color.
  *
  * @param color Base color.
  * @param amount Amount to add to the lightness of the color (0-255)
  * @return A copy of the base color with the lightness adjusted by amount.
  */
-QColor lighten(const QColor &color, unsigned int amount);
+QColor lighten(const QColor &color, int amount);
+/**
+ * Darkens a color.
+ *
+ * @param color Base color.
+ * @param amount Amount to subtract from the lightness of the color (0-255)
+ * @return A copy of the base color with the lightness adjusted by amount.
+ */
+QColor darken(const QColor &color, int amount);
+
 #endif // UTIL_H
