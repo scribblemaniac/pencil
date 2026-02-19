@@ -3,6 +3,7 @@
 #include <QUrl>
 
 #include "macosstylesheet.h"
+#include "util.h"
 
 namespace PlatformStylesheet {
 
@@ -89,22 +90,6 @@ namespace PlatformStylesheet {
         )")
            .arg(hover.name())
            .arg(pressed.name());
-    }
-
-    QColor darken(const QColor &color, int amount)
-    {
-        int h, s, l, a;
-        color.getHsl(&h, &s, &l, &a);
-        l = qMax(l - amount, 0);
-        return QColor::fromHsl(h, s, l, a);
-    }
-
-    QColor lighten(const QColor &color, int amount)
-    {
-        int h, s, l, a;
-        color.getHsl(&h, &s, &l, &a);
-        l = qMin(l + amount, 255);
-        return QColor::fromHsl(h, s, l, a);
     }
 
     /// The toolbar does not out of the box style according to the palette, as such

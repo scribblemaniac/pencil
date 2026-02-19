@@ -7,9 +7,6 @@ namespace PlatformStylesheet
 {
     QString macOSStylesheet(const QPalette& palette);
 
-    QColor darken(const QColor &color, int amount);
-    QColor lighten(const QColor &color, int amount);
-
     QString toolbarStylesheet();
 }
 
