@@ -72,7 +72,7 @@ public:
 
     bool event(QEvent* event) override;
 
-    void setTheme(const QString styleId, const QString paletteId);
+    void setTheme(const QString paletteId);
 signals:
     /**
      * Emitted when the operating system requests that a file should be opened.
@@ -94,9 +94,12 @@ private:
      */
     void prepareGuiStartup(const QString &inputPath);
 
+    QString generateMacOSToolBarStyleSheet(const QPalette &palette);
+
     const QString DEFAULT_STYLE;
 
     std::unique_ptr<MainWindow2> mainWindow;
+    bool mUpdatingTheme = false;
 
     std::unique_ptr<QLockFile> mProcessLock;
 };

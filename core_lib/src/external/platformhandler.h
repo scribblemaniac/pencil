@@ -17,11 +17,27 @@ GNU General Public License for more details.
 #ifndef PLATFORMHANDLER_H
 #define PLATFORMHANDLER_H
 
+#include <QString>
+#include <QPalette>
+#include <QMainWindow>
+
+#include "pencildef.h"
+
 namespace PlatformHandler
 {
 
 void configurePlatformSpecificSettings();
 bool isDarkMode();
+
+/* Forces the OS to use a certain appearance. This is particularly handy when
+ * you change from light to dark palettes.
+*/
+void setAppearanceIfPossible(AppearanceMode mode);
+
+/* Changes the appearance of the respective OS title bar
+ * Currently only used on macOS to change the background color of the title bar.
+ */
+void setWindowTitleBarAppearance(QMainWindow* window, const QColor& color);
 void initialise();
 
 }

@@ -21,6 +21,8 @@ GNU General Public License for more details.
 
 #include "appearance.h"
 
+
+class PreferenceManager;
 class QLabel;
 class QToolButton;
 
@@ -33,9 +35,11 @@ public:
 
     void resizeEvent(QResizeEvent* resizeEvent) override;
     void setTitle(const QString& title);
-    void paintEvent(QPaintEvent*) override;
+    void paintEvent(QPaintEvent *) override;
 
     void setIsFloating(bool floating) { mIsFloating = floating; }
+
+    void setupApperanceWatcher(PreferenceManager* preferenceManager);
 
 signals:
     void closeButtonPressed();
@@ -52,6 +56,12 @@ private:
     QLabel* mTitleLabel = nullptr;
     QToolButton* mCloseButton = nullptr;
     QToolButton* mDockButton = nullptr;
+
+    IconResource mDockButtonRes;
+    IconResource mDockHoverButtonRes;
+
+    IconResource mCloseButtonRes;
+    IconResource mCloseHoverButtonRes;
 
     bool mIsFloating = false;
 

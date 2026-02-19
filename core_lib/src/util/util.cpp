@@ -176,3 +176,16 @@ QString validateDataPath(QString filePath, QString dataDirPath)
         return QString();
     }
 }
+
+QColor lighten(const QColor &color, int amount)
+{
+    int h, s, l, a;
+    color.getHsl(&h, &s, &l, &a);
+    l = qBound(0, l + amount, 255);
+    return QColor::fromHsl(h, s, l, a);
+}
+
+QColor darken(const QColor &color, int amount)
+{
+    return lighten(color, -amount);
+}

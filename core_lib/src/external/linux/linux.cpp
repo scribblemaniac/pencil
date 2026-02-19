@@ -30,6 +30,9 @@ namespace PlatformHandler
 
     bool isDarkMode() { return false; }
 
+    void setAppearanceIfPossible(AppearanceMode) { }
+    void setWindowTitleBarAppearance(QMainWindow*, const QColor&) { }
+
     void initialise()
     {
         /* If running as an AppImage, sets GStreamer environment variables to ensure

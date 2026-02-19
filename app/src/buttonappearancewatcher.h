@@ -26,14 +26,18 @@ enum class AppearanceEventType
     ICON_ACTIVE
 };
 
+#include <QPointer>
+
 #include "appearance.h"
+#include "preferencemanager.h"
 
 class ButtonAppearanceWatcher : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit ButtonAppearanceWatcher(IconResource normalIconResource,
+    explicit ButtonAppearanceWatcher(PreferenceManager* preferenceManager,
+                                     IconResource normalIconResource,
                                      IconResource hoverIconResource,
                                      QObject * parent = nullptr);
     virtual bool eventFilter(QObject * watched, QEvent * event) override;
@@ -46,6 +50,7 @@ private:
     const IconResource mHoverIconResource;
 
     AppearanceEventType mOldAppearanceType = AppearanceEventType::NONE;
+    QPointer<PreferenceManager> mPrefManager = nullptr;
 };
 
 #endif // BUTTONAPPEARANCEWATCHER_H

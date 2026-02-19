@@ -16,6 +16,7 @@ GNU General Public License for more details.
 */
 
 #include <QApplication>
+#include <QPalette>
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 9, 0)
   #include <QOperatingSystemVersion>
@@ -24,6 +25,7 @@ GNU General Public License for more details.
 #include <CoreFoundation/CoreFoundation.h>
 
 #include "macosxnative.h"
+#include "pencildef.h"
 
 namespace PlatformHandler
 {
@@ -35,6 +37,16 @@ namespace PlatformHandler
     bool isDarkMode()
     {
         return MacOSXNative::isDarkMode();
+    }
+
+    void setAppearanceIfPossible(AppearanceMode appearanceMode)
+    {
+        MacOSXNative::setAppearance(appearanceMode);
+    }
+
+    void setWindowTitleBarAppearance(QMainWindow* window, const QColor& color)
+    {
+        MacOSXNative::setWindowTitleBarAppearance(window, color);
     }
 
     void initialise()

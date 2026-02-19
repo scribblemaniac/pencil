@@ -29,6 +29,9 @@ namespace PlatformHandler
 {
     void configurePlatformSpecificSettings() {}
     bool isDarkMode() { return false; }
+    void setAppearanceIfPossible(AppearanceMode) { }
+    void setWindowTitleBarAppearance(QMainWindow*, const QColor&) { }
+
     void initialise()
     {
 #if _WIN32_WINNT >= _WIN32_WINNT_WIN7

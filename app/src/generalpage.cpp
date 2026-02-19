@@ -37,9 +37,6 @@ GeneralPage::GeneralPage() : ui(new Ui::GeneralPage)
 
     QSettings settings(PENCIL2D, PENCIL2D);
 
-    ui->styleCombo->addItem("System Default", "");
-    ui->styleCombo->addItems(Theming::availableStyles());
-
     populatePaletteCombo(false);
 
     QString languages [][3]
@@ -122,7 +119,6 @@ GeneralPage::GeneralPage() : ui(new Ui::GeneralPage)
     connect(ui->languageCombo, curIndexChanged, this, &GeneralPage::languageChanged);
     connect(ui->windowOpacityLevel, &QSlider::valueChanged, this, &GeneralPage::windowOpacityChange);
     connect(ui->backgroundButtons, buttonClicked, this, &GeneralPage::backgroundChanged);
-    connect(ui->styleCombo, curIndexChanged, this, &GeneralPage::styleChanged);
     connect(ui->paletteCombo, curIndexChanged, this, &GeneralPage::paletteChanged);
     connect(ui->addPaletteButton, &QPushButton::pressed, this, &GeneralPage::addPalette);
     connect(ui->removePaletteButton, &QPushButton::pressed, this, &GeneralPage::removePalette);
@@ -167,13 +163,9 @@ void GeneralPage::updateValues()
     ui->curveSmoothingLevel->setValue(mManager->getInt(SETTING::CURVE_SMOOTHING));
     QSignalBlocker b2(ui->windowOpacityLevel);
     ui->windowOpacityLevel->setValue(100 - mManager->getInt(SETTING::WINDOW_OPACITY));
-    QSignalBlocker b19(ui->styleCombo);
-    int styleIndex = ui->styleCombo->findText(mManager->getString(SETTING::STYLE_ID), Qt::MatchFixedString);
-    ui->styleCombo->setCurrentIndex(qMax(0, styleIndex));
-    QSignalBlocker b20(ui->styleCombo);
     QString paletteKey = mManager->getString(SETTING::PALETTE_ID);
     setCurrentPalette(paletteKey);
-    ui->removePaletteButton->setEnabled(!paletteKey.isEmpty() && !Theming::getPalette(paletteKey).isBuiltIn());
+    ui->removePaletteButton->setEnabled(Theming::getPalette(paletteKey).isFromUser());
     QSignalBlocker b3(ui->shadowsBox);
     ui->shadowsBox->setChecked(mManager->isOn(SETTING::SHADOW));
     QSignalBlocker b4(ui->toolCursorsBox);
@@ -273,16 +265,11 @@ void GeneralPage::highResCheckboxStateChanged(int b)
     mManager->set(SETTING::HIGH_RESOLUTION, b != Qt::Unchecked);
 }
 
-void GeneralPage::styleChanged(int index)
-{
-    mManager->set(SETTING::STYLE_ID, ui->styleCombo->itemText(index));
-}
-
 void GeneralPage::paletteChanged(int index)
 {
     QString paletteKey = ui->paletteCombo->itemData(index).toString();
     mManager->set(SETTING::PALETTE_ID, paletteKey);
-    ui->removePaletteButton->setEnabled(!paletteKey.isEmpty() && !Theming::getPalette(paletteKey).isBuiltIn());
+    ui->removePaletteButton->setEnabled(Theming::getPalette(paletteKey).isFromUser());
     if (m_showMissingPalette)
     {
         ui->paletteWarningLabel->setVisible(index == 1);

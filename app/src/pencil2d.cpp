@@ -37,7 +37,10 @@ GNU General Public License for more details.
 #include "mainwindow2.h"
 #include "pencildef.h"
 #include "platformhandler.h"
+#include "platformstylesheet.h"
 #include "theming.h"
+#include "preferencemanager.h"
+#include "macos/macospencilstyle.h"
 
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
@@ -134,15 +137,24 @@ bool Pencil2D::event(QEvent* event)
         Q_ASSERT(fileOpenEvent);
         emit openFileRequested(fileOpenEvent->file());
         return true;
+    } else if (event->type() == QEvent::ThemeChange) {
+        if (!mUpdatingTheme) {
+            PreferenceManager* prefs = mainWindow->mEditor->preference();
+            if (prefs) {
+                setTheme(prefs->getString(SETTING::PALETTE_ID));
+            }
+            return true;
+        }
     }
     return QApplication::event(event);
 }
 
-void Pencil2D::setTheme(const QString styleId, const QString paletteId)
+void Pencil2D::setTheme(const QString paletteId)
 {
-    QStyle* newStyle = Theming::getStyle(styleId);
-    if (newStyle != nullptr)
-    {
+    mUpdatingTheme = true;
+    QStyle* newStyle = nullptr;
+    if (DEFAULT_STYLE.contains("mac")) {
+        newStyle = new MacOSPencilStyle(DEFAULT_STYLE);
         setStyle(newStyle);
     }
     else
@@ -152,14 +164,17 @@ void Pencil2D::setTheme(const QString styleId, const QString paletteId)
 
     // Palette should be set after style is set
     ThemeColorPalette palette(Theming::getPalette(paletteId));
-    if (palette.isValid())
+    if (!palette.isValid())
     {
-        setPalette(palette.palette());
+        palette = ThemeColorPalette(style()->standardPalette(), "Default");
     }
-    else
-    {
-        setPalette(newStyle->standardPalette());
-    }
+
+    setPalette(palette.palette());
+    PlatformHandler::setAppearanceIfPossible(palette.isDark() ? AppearanceMode::DARK : AppearanceMode::LIGHT);
+    PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
+
+    setStyleSheet(PlatformStylesheet::customStylesheet(palette, newStyle->objectName()));
+    mUpdatingTheme = false;
 
     mainWindow->update();
 }
@@ -202,15 +217,14 @@ void Pencil2D::prepareGuiStartup(const QString& inputPath)
 
     mainWindow.reset(new MainWindow2);
     PreferenceManager* prefs = mainWindow->mEditor->preference();
-    setTheme(prefs->getString(SETTING::STYLE_ID), prefs->getString(SETTING::PALETTE_ID));
+    setTheme(prefs->getString(SETTING::PALETTE_ID));
 
     connect(this, &Pencil2D::openFileRequested, mainWindow.get(), &MainWindow2::openFile);
     connect(prefs, &PreferenceManager::optionChanged, [=](SETTING setting) {
         switch (setting)
         {
-        case SETTING::STYLE_ID:
         case SETTING::PALETTE_ID:
-            setTheme(prefs->getString(SETTING::STYLE_ID), prefs->getString(SETTING::PALETTE_ID));
+            setTheme(prefs->getString(SETTING::PALETTE_ID));
             break;
         default:
             break;

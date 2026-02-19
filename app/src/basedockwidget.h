@@ -42,6 +42,8 @@ public:
     Editor* editor() const { return mEditor; }
     void setEditor( Editor* e ) { mEditor = e; }
 
+    TitleBarWidget* titlebar() { return mTitleBarWidget; }
+
 protected:
     void resizeEvent(QResizeEvent* event) override;
 

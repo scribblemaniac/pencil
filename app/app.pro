@@ -59,6 +59,7 @@ EXTRA_TRANSLATIONS += \
 
 INCLUDEPATH += \
     src \
+    src/stylesheet \
     ../core_lib/src/graphics \
     ../core_lib/src/graphics/bitmap \
     ../core_lib/src/graphics/vector \
@@ -127,7 +128,10 @@ HEADERS += \
     src/commandlineexporter.h \
     src/statusbar.h \
     src/elidedlabel.h \
-    src/cameraoptionswidget.h
+    src/cameraoptionswidget.h \
+    src/stylesheet/platformstylesheet.h \
+    src/stylesheet/macos/macosstylesheet.h \
+    src/stylesheet/macos/macospencilstyle.h \
 
 SOURCES += \
     src/addtransparencytopaperdialog.cpp \
@@ -182,7 +186,8 @@ SOURCES += \
     src/commandlineexporter.cpp \
     src/statusbar.cpp \
     src/elidedlabel.cpp \
-    src/cameraoptionswidget.cpp
+    src/cameraoptionswidget.cpp \
+    src/stylesheet/macos/macosstylesheet.cpp \
 
 FORMS += \
     ui/addtransparencytopaperdialog.ui \
