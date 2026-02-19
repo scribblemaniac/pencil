@@ -165,7 +165,7 @@ void GeneralPage::updateValues()
     ui->windowOpacityLevel->setValue(100 - mManager->getInt(SETTING::WINDOW_OPACITY));
     QString paletteKey = mManager->getString(SETTING::PALETTE_ID);
     setCurrentPalette(paletteKey);
-    ui->removePaletteButton->setEnabled(!paletteKey.isEmpty() && !Theming::getPalette(paletteKey).isBuiltIn());
+    ui->removePaletteButton->setEnabled(Theming::getPalette(paletteKey).isFromUser());
     QSignalBlocker b3(ui->shadowsBox);
     ui->shadowsBox->setChecked(mManager->isOn(SETTING::SHADOW));
     QSignalBlocker b4(ui->toolCursorsBox);
@@ -269,7 +269,7 @@ void GeneralPage::paletteChanged(int index)
 {
     QString paletteKey = ui->paletteCombo->itemData(index).toString();
     mManager->set(SETTING::PALETTE_ID, paletteKey);
-    ui->removePaletteButton->setEnabled(!paletteKey.isEmpty() && !Theming::getPalette(paletteKey).isBuiltIn());
+    ui->removePaletteButton->setEnabled(Theming::getPalette(paletteKey).isFromUser());
     if (m_showMissingPalette)
     {
         ui->paletteWarningLabel->setVisible(index == 1);

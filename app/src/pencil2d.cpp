@@ -164,25 +164,16 @@ void Pencil2D::setTheme(const QString paletteId)
 
     // Palette should be set after style is set
     ThemeColorPalette palette(Theming::getPalette(paletteId));
-
-    QString stylesheet;
-    if (palette.isValid())
+    if (!palette.isValid())
     {
-        setPalette(palette.palette());
-        PlatformHandler::setAppearanceIfPossible(palette.isDark() ? AppearanceMode::DARK : AppearanceMode::LIGHT);
-        PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
-
-        stylesheet = PlatformStylesheet::customStylesheet(palette.palette(), newStyle->objectName());
+        palette = ThemeColorPalette(style()->standardPalette(), "Default");
     }
-    else
-    {
-        setPalette(style()->standardPalette());
-        PlatformHandler::setAppearanceIfPossible(AppearanceMode::AUTO);
-        PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), style()->standardPalette().window().color());
 
-        stylesheet = PlatformStylesheet::customStylesheet(style()->standardPalette(), DEFAULT_STYLE);
-    }
-    setStyleSheet(stylesheet);
+    setPalette(palette.palette());
+    PlatformHandler::setAppearanceIfPossible(palette.isDark() ? AppearanceMode::DARK : AppearanceMode::LIGHT);
+    PlatformHandler::setWindowTitleBarAppearance(mainWindow.get(), palette.palette().window().color());
+
+    setStyleSheet(PlatformStylesheet::customStylesheet(palette, newStyle->objectName()));
     mUpdatingTheme = false;
 
     mainWindow->update();

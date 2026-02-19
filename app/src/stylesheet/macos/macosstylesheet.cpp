@@ -3,22 +3,20 @@
 #include <QUrl>
 
 #include "macosstylesheet.h"
+#include "theming.h"
 #include "util.h"
 
 namespace PlatformStylesheet {
 
     /// Certain macOS native components such as QToolBar do not inherit from QPalette, to fix that
     /// We define our own custom stylesheet.
-    QString macOSStylesheet(const QPalette& palette)
+    QString macOSStylesheet(const ThemeColorPalette& palette)
     {
 
-        QString buttonColor     = palette.color(QPalette::Button).name();
+        QString buttonColor = palette.palette().color(QPalette::Button).name();
 
-        // We determine based on the lightness of the window color whether we're in light or dark mode
-        bool isDark = palette.color(QPalette::Window).lightness() < 128;
-
-        QColor hover  = isDark ? lighten(buttonColor, 15) : darken(buttonColor, 15);
-        QColor pressed = isDark ? lighten(buttonColor, 30) : darken(buttonColor, 30);
+        QColor hover   = palette.isDark() ? lighten(buttonColor, 15) : darken(buttonColor, 15);
+        QColor pressed = palette.isDark() ? lighten(buttonColor, 30) : darken(buttonColor, 30);
 
         return toolbarStylesheet() + QString(R"(
 

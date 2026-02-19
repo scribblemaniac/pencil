@@ -32,16 +32,19 @@ class ThemeColorPalette
 public:
     ThemeColorPalette() {}
     ThemeColorPalette(const QString& filePath);
+    ThemeColorPalette(const QPalette& palette, const QString& displayName);
 
+    void setPalette(const QPalette& palette);
     bool loadFromFile(const QString& filePath);
     void setInvalidWithId(const QString& id);
 
     bool isValid() const { return m_valid; }
     QString id() const;
     QString displayName() const { return m_displayName; }
+    void setDisplayName(const QString& displayName);
     QPalette palette() const { return m_valid ? m_palette : QPalette(); }
     bool isDark() const;
-    bool isBuiltIn() const { return m_filePath.startsWith(':'); }
+    bool isFromUser() const { return !m_filePath.isEmpty() && !m_filePath.startsWith(':'); }
 
 private:
     enum Mode {

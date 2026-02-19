@@ -3,9 +3,11 @@
 
 #include <QPalette>
 
+class ThemeColorPalette;
+
 namespace PlatformStylesheet
 {
-    QString macOSStylesheet(const QPalette& palette);
+    QString macOSStylesheet(const ThemeColorPalette& palette);
 
     QString toolbarStylesheet();
 }
