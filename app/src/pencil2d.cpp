@@ -38,6 +38,7 @@ GNU General Public License for more details.
 #include "pencildef.h"
 #include "platformhandler.h"
 #include "theming.h"
+#include "preferencemanager.h"
 
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 14, 0)
