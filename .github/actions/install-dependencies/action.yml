@@ -19,7 +19,7 @@ runs:
     uses: jurplel/install-qt-action@v4
     with:
       arch: clang_64
-      version: '6.5.3'
+      version: '6.11.*'
       modules: 'qtmultimedia'
   - run: ${GITHUB_ACTION_PATH}/install-dependencies.sh
     shell: bash
